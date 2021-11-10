@@ -1,0 +1,14 @@
+--- WebGL ---
+[ Kayra ] Shortcut-to reset camera
+[ ] Object data to render function
+[ ] Grid Render
+[ ] .obj/.fbx render
+[ ] Procuderal Terrain [Scale/pos/resulution]
+[ ] Texture Loading
+[ ] 
+
+
+Other
+[ ] A*
+[ ] 
+[ ] 

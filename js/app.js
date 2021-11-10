@@ -10,18 +10,29 @@ var zoom = -8;
 var middleDragAmount = vec2(0, 0);
 
 // main()
-// class PrimativeFox(){
-//   this.renderable;
-//   this.speed;
-//   this.pos;
-//   this.health;
-//   this.target;
-//   this.rotation;
-//   function die();
-//   function attack(GameObject go);
-//   function setTarget(GameObject target);
-//   function update();
-// }
+class GameObject(){
+  this.renderable;
+  this.pos;
+  this.rotation;
+  function update();
+  function setModel();
+  function setTexture();
+}
+
+class LivingObject(GameObject){
+  this.speed;
+  this.health;
+  this.target;
+  function die();
+  function attack(GameObject go);
+}
+
+class PrimativeFox(LivingObject){
+
+}
+
+
+
 // // ------------------------------------------------------------------------------------
 // Renderer renderer = new Renderer();
 // Renderable r1 = Renderable(vertecies, renderMode, optionalVShader, optionalFShader);
@@ -45,11 +56,20 @@ var middleDragAmount = vec2(0, 0);
 // renderer.stopLoop();
 // ------------------------------------------------------------------------------------
 
+function loop(){
+  GameObjectList.forEach((x) => x.update());
+}
+
 var InitNewDemo = function () {
   document.addEventListener("mousedown", mouseDown);
   document.addEventListener("mouseup", mouseUp);
   document.addEventListener("mousemove", mouseMove);
   document.addEventListener("wheel", scroll);
+
+  var GameObjectList = [];
+
+  setInterval(loop, 1000/60);
+
 };
 
 var InitDemo = function () {

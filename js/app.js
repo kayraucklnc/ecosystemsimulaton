@@ -10,28 +10,6 @@ var zoom = -8;
 var middleDragAmount = vec2(0, 0);
 
 // main()
-class GameObject(){
-  this.renderable;
-  this.pos;
-  this.rotation;
-  function update();
-  function setModel();
-  function setTexture();
-}
-
-class LivingObject(GameObject){
-  this.speed;
-  this.health;
-  this.target;
-  function die();
-  function attack(GameObject go);
-}
-
-class PrimativeFox(LivingObject){
-
-}
-
-
 
 // // ------------------------------------------------------------------------------------
 // Renderer renderer = new Renderer();
@@ -56,8 +34,10 @@ class PrimativeFox(LivingObject){
 // renderer.stopLoop();
 // ------------------------------------------------------------------------------------
 
+let gameObjectList = [];
+
 function loop(){
-  GameObjectList.forEach((x) => x.update());
+  gameObjectList.forEach((x) => x.update());
 }
 
 var InitNewDemo = function () {
@@ -66,10 +46,9 @@ var InitNewDemo = function () {
   document.addEventListener("mousemove", mouseMove);
   document.addEventListener("wheel", scroll);
 
-  var GameObjectList = [];
-
-  setInterval(loop, 1000/60);
-
+  gameObjectList.push(new Tree(new Vector2(0, 0), new Vector2(0,0)));
+  gameObjectList.push(new Human(new Vector2(10, 5), new Vector2(0,0)))
+  setInterval(loop, 1000/1);
 };
 
 var InitDemo = function () {
@@ -80,7 +59,7 @@ var InitDemo = function () {
 
   console.log("This is working");
 
-  canvas = document.getElementById("game-surface");
+  canvas = document.getElementById("world-surface");
   var gl = canvas.getContext("webgl");
 
   if (!gl) {

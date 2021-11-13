@@ -4,9 +4,18 @@ import { OrbitControls } from "https://unpkg.com/three@0.126.1/examples/jsm/cont
 var fShader = document.getElementById("fragmentShader").text;
 var vShader = document.getElementById("vertexShader").text;
 
-function threeStarter() {
-  const scene = new THREE.Scene();
+function changePlaneGeometry(C, parameters) {
+  C.geometry = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale, parameters.plane.resolution, parameters.plane.resolution);
+  const arr = C.geometry.attributes.position.array;
+  for (let i = 0; i < arr.length; i += 3) {
+    let x = C.geometry.attributes.position.array[i];
+    let y = C.geometry.attributes.position.array[i + 1];
+    C.geometry.attributes.position.array[i + 2] = perlin.get(x * parameters.plane.noiseScale, y * parameters.plane.noiseScale);
+  }
+}
 
+function threeStarter() {
+    const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, 500 / 500, 0.1, 1000);
   camera.position.y = 3;
   const renderer = new THREE.WebGLRenderer();
@@ -23,7 +32,6 @@ function threeStarter() {
   controls.dampingFactor = 0.05;
 
   const plane = new THREE.PlaneGeometry(12, 12, 90, 90);
-
   const cube1 = new THREE.SphereGeometry(0.2);
 
   var uniforms3 = THREE.UniformsUtils.merge([
@@ -33,14 +41,12 @@ function threeStarter() {
       color: { type: "c", value: new THREE.Color("yellow") },
     },
   ]);
-
   var material = new THREE.ShaderMaterial({
     uniforms: uniforms3,
     vertexShader: vShader,
     fragmentShader: fShader,
     lights: true,
   });
-
   var planeMat = new THREE.MeshPhongMaterial({
     color: 0xff0000,
     side: THREE.DoubleSide,
@@ -49,12 +55,31 @@ function threeStarter() {
 
   const A = new THREE.Mesh(cube1, material);
   const C = new THREE.Mesh(plane, planeMat);
-  const arr = C.geometry.attributes.position.array;
-  for (let i = 0; i < arr.length; i += 3) {
-    let x = C.geometry.attributes.position.array[i];
-    let y = C.geometry.attributes.position.array[i + 1];
-    C.geometry.attributes.position.array[i + 2] = perlin.get(x,y)*1.5;
+
+
+  const gui = new dat.GUI();
+  var parameters = {
+    plane: {
+      scale: 10,
+      noiseScale: 0.7,
+      resolution: 5,
+    },
   }
+
+  gui.add(parameters.plane, 'scale', 1 , 20).onChange(() => {
+    changePlaneGeometry(C, parameters);
+
+  });
+
+  gui.add(parameters.plane, 'noiseScale', 0.6 , 3).onChange(() => {
+    changePlaneGeometry(C, parameters);
+  });
+
+  gui.add(parameters.plane, 'resolution', 4, 100).onChange(() => {
+    changePlaneGeometry(C, parameters);
+  });
+
+
   C.rotation.x = Math.PI/2;
 
   const directionalLight = new THREE.DirectionalLight(0xffffff, 1);

@@ -1,37 +1,35 @@
 var canvas;
 
-var leftDrag = false;
-var middleDrag = false;
-var mouseInit = vec2(0, 0);
-var leftDragAmount = vec2(0, 0);
-var lastRotation = vec2(0, 0);
-var lastTranslation = vec2(0, 0);
-var zoom = -8;
-var middleDragAmount = vec2(0, 0);
+// var leftDrag = false;
+// var middleDrag = false;
+// var mouseInit = vec2(0, 0);
+// var leftDragAmount = vec2(0, 0);
+// var lastRotation = vec2(0, 0);
+// var lastTranslation = vec2(0, 0);
+// var zoom = -8;
+// var middleDragAmount = vec2(0, 0);
 
 // main()
-class GameObject(){
-  this.renderable;
-  this.pos;
-  this.rotation;
-  function update();
-  function setModel();
-  function setTexture();
-}
+// class GameObject(){
+//   this.renderable;
+//   this.pos;
+//   this.rotation;
+//   function update();
+//   function setModel();
+//   function setTexture();
+// }
 
-class LivingObject(GameObject){
-  this.speed;
-  this.health;
-  this.target;
-  function die();
-  function attack(GameObject go);
-}
+// class LivingObject(GameObject){
+//   this.speed;
+//   this.health;
+//   this.target;
+//   function die();
+//   function attack(GameObject go);
+// }
 
-class PrimativeFox(LivingObject){
+// class PrimativeFox(LivingObject){
 
-}
-
-
+// }
 
 // // ------------------------------------------------------------------------------------
 // Renderer renderer = new Renderer();
@@ -56,21 +54,17 @@ class PrimativeFox(LivingObject){
 // renderer.stopLoop();
 // ------------------------------------------------------------------------------------
 
-function loop(){
+function loop() {
   GameObjectList.forEach((x) => x.update());
 }
-
-var InitNewDemo = function () {
-  document.addEventListener("mousedown", mouseDown);
-  document.addEventListener("mouseup", mouseUp);
-  document.addEventListener("mousemove", mouseMove);
-  document.addEventListener("wheel", scroll);
-
-  var GameObjectList = [];
-
-  setInterval(loop, 1000/60);
-
-};
+function InitNewDemo() {
+  // document.addEventListener("mousedown", mouseDown);
+  // document.addEventListener("mouseup", mouseUp);
+  // document.addEventListener("mousemove", mouseMove);
+  // document.addEventListener("wheel", scroll);
+  // var GameObjectList = [];
+  // setInterval(loop, 1000/60);
+}
 
 var InitDemo = function () {
   document.addEventListener("mousedown", mouseDown);

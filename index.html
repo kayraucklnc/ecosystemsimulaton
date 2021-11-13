@@ -1,22 +1,41 @@
+<!DOCTYPE html>
 <html>
   <head>
-    <title>WebGL - Rotating Cube</title>
+    <title>Ecosystem Simulation</title>
   </head>
-  <body onload="InitDemo();">
-    <canvas id="game-surface" width="600" height="600">
-      Your browser does not support HTML5
-    </canvas>
-    <br />
-    <div style="display: grid">
-      <text id="rotations"></text>
-      <text id="translations"></text>
-      <text id="rotatedVec"></text>
-    </div>
-    <script defer src="/js/util/gl-matrix.js"></script>
-    <script defer src="/js/events.js"></script>
-    <script defer src="/js/helper.js"></script>
-    <script defer src="/js/util/initShaders2.js"></script>
-    <script defer src="/js/util/MV.js"></script>
-    <script defer src="/js/app.js"></script>
+  <body>
+    <script type="module" src="/js/threeStarter.js"></script>
+    <script src="js/util/perlinNoise.js"></script>
+    <script id="vertexShader" type="x-shader/x-vertex" src="shader.vert">
+      varying vec2 vUv;
+      varying vec3 vNormal;
+      varying vec3 vPosition;
+      void main() {
+          vUv = uv;
+
+          vNormal = (modelMatrix * vec4(normal, 0.0)).xyz;
+          vPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+
+
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+      }
+    </script>
+    <script id="fragmentShader" type="x-shader/x-fragment">
+      uniform vec3 directionalLightDirection[ 5 ];
+
+      uniform vec3 lightPos;
+
+      varying vec3 vNormal;
+      varying vec3 vPosition;
+      uniform vec3 color;
+      varying vec2 vUv;
+      void main() {
+
+          vec3 lightDir = normalize(vec3(0.7,1,0.5));
+          float diffuse = max(dot(vNormal, lightDir),0.3);
+
+          gl_FragColor = vec4(color,1.)*diffuse;
+      }
+    </script>
   </body>
 </html>

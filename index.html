@@ -1,42 +1,58 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>Ecosystem Simulation</title>
-  </head>
-  <body>
-    <script type="module" src="/js/threeStarter.js"></script>
-    <script src="js/util/perlinNoise.js"></script>
-    <script src="js/library/dat.gui.min.js"></script>
-    <script id="vertexShader" type="x-shader/x-vertex" src="shader.vert">
-      varying vec2 vUv;
-      varying vec3 vNormal;
-      varying vec3 vPosition;
-      void main() {
-          vUv = uv;
+</head>
+<body>
+<script type="module" src="/js/threeStarter.js"></script>
+<script src="js/util/perlinNoise.js"></script>
+<script src="js/parameters.js"></script>
+<script src="js/library/dat.gui.min.js"></script>
+<script src="js/gui/gui.js"></script>
+<script id="vertexShader" type="x-shader/x-vertex" src="shader.vert">
+    varying vec2 vUv;
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+    void main() {
+        vUv = uv;
 
-          vNormal = (modelMatrix * vec4(normal, 0.0)).xyz;
-          vPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+        vNormal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
+        vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
 
 
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-      }
-    </script>
-    <script id="fragmentShader" type="x-shader/x-fragment">
-      uniform vec3 directionalLightDirection[ 5 ];
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+</script>
+<script id="fragmentShader" type="x-shader/x-fragment">
+    struct PointLight {
+        vec3 color;
+        vec3 position;
+        float distance;
+    };
+    uniform PointLight pointLights[NUM_POINT_LIGHTS];
 
-      uniform vec3 lightPos;
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+    uniform vec3 color;
+    varying vec2 vUv;
+    void main() {
 
-      varying vec3 vNormal;
-      varying vec3 vPosition;
-      uniform vec3 color;
-      varying vec2 vUv;
-      void main() {
+        vec4 addedLights = vec4(0.0,
+        0.0,
+        0.0,
+        1.0);
+        for (int l = 0; l < NUM_POINT_LIGHTS; l++) {
+            vec3 lightDirection = normalize(vPosition - pointLights[l].position);
+            addedLights.rgb += clamp(dot(-lightDirection, vNormal), 0.0, 1.0)
+                                * pointLights[l].color;
+        }
+        addedLights = max(vec4(0.3), addedLights);
+        //        vec3 lightDir = normalize(vec3(0.7, 1, 0.5));
+        //        vec3 lightDir = normalize((vPosition - pointLights[0].position));
+        //        float diffuse = max(dot(vNormal, lightDir), 0.0);
 
-          vec3 lightDir = normalize(vec3(0.7,1,0.5));
-          float diffuse = max(dot(vNormal, lightDir),0.3);
-
-          gl_FragColor = vec4(color,1.)*diffuse;
-      }
-    </script>
-  </body>
+        gl_FragColor = vec4(color, 1.)*addedLights;
+    }
+</script>
+</body>
 </html>

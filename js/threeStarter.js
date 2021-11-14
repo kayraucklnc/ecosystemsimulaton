@@ -1,120 +1,130 @@
 import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
-import { OrbitControls } from "https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js";
+import {OrbitControls} from "https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js";
 
 var fShader = document.getElementById("fragmentShader").text;
 var vShader = document.getElementById("vertexShader").text;
 
 function changePlaneGeometry(C, parameters) {
-  C.geometry = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale, parameters.plane.resolution, parameters.plane.resolution);
-  const arr = C.geometry.attributes.position.array;
-  for (let i = 0; i < arr.length; i += 3) {
-    let x = C.geometry.attributes.position.array[i];
-    let y = C.geometry.attributes.position.array[i + 1];
-    C.geometry.attributes.position.array[i + 2] = perlin.get(x * parameters.plane.noiseScale, y * parameters.plane.noiseScale);
-  }
+    C.geometry = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale, parameters.plane.resolution, parameters.plane.resolution);
+    const arr = C.geometry.attributes.position.array;
+    for (let i = 0; i < arr.length; i += 3) {
+        let x = C.geometry.attributes.position.array[i];
+        let y = C.geometry.attributes.position.array[i + 1];
+        C.geometry.attributes.position.array[i + 2] = perlin.get(x * parameters.plane.noiseScale, y * parameters.plane.noiseScale);
+    }
+}
+
+function createInitScene() {
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    camera.position.y = 3;
+    camera.position.z = 6;
+    renderer.setSize(innerWidth, innerHeight);
+    document.body.appendChild(renderer.domElement);
+    return {scene, camera, renderer};
+}
+
+function createInitControls(camera, renderer) {
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 0, 0);
+    // controls.maxPolarAngle = Math.PI / 3;
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    return controls;
+}
+
+function createTestSceneElements() {
+    const plane = new THREE.PlaneGeometry(12, 12, 90, 90);
+    const sphereGeometry = new THREE.SphereGeometry(0.2);
+    const lightSphereGeometry = new THREE.SphereGeometry(0.2);
+    const cube = new THREE.BoxGeometry().translate(0, 2, 0);
+
+    var uniforms3 = THREE.UniformsUtils.merge([
+        THREE.UniformsLib["lights"],
+        {
+            color: {type: "c", value: new THREE.Color("skyblue")},
+        },
+    ]);
+
+    var material = new THREE.ShaderMaterial({
+        uniforms: uniforms3,
+        vertexShader: vShader,
+        fragmentShader: fShader,
+        side: THREE.DoubleSide,
+        lights: true,
+    });
+
+    var planeMat = new THREE.MeshPhongMaterial({
+        color: 0xff0000,
+        side: THREE.DoubleSide,
+        flatShading: THREE.FlatShading,
+    });
+
+    const sphereMesh = new THREE.Mesh(sphereGeometry, material);
+    const cubeMesh = new THREE.Mesh(cube, material);
+    const planeMesh = new THREE.Mesh(plane, planeMat);
+    planeMesh.rotation.x = Math.PI / 2;
+    const lightSphereMesh = new THREE.Mesh(lightSphereGeometry, material);
+
+
+    const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+    pointLight.position.set( 5, 3, 0 );
+
+    return {sphereMesh, cubeMesh, planeMesh, lightSphereMesh, pointLight};
 }
 
 function threeStarter() {
-    const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, 500 / 500, 0.1, 1000);
-  camera.position.y = 3;
-  const renderer = new THREE.WebGLRenderer();
+    const {scene, camera, renderer} = createInitScene();
+    const raycaster = new THREE.Raycaster();
+    const controls = createInitControls(camera, renderer);
+    const {sphereMesh, cubeMesh, planeMesh, lightSphereMesh, pointLight} = createTestSceneElements();
 
-  renderer.setSize(500, 500);
-  document.body.appendChild(renderer.domElement);
+    scene.add(pointLight);
+    scene.add(sphereMesh);
+    scene.add(cubeMesh);
+    scene.add(planeMesh);
+    scene.add(lightSphereMesh);
 
-  var raycaster = new THREE.Raycaster();
-  var controls = new OrbitControls(camera, renderer.domElement);
-  controls.target.set(0, 0, 0);
+    resolution.onChange(() => {
+        changePlaneGeometry(planeMesh, parameters);
+    });
+    noiseScale.onChange(() => {
+        changePlaneGeometry(planeMesh, parameters);
+    });
+    planeScale.onChange(() => {
+        changePlaneGeometry(planeMesh, parameters);
+    });
 
-  // controls.maxPolarAngle = Math.PI / 2;
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.05;
-
-  const plane = new THREE.PlaneGeometry(12, 12, 90, 90);
-  const cube1 = new THREE.SphereGeometry(0.2);
-
-  var uniforms3 = THREE.UniformsUtils.merge([
-    THREE.UniformsLib["lights"],
-    {
-      diffuse: { type: "c", value: new THREE.Color(0x0000ff) },
-      color: { type: "c", value: new THREE.Color("yellow") },
-    },
-  ]);
-  var material = new THREE.ShaderMaterial({
-    uniforms: uniforms3,
-    vertexShader: vShader,
-    fragmentShader: fShader,
-    lights: true,
-  });
-  var planeMat = new THREE.MeshPhongMaterial({
-    color: 0xff0000,
-    side: THREE.DoubleSide,
-    flatShading: THREE.FlatShading,
-  });
-
-  const A = new THREE.Mesh(cube1, material);
-  const C = new THREE.Mesh(plane, planeMat);
+    var time = 0;
+    function animate() {
+        time+=0.01;
+        requestAnimationFrame(animate);
+        pointLight.position.set(Math.cos(time)*3, 2, Math.sin(time)*3);
+        lightSphereMesh.position.x = pointLight.position.x;
+        lightSphereMesh.position.y = pointLight.position.y;
+        lightSphereMesh.position.z = pointLight.position.z;
 
 
-  const gui = new dat.GUI();
-  var parameters = {
-    plane: {
-      scale: 10,
-      noiseScale: 0.7,
-      resolution: 5,
-    },
-  }
-
-  gui.add(parameters.plane, 'scale', 1 , 20).onChange(() => {
-    changePlaneGeometry(C, parameters);
-
-  });
-
-  gui.add(parameters.plane, 'noiseScale', 0.6 , 3).onChange(() => {
-    changePlaneGeometry(C, parameters);
-  });
-
-  gui.add(parameters.plane, 'resolution', 4, 100).onChange(() => {
-    changePlaneGeometry(C, parameters);
-  });
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObject(planeMesh);
+        if (intersects.length > 0) {
+            sphereMesh.position.x = intersects[0].point.x;
+            sphereMesh.position.y = intersects[0].point.y;
+            sphereMesh.position.z = intersects[0].point.z;
+        }
 
 
-  C.rotation.x = Math.PI/2;
-
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-  directionalLight.position.set(0, 1, 0);
-  scene.add(directionalLight);
-  scene.add(A);
-  scene.add(C);
-
-  camera.position.z = 6;
-
-  var mouse = {
-    x: undefined,
-    y: undefined,
-  }
-
-  function animate() {
-    requestAnimationFrame(animate);
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObject(C);
-    if(intersects.length > 0){
-      A.position.x = intersects[0].point.x;
-      A.position.y = intersects[0].point.y;
-      A.position.z = intersects[0].point.z;
+        controls.update();
+        renderer.render(scene, camera);
     }
 
-
-    controls.update();
-    renderer.render(scene, camera);
-    A.rotation.y += 0.009;
-    A.rotation.z += 0.005;
-  }
-  animate();
-  addEventListener("mousemove", (event) => {
-    mouse.x = (event.clientX / 500) * 2 - 1;
-    mouse.y = -(event.clientY / 500) * 2 + 1;
-  })
+    animate();
 }
+
+addEventListener("mousemove", (event) => {
+    mouse.x = (event.clientX / innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / innerHeight) * 2 + 1;
+})
+
 window.onload = threeStarter();

@@ -1,8 +1,32 @@
 class WorldObjectBase {
-    constructor(pos, rotation) {
-        this.renderable = null;
-        this.pos = pos;
-        this.rotation = rotation;
+    constructor(pos, rotation, material) {
+        this.mesh = null;
+        this.material = material;
+
+        this.setPos(pos);
+        this.setRot(rotation);
+    }
+
+    getPos() {
+        return this.mesh.position;
+    }
+    setPos(vec3) {
+        if (this.mesh != null) {
+            this.mesh.position.x = vec3.x;
+            this.mesh.position.y = vec3.y;
+            this.mesh.position.z = vec3.z;
+        }
+    }
+
+    getRot() {
+        return this.mesh.rotation;
+    }
+    setRot(vec3) {
+        if (this.mesh != null) {
+            this.mesh.rotation.x = vec3.x;
+            this.mesh.rotation.y = vec3.y;
+            this.mesh.rotation.z = vec3.z;
+        }
     }
 
     update() {}
@@ -11,8 +35,8 @@ class WorldObjectBase {
 }
 
 class LivingObjectBase extends WorldObjectBase {
-    constructor(pos, rotation) {
-        super(pos, rotation);
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
         this.health = null;
     }
 
@@ -23,8 +47,8 @@ class LivingObjectBase extends WorldObjectBase {
 }
 
 class MovableObjectBase extends LivingObjectBase {
-    constructor(pos, rotation) {
-        super(pos, rotation);
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
         this.speed = null;
         this.target = null;
     }

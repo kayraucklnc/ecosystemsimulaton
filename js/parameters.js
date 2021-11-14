@@ -1,12 +1,7 @@
 let parameters = {
     plane: {
         scale: 10,
-        noiseScale: 0.7,
-        resolution: 5,
+        noiseScale: 0.85,
+        resolution: 50,
     },
 };
-
-let mouse = {
-    x: undefined,
-    y: undefined,
-}

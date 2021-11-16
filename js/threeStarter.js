@@ -1,6 +1,7 @@
 import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
 import {OrbitControls} from "https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js";
 import * as Objects from "../../ecosystemsimulaton/js/world/Objects.js";
+import { MousePicker } from "../../ecosystemsimulaton/js/mouse_picking.js";
 
 const fShader = document.getElementById("fragmentShader").text;
 const vShader = document.getElementById("vertexShader").text;
@@ -11,6 +12,7 @@ function createInitScene() {
     const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
     raycaster = new THREE.Raycaster();
+    mousePicker = new MousePicker(scene, camera, renderer);
 
     camera.position.y = 3;
     camera.position.z = 6;
@@ -20,12 +22,12 @@ function createInitScene() {
 }
 
 function createInitControls(camera, renderer) {
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(0, 0, 0);
+    orbitControls = new OrbitControls(camera, renderer.domElement);
+    orbitControls.target.set(0, 0, 0);
     // controls.maxPolarAngle = Math.PI / 3;
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.1;
-    return controls;
+    orbitControls.enableDamping = true;
+    orbitControls.dampingFactor = 0.1;
+    return orbitControls;
 }
 
 function createTestSceneElements() {
@@ -52,8 +54,11 @@ function createTestSceneElements() {
     });
 
     let terrainObject = new Objects.Terrain( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), planeMat );
-    let mouseFollowerObject = new Objects.MouseFollower( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), material, terrainObject );
+    // let mouseFollowerObject = new Objects.MouseFollower( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), material, terrainObject );
+    let mouseFollowerObject = null;
     let cubeObject = new Objects.Box( new THREE.Vector3(0, 2, 0), new THREE.Vector3(0, 0), material );
+    let cubeObject2 = new Objects.Box( new THREE.Vector3(5, 2, 0), new THREE.Vector3(0, 0), material );
+    world.instantiateObject(cubeObject2);
 
     const pointLight = new THREE.PointLight(0xffffff, 1, 100);
     pointLight.position.set( 5, 3, 0 );
@@ -69,7 +74,7 @@ function threeStarter() {
     const {terrainObject, mouseFollowerObject, cubeObject, pointLight, lightSphereObject} = createTestSceneElements();
 
     world.instantiateObject(terrainObject);
-    world.instantiateObject(mouseFollowerObject);
+    // world.instantiateObject(mouseFollowerObject);
     world.instantiateObject(cubeObject);
     world.instantiateObject(lightSphereObject);
 
@@ -83,7 +88,7 @@ function threeStarter() {
 
         controls.update();
 
-        pointLight.position.set( Math.cos(frameCount * 0.1)*3, 2, Math.sin(frameCount * 0.1)*3);
+        // pointLight.position.set( Math.cos(frameCount * 0.1)*3, 2, Math.sin(frameCount * 0.1)*3);
         raycaster.setFromCamera(mouse, camera);
 
         world.update();
@@ -94,9 +99,9 @@ function threeStarter() {
     loop();
 }
 
-addEventListener("mousemove", (event) => {
-    mouse.x = (event.clientX / innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / innerHeight) * 2 + 1;
-})
+// addEventListener("mousemove", (event) => {
+//     mouse.x = (event.clientX / innerWidth) * 2 - 1;
+//     mouse.y = -(event.clientY / innerHeight) * 2 + 1;
+// })
 
 window.onload = threeStarter();

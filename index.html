@@ -3,8 +3,14 @@
   <head>
       <title>Ecosystem Simulation</title>
   </head>
+  <!--Load the AJAX API-->
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+
+  </script>
+
   <body>
-    <script type="module" src="/js/threeStarter.js"></script>
+  <script type="module" src="/js/threeStarter.js"></script>
     <script src="/js/app.js"></script>
     <script src="js/util/perlinNoise.js"></script>
     <script src="js/parameters.js"></script>
@@ -12,7 +18,6 @@
     <script src="js/gui/gui.js"></script>
     <script src="js/world/World.js"></script>
     <script src="js/world/ObjectBases.js"></script>
-    <script src="js/world/Objects.js" type="module"></script>
     <script id="vertexShader" type="x-shader/x-vertex" src="shader.vert">
         varying vec2 vUv;
         varying vec3 vNormal;

@@ -54,31 +54,33 @@ function createTestSceneElements() {
     });
 
     let terrainObject = new Objects.Terrain( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), planeMat );
-    // let mouseFollowerObject = new Objects.MouseFollower( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), material, terrainObject );
-    let mouseFollowerObject = null;
-    let cubeObject = new Objects.Box( new THREE.Vector3(0, 2, 0), new THREE.Vector3(0, 0), material );
-    let cubeObject2 = new Objects.Box( new THREE.Vector3(5, 2, 0), new THREE.Vector3(0, 0), material );
-    world.instantiateObject(cubeObject2);
+    world.instantiateObject(terrainObject);
+
+    for (let i = 0; i < 20; i++) {
+        let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5)*40,0,(Math.random() - 0.5)*40), new THREE.Vector3(0,0), material);
+        world.instantiateObject(treeObject);
+    }
+
+    for (let i = 0; i < 8; i++) {
+        let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5)*40, 0, (Math.random() - 0.5)*40), new THREE.Vector3(0,0), material);
+        world.instantiateObject(humanObject);
+    }
+
 
     const pointLight = new THREE.PointLight(0xffffff, 1, 100);
     pointLight.position.set( 5, 3, 0 );
+    world.instantiateLight(pointLight);
 
     let lightSphereObject = new Objects.LightIndicator( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), material, pointLight );
+    world.instantiateObject(lightSphereObject);
 
-    return {terrainObject, mouseFollowerObject, cubeObject, pointLight, lightSphereObject};
+    return {terrainObject};
 }
 
 function threeStarter() {
     const {scene, camera, renderer} = createInitScene();
     const controls = createInitControls(camera, renderer);
-    const {terrainObject, mouseFollowerObject, cubeObject, pointLight, lightSphereObject} = createTestSceneElements();
-
-    world.instantiateObject(terrainObject);
-    // world.instantiateObject(mouseFollowerObject);
-    world.instantiateObject(cubeObject);
-    world.instantiateObject(lightSphereObject);
-
-    world.instantiateLight(pointLight);
+    const {terrainObject} = createTestSceneElements();
 
     gui.setTerrain(terrainObject);
 
@@ -98,10 +100,5 @@ function threeStarter() {
 
     loop();
 }
-
-// addEventListener("mousemove", (event) => {
-//     mouse.x = (event.clientX / innerWidth) * 2 - 1;
-//     mouse.y = -(event.clientY / innerHeight) * 2 + 1;
-// })
 
 window.onload = threeStarter();

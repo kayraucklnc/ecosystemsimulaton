@@ -1,3 +1,5 @@
+import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
+
 class WorldObjectBase {
     constructor(pos, rotation, material) {
         this.mesh = null;
@@ -43,7 +45,9 @@ class LivingObjectBase extends WorldObjectBase {
     applyDamage(damage) {
         this.health -= damage;
     };
-    die() {}
+    die() {
+        world.deleteObject(this);
+    }
 }
 
 class MovableObjectBase extends LivingObjectBase {
@@ -55,10 +59,12 @@ class MovableObjectBase extends LivingObjectBase {
 
     attack(target) {}
     checkIfTargetReached() {
-        return this.pos.equals(this.target.pos);
+        return this.getPos().equals(this.target.getPos());
     }
 
     checkIfNextToTarget() {
-        return this.target != null && this.pos.subtract(this.target.pos).magnitude <= 1;
+        return this.target != null && (new THREE.Vector3()).subVectors(this.getPos(), this.target.getPos()).length() <= 1;
     }
 }
+
+export {WorldObjectBase, LivingObjectBase, MovableObjectBase};

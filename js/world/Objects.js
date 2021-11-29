@@ -1,6 +1,7 @@
 import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
+import * as ObjectBases from "./ObjectBases.js";
 
-class Box extends MovableObjectBase {
+class Box extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
@@ -16,7 +17,7 @@ class Box extends MovableObjectBase {
     }
 }
 
-class Sphere extends MovableObjectBase {
+class Sphere extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
@@ -60,7 +61,7 @@ class MouseFollower extends Sphere {
 
 }
 
-class Terrain extends MovableObjectBase {
+class Terrain extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
@@ -87,10 +88,13 @@ class Terrain extends MovableObjectBase {
     }
 }
 
-class Tree extends LivingObjectBase {
+class Tree extends ObjectBases.LivingObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
+
+        const sphereGeometry = new THREE.SphereGeometry(0.4);
+        this.mesh = new THREE.Mesh(sphereGeometry, material);
 
         this.setPos(pos);
         this.setRot(rotation);
@@ -98,21 +102,35 @@ class Tree extends LivingObjectBase {
 
     applyDamage(damage) {
         super.applyDamage(damage);
-        console.log("Tree got " + damage + " damage.")
+        // console.log("Tree got " + damage + " damage.")
     }
 
     update() {
+        // let runVector = new THREE.Vector3();
+        // for (let i = 0; i < world.objects.length; i++) {
+        //     let obj = world.objects[i];
+        //
+        //     if (obj instanceof Human) {
+        //         let runVec = new THREE.Vector3().subVectors(this.getPos(), obj.getPos());
+        //         runVector.add(runVec);
+        //     }
+        // }
+        // runVector.normalize();
+        // this.getPos().add(runVector.multiplyScalar(0.03));
+
         if (this.health <= 0) {
             this.die();
         }
     }
 
     die() {
-        console.log("Tree on position " + this.pos + " died.")
+        super.die();
+        let pos = this.getPos();
+        // console.log("Tree on position " + pos.x + ", " + pos.y + ", " + pos.z + " died.")
     }
 }
 
-class Fox extends MovableObjectBase {
+class Fox extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
@@ -126,26 +144,44 @@ class Fox extends MovableObjectBase {
     }
 }
 
-class Human extends MovableObjectBase {
+class Human extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
-        this.speed = 2;
+        this.speed = 0.04;
+
+        const cube = new THREE.BoxGeometry();
+        this.mesh = new THREE.Mesh(cube, material);
+
+        this.setPos(pos);
+        this.setRot(rotation);
     }
 
     update() {
-        if (this.target == null) {
-            //Should find the closest tree.
-            this.target = worldObjects.find((x) => x instanceof Tree);
-        }
+        //Should find the closest tree.
+        let closest = null;
+        let closestDist = Infinity;
+        let currPos = this.getPos();
+        world.objects.forEach(
+            function(value, index) {
+                let dist = (new THREE.Vector3()).subVectors(value.getPos(), currPos).lengthSq();
+                if (value instanceof Tree && (closest == null || dist < closestDist)) {
+                    closest = value;
+                    closestDist = dist;
+                }
+            }
+        )
+        this.target = closest;
 
         if (this.checkIfNextToTarget()) {
             this.target.applyDamage(20);
         } else if (this.target != null) {
-            this.pos = this.pos.add(this.target.pos.sub(this.pos).normalize().multiplyScalar(this.speed));
-            console.log("Human is moving towards tree. Current Pos: " + this.pos);
+            let newVec = new THREE.Vector3().subVectors(this.target.getPos(), this.getPos());
+            let movementVector = newVec.normalize().multiplyScalar(this.speed);
+            let pos = this.getPos().add(movementVector);
+            // console.log("Human is moving towards tree. Current Pos: " + pos.x + ", " + pos.y + ", " + pos.z);
         }
     }
 }
 
-export {Sphere, LightIndicator, MouseFollower, Terrain, Box};
+export {Sphere, LightIndicator, MouseFollower, Terrain, Box, Human, Tree};

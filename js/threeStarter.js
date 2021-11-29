@@ -2,6 +2,7 @@ import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
 import {OrbitControls} from "https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js";
 import * as Objects from "../../ecosystemsimulaton/js/world/Objects.js";
 import { MousePicker } from "../../ecosystemsimulaton/js/mouse_picking.js";
+import * as Objects from "/ecosystem/js/world/Objects.js";
 
 const fShader = document.getElementById("fragmentShader").text;
 const vShader = document.getElementById("vertexShader").text;
@@ -9,7 +10,16 @@ const vShader = document.getElementById("vertexShader").text;
 function createInitScene() {
     const scene = new THREE.Scene();
     world = new World(scene);
-    const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 1000);
+
+    const axesHelper = new THREE.AxesHelper(3);
+    scene.add(axesHelper);
+
+    const camera = new THREE.PerspectiveCamera(
+        75,
+        innerWidth / innerHeight,
+        0.1,
+        1000
+    );
     const renderer = new THREE.WebGLRenderer();
     raycaster = new THREE.Raycaster();
     mousePicker = new MousePicker(scene, camera, renderer);
@@ -78,6 +88,7 @@ function createTestSceneElements() {
 }
 
 function threeStarter() {
+    drawthechart();
     const {scene, camera, renderer} = createInitScene();
     const controls = createInitControls(camera, renderer);
     const {terrainObject} = createTestSceneElements();

@@ -37,11 +37,16 @@ class LightIndicator extends Sphere {
     constructor(pos, rotation, material, target) {
         super(pos, rotation, material);
         this.toFollow = target;
+
+        this.selectable = true;
+
+        this.setPos(this.toFollow.position);
     }
 
     update() {
-        if (this.toFollow.position != this.getPos()) {
-            this.setPos(this.toFollow.position);
+        if (this.getPos().distanceToSquared(this.toFollow.position) > 0.01) {
+            let currentPos = this.getPos();
+            this.toFollow.position.set(currentPos.x, currentPos.y, currentPos.z);
         }
     }
 }
@@ -58,14 +63,11 @@ class MouseFollower extends Sphere {
             this.setPos(intersects[0].point);
         }
     }
-
 }
 
-class Terrain extends ObjectBases.MovableObjectBase {
+class Terrain extends ObjectBases.WorldObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
-        this.health = 100;
-        
         const geometry = new THREE.PlaneGeometry(12, 12, 90, 90);
         this.mesh = new THREE.Mesh(geometry, this.material);
 
@@ -92,6 +94,8 @@ class Tree extends ObjectBases.LivingObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
+
+        this.selectable = true;
 
         const sphereGeometry = new THREE.SphereGeometry(0.4);
         this.mesh = new THREE.Mesh(sphereGeometry, material);
@@ -149,6 +153,8 @@ class Human extends ObjectBases.MovableObjectBase {
         super(pos, rotation, material);
         this.health = 100;
         this.speed = 0.04;
+
+        this.selectable = true;
 
         const cube = new THREE.BoxGeometry();
         this.mesh = new THREE.Mesh(cube, material);

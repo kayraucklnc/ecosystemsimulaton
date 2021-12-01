@@ -1,15 +1,10 @@
 import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
 import {DragControls} from "https://unpkg.com/three@0.126.1/examples/jsm/controls/DragControls.js";
+import {Terrain} from "./world/Objects.js";
 
 const PickingStage = {
     FREE: 0,
     PICKED: 1
-}
-
-const MoveAxis = {
-    X: 0,
-    Y: 1,
-    Z: 2
 }
 
 export class MousePicker {
@@ -27,19 +22,25 @@ export class MousePicker {
         this.camera = camera;
         this.renderer = renderer;
 
-        this.dragControls = new DragControls( [this.axesHelper], this.camera, this.renderer.domElement );
-        this.dragControls.addEventListener("dragstart", (event) => {
-            orbitControls.enabled = false;
-        })
-        this.dragControls.addEventListener("dragend", (event) => {
-            orbitControls.enabled = true;
-        })
-        this.dragControls.transformGroup = true;
-        this.dragControls.deactivate();
+        this.dragControls = null;
 
         window.addEventListener("pointerup", mouse_up);
         window.addEventListener('pointermove', mouse_move);
     }
+}
+
+function createDragControls(mousePicker, objects) {
+    mousePicker.dragControls = new DragControls(objects, mousePicker.camera, mousePicker.renderer.domElement);
+    mousePicker.dragControls.addEventListener("dragstart", (event) => {
+        orbitControls.enabled = false;
+    })
+    mousePicker.dragControls.addEventListener("dragend", (event) => {
+        orbitControls.enabled = true;
+    })
+    mousePicker.dragControls.transformGroup = true;
+    mousePicker.dragControls.deactivate();
+
+    return mousePicker.dragControls;
 }
 
 function mouse_up(event) {
@@ -56,7 +57,7 @@ function mouse_up(event) {
             console.log("Freed: " + mousePicker.pickedObject.id);
 
             mousePicker.stage = PickingStage.FREE;
-            mousePicker.scene.attach(mousePicker.pickedObject);
+            mousePicker.pickedObject.remove(mousePicker.axesHelper);
             mousePicker.pickedObject = null;
 
             mousePicker.dragControls.deactivate();
@@ -64,15 +65,21 @@ function mouse_up(event) {
         }
 
         if (mousePicker.stage == PickingStage.FREE && intersect && intersect.object != mousePicker.axesHelper) {
+            if (!world.getObjectOfMesh(intersect.object).selectable) {
+                return;
+            }
+
             mousePicker.stage = PickingStage.PICKED;
 
             mousePicker.pickedObject = intersect.object;
             const pos = mousePicker.pickedObject.position;
             mousePicker.axesHelper.position.set(pos.x, pos.y, pos.z);
 
-            mousePicker.dragControls.activate();
             mousePicker.axesHelper.visible = true;
-            mousePicker.axesHelper.attach(mousePicker.pickedObject);
+            mousePicker.pickedObject.attach(mousePicker.axesHelper);
+
+            mousePicker.dragControls = createDragControls(mousePicker, [mousePicker.pickedObject]);
+            mousePicker.dragControls.activate();
 
             console.log("Picked: " + mousePicker.pickedObject.id);
         }
@@ -103,28 +110,3 @@ function get_mouse_intersect() {
 
     return null;
 }
-
-// function mouse_move(event) {
-//     mouse.x = (event.clientX / innerWidth) * 2 - 1;
-//     mouse.y = -(event.clientY / innerHeight) * 2 + 1;
-//
-//     if (mousePicker.stage == PickingStage.PICKED) {
-//         const intersects = raycaster.intersectObjects(mousePicker.scene.children);
-//         if (intersects.length) {
-//             let intersect = intersects[0];
-//
-//             let i = 1;
-//             while ((intersect.object == mousePicker.pickedObject || intersect.object == mousePicker.axesHelper) && i < intersects.length) {
-//                 intersect = intersects[i];
-//                 i++;
-//             }
-//             if (intersect.object == mousePicker.pickedObject || intersect.object == mousePicker.axesHelper) {
-//                 return;
-//             }
-//
-//             const point = intersect.point;
-//             mousePicker.axesHelper.position.set(point.x, point.y, point.z);
-//             // this.pickedObject.lookAt(intersect.face.normal);
-//         }
-//     }
-// }

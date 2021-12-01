@@ -5,6 +5,8 @@ class WorldObjectBase {
         this.mesh = null;
         this.material = material;
 
+        this.selectable = false;
+
         this.setPos(pos);
         this.setRot(rotation);
     }
@@ -63,7 +65,7 @@ class MovableObjectBase extends LivingObjectBase {
     }
 
     checkIfNextToTarget() {
-        return this.target != null && (new THREE.Vector3()).subVectors(this.getPos(), this.target.getPos()).length() <= 1;
+        return this.target != null && this.getPos().distanceTo(this.target.getPos()) <= 1;
     }
 }
 

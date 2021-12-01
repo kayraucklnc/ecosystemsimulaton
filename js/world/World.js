@@ -1,24 +1,96 @@
+import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
+
 class World {
     constructor(scene) {
         this.scene = scene;
         this.objects = [];
         this.lights = [];
 
-        this.meshToObject = new Map();
+        this.grid = null;
+
+        this.meshIdToObject = new Map();
     }
 
     getObjectOfMesh(mesh) {
-        return this.meshToObject.get(mesh.id);
+        return this.meshIdToObject.get(mesh.id);
     }
 
-    instantiateObject(object) {
+
+    getCellSize() {
+        return this.grid.cellSize;
+    }
+
+    checkPos(pos) {
+        return this.grid.checkGrid(pos);
+    }
+
+    getPos(pos) {
+        return this.grid.getPos(pos);
+    }
+
+    getNeighbourPos(pos, direction) {
+        return this.grid.getGridInDirection(pos, direction);
+    }
+
+    checkNeighbour(pos, direction) {
+        let neighbourPos = this.getNeighbourPos(pos, direction);
+        return this.grid.checkGrid(neighbourPos);
+    }
+
+    getNeighbour(pos, direction) {
+        let neighbourPos = this.getNeighbourPos(pos, direction);
+        return this.grid.getPos(neighbourPos);
+    }
+
+
+    fixObjectPosRot(object) {
+        let gridCenter = this.grid.getGridPos(object.getPos());
+        if (!object.mesh.geometry.boundingBox) {
+            object.mesh.geometry.computeBoundingBox()
+        }
+        let boundingBox = object.mesh.geometry.boundingBox;
+        let sizeVec = new THREE.Vector3();
+        boundingBox.getSize(sizeVec);
+        let newPos = (new THREE.Vector3().copy(gridCenter));
+        newPos.y = newPos.y + (sizeVec.y * 0.5);
+        object.setPos(newPos);
+
+        // let vecOne = (new THREE.Vector3()).addVectors(gridCenter, (new THREE.Vector3(this.getCellSize() / 2.0, 0, 0)));
+        // vecOne.y = this.grid.terrain.getHeight(new THREE.Vector2(vecOne.x, vecOne.z));
+        // let vecTwo = (new THREE.Vector3()).addVectors(gridCenter, (new THREE.Vector3(0, 0, this.getCellSize() / 2.0)));
+        // vecTwo.y = this.grid.terrain.getHeight(new THREE.Vector2(vecTwo.x, vecTwo.z));
+        //
+        // vecOne.cross(vecTwo).normalize();
+        //
+        // let upVector = new THREE.Vector3(0, 1, 0);
+        // let newQuaternion = new THREE.Quaternion().setFromUnitVectors(rotVec, vecOne);
+        // object.getQuaternion().multiply(newQuaternion);
+    }
+
+    instantiateObject(object, onGrid = true) {
+        let pos = object.getPos();
+        if (onGrid) {
+            if (this.checkPos(pos)) {
+                this.deleteObject(this.grid.getPos(pos));
+            }
+
+            this.fixObjectPosRot(object);
+
+            this.grid.setPos(object.getPos(), object);
+        }
+
         this.scene.add(object.mesh);
         this.objects.push(object);
 
-        this.meshToObject.set(object.mesh.id, object);
+        this.meshIdToObject.set(object.mesh.id, object);
     }
 
     deleteObject(object) {
+        let pos = object.getPos();
+        if (this.grid.checkIfInGrid(pos) && this.grid.getPos(pos) === object) {
+            this.grid.clearPos(pos);
+        }
+
         const indexOf = this.objects.indexOf(object);
         if (indexOf != -1) {
             this.objects.splice(indexOf, 1);
@@ -26,8 +98,27 @@ class World {
 
         this.scene.remove(object.mesh);
 
-        this.meshToObject.delete(object.mesh.id);
+        this.meshIdToObject.delete(object.mesh.id);
     }
+
+    moveObjectOnGrid(object, pos) {
+        this.grid.clearPos(object.getPos());
+
+        let neighbourToReplace = this.getPos(pos);
+        if (neighbourToReplace != null) {
+            this.deleteObject(neighbourToReplace);
+        }
+
+        this.grid.setPos(pos, object);
+
+        object.setPos(this.grid.getGridPos(pos));
+        this.fixObjectPosRot(object);
+    }
+
+    moveObjectOnGridInDirection(object, direction) {
+        this.moveObjectOnGrid(object, this.getNeighbourPos(object.getPos(), direction));
+    }
+
 
     instantiateLight(light) {
         this.scene.add(light);
@@ -46,3 +137,5 @@ class World {
         this.objects.forEach((x) => { x.update(); });
     }
 }
+
+export {World};

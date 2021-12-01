@@ -1,8 +1,9 @@
 let parameters = {
     plane: {
-        scale: 10,
-        noiseScale: 0.85,
-        resolution: 50,
+        scale: 20,
+        gridWidth: 60,
+        noiseScale: 0.6,
+        resolution: 80,
         color: [0, 128, 255],
     },
     simulation: {

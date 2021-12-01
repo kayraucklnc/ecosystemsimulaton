@@ -1,6 +1,8 @@
 import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
 import {OrbitControls} from "https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js";
+import {World} from "../../ecosystemsimulaton/js/world/World.js";
 import * as Objects from "../../ecosystemsimulaton/js/world/Objects.js";
+import * as Grid from "../../ecosystemsimulaton/js/world/Grid.js";
 import { MousePicker } from "../../ecosystemsimulaton/js/mouse_picking.js";
 
 const fShader = document.getElementById("fragmentShader").text;
@@ -36,7 +38,7 @@ function createInitControls(camera, renderer) {
     return orbitControls;
 }
 
-function createTestSceneElements() {
+function createTestSceneElements(scene) {
 
     const uniforms3 = THREE.UniformsUtils.merge([
         THREE.UniformsLib["lights"],
@@ -59,26 +61,45 @@ function createTestSceneElements() {
         flatShading: THREE.FlatShading,
     });
 
-    let terrainObject = new Objects.Terrain( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), planeMat );
-    world.instantiateObject(terrainObject);
+    let terrainObject = new Objects.Terrain( new THREE.Vector3(0, -0.05, 0), new THREE.Vector3(0, 0), planeMat );
+    world.instantiateObject(terrainObject, false);
 
-    for (let i = 0; i < 20; i++) {
-        let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5)*40,0,(Math.random() - 0.5)*40), new THREE.Vector3(0,0), material);
+    let grid = new Grid.Grid(scene, terrainObject, parameters.plane.gridWidth);
+
+    let treeObject = new Objects.Tree(new THREE.Vector3(-2,0,4), new THREE.Vector3(0,0), material);
+    world.instantiateObject(treeObject);
+
+    // TODO DELETE
+    let goForward = true;
+    setInterval(testLoop, 1000/5);
+    function testLoop() {
+        if (goForward) {
+            treeObject.setPos(world.grid.getGridInDirection(treeObject.getPos(), new THREE.Vector3(0, 1, 1)));
+        } else {
+            treeObject.setPos(world.grid.getGridInDirection(treeObject.getPos(), new THREE.Vector3(0, -1, -1)));
+        }
+        if (!world.grid.checkIfInGrid(treeObject.getPos())) {
+            goForward = !goForward;
+        }
+    }
+
+
+    for (let i = 0; i < 200; i++) {
+        let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * 20,0,(Math.random() - 0.5)*20), new THREE.Vector3(0,0), material);
         world.instantiateObject(treeObject);
     }
 
-    for (let i = 0; i < 8; i++) {
-        let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5)*40, 0, (Math.random() - 0.5)*40), new THREE.Vector3(0,0), material);
+    for (let i = 0; i < 50; i++) {
+        let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5)*20, 0, (Math.random() - 0.5)*20), new THREE.Vector3(0,0), material);
         world.instantiateObject(humanObject);
     }
-
 
     const pointLight = new THREE.PointLight(0xffffff, 1, 100);
     pointLight.position.set( 5, 3, 0 );
     world.instantiateLight(pointLight);
 
     let lightSphereObject = new Objects.LightIndicator( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), material, pointLight );
-    world.instantiateObject(lightSphereObject);
+    world.instantiateObject(lightSphereObject, false);
 
     return {terrainObject};
 }
@@ -87,13 +108,13 @@ function threeStarter() {
     drawthechart();
     const {scene, camera, renderer} = createInitScene();
     const controls = createInitControls(camera, renderer);
-    const {terrainObject} = createTestSceneElements();
+    const {terrainObject} = createTestSceneElements(scene);
 
     gui.setTerrain(terrainObject);
 
     function loop() {
         frameCount++;
-        requestAnimationFrame(loop);
+        setTimeout(loop, 1000/60);
 
         controls.update();
 

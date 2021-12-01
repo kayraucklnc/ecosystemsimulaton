@@ -22,7 +22,7 @@ class Sphere extends ObjectBases.MovableObjectBase {
         super(pos, rotation, material);
         this.health = 100;
 
-        const sphereGeometry = new THREE.SphereGeometry(0.2);
+        const sphereGeometry = new THREE.SphereGeometry(0.5);
         this.mesh = new THREE.Mesh(sphereGeometry, material);
 
         this.setPos(pos);
@@ -68,12 +68,20 @@ class MouseFollower extends Sphere {
 class Terrain extends ObjectBases.WorldObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
+
+        this.grid = null;
+
         const geometry = new THREE.PlaneGeometry(12, 12, 90, 90);
         this.mesh = new THREE.Mesh(geometry, this.material);
 
         this.setPos(pos);
         this.setRot(rotation);
-        this.mesh.rotation.x = this.mesh.rotation.x + Math.PI / 2;
+        this.mesh.rotation.x = this.mesh.rotation.x - Math.PI / 2;
+        this.changePlaneGeometry(parameters);
+    }
+
+    getHeight(vec2) {
+        return perlin.get(vec2.x * parameters.plane.noiseScale, vec2.y * parameters.plane.noiseScale);
     }
 
     changePlaneGeometry(parameters) {
@@ -82,7 +90,11 @@ class Terrain extends ObjectBases.WorldObjectBase {
         for (let i = 0; i < length; i += 3) {
             let x = this.mesh.geometry.attributes.position.array[i];
             let y = this.mesh.geometry.attributes.position.array[i + 1];
-            this.mesh.geometry.attributes.position.array[i + 2] = perlin.get(x * parameters.plane.noiseScale, y * parameters.plane.noiseScale);
+            this.mesh.geometry.attributes.position.array[i + 2] = this.getHeight(new THREE.Vector2(x, -y));
+        }
+
+        if (this.grid) {
+            this.grid.createGridGeometry(parameters);
         }
     }
 
@@ -95,9 +107,7 @@ class Tree extends ObjectBases.LivingObjectBase {
         super(pos, rotation, material);
         this.health = 100;
 
-        this.selectable = true;
-
-        const sphereGeometry = new THREE.SphereGeometry(0.4);
+        const sphereGeometry = new THREE.SphereGeometry(0.15);
         this.mesh = new THREE.Mesh(sphereGeometry, material);
 
         this.setPos(pos);
@@ -152,15 +162,15 @@ class Human extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
-        this.speed = 0.04;
+        this.speed = 0.1;
 
-        this.selectable = true;
-
-        const cube = new THREE.BoxGeometry();
+        const cube = new THREE.BoxGeometry(0.25, 0.25, 0.25);
         this.mesh = new THREE.Mesh(cube, material);
 
         this.setPos(pos);
         this.setRot(rotation);
+
+        this.movement = 0.0;
     }
 
     update() {
@@ -180,12 +190,17 @@ class Human extends ObjectBases.MovableObjectBase {
         this.target = closest;
 
         if (this.checkIfNextToTarget()) {
-            this.target.applyDamage(20);
+            this.target.applyDamage(2);
         } else if (this.target != null) {
-            let newVec = new THREE.Vector3().subVectors(this.target.getPos(), this.getPos());
-            let movementVector = newVec.normalize().multiplyScalar(this.speed);
-            let pos = this.getPos().add(movementVector);
-            // console.log("Human is moving towards tree. Current Pos: " + pos.x + ", " + pos.y + ", " + pos.z);
+            let movementVector = this.getMovementVectorToTarget();
+
+            if (this.movement < 1) {
+                this.movement += this.speed;
+            } else if (!world.checkNeighbour(this.getPos(), movementVector)) {
+                this.movement = 0.0;
+                world.moveObjectOnGridInDirection(this, movementVector);
+                // console.log("Human is moving towards tree. Current Pos: " + pos.x + ", " + pos.y + ", " + pos.z);
+            }
         }
     }
 }

@@ -33,6 +33,15 @@ class WorldObjectBase {
         }
     }
 
+    getQuaternion() {
+        return this.mesh.quaternion;
+    }
+    setQuaternion(quaternion) {
+        if (this.mesh != null) {
+            this.mesh.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+        }
+    }
+
     update() {}
     setModel() {}
     setTexture() {}
@@ -65,7 +74,30 @@ class MovableObjectBase extends LivingObjectBase {
     }
 
     checkIfNextToTarget() {
-        return this.target != null && this.getPos().distanceTo(this.target.getPos()) <= 1;
+        return this.target != null && this.getPos().distanceTo(this.target.getPos()) <= world.getCellSize() * 1.5;
+    }
+
+    getMovementVectorToTarget() {
+        let movementVector = new THREE.Vector3().subVectors(this.target.getPos(), this.getPos());
+        let x = Math.abs(movementVector.x);
+        let z = Math.abs(movementVector.z);
+        if (x > z) {
+            movementVector.x *= 2.0;
+            movementVector.z /= 2.0;
+        } else if (x < z) {
+            movementVector.x /= 2.0;
+            movementVector.z *= 2.0;
+        } else {
+            if (Math.random() > 0.5) {
+                movementVector.x *= 2.0;
+                movementVector.z /= 2.0;
+            } else {
+                movementVector.x /= 2.0;
+                movementVector.z *= 2.0;
+            }
+        }
+        movementVector = movementVector.normalize().multiplyScalar(this.speed);
+        return movementVector;
     }
 }
 

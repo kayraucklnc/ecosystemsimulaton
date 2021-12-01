@@ -82,7 +82,7 @@ class Grid {
         }
 
         this.mesh.rotation.x = this.mesh.rotation.x - Math.PI / 2;
-        // this.scene.add(this.mesh);
+        this.scene.add(this.mesh);
     }
 
     getGridIndex(pos) {

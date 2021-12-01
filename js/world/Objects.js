@@ -139,7 +139,7 @@ class Tree extends ObjectBases.LivingObjectBase {
 
     die() {
         super.die();
-        let pos = this.getPos();
+        // let pos = this.getPos();
         // console.log("Tree on position " + pos.x + ", " + pos.y + ", " + pos.z + " died.")
     }
 }

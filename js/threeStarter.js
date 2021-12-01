@@ -61,28 +61,13 @@ function createTestSceneElements(scene) {
         flatShading: THREE.FlatShading,
     });
 
-    let terrainObject = new Objects.Terrain( new THREE.Vector3(0, -0.05, 0), new THREE.Vector3(0, 0), planeMat );
+    let terrainObject = new Objects.Terrain( new THREE.Vector3(0, -0.01, 0), new THREE.Vector3(0, 0), planeMat );
     world.instantiateObject(terrainObject, false);
 
     let grid = new Grid.Grid(scene, terrainObject, parameters.plane.gridWidth);
 
     let treeObject = new Objects.Tree(new THREE.Vector3(-2,0,4), new THREE.Vector3(0,0), material);
     world.instantiateObject(treeObject);
-
-    // TODO DELETE
-    let goForward = true;
-    setInterval(testLoop, 1000/5);
-    function testLoop() {
-        if (goForward) {
-            treeObject.setPos(world.grid.getGridInDirection(treeObject.getPos(), new THREE.Vector3(0, 1, 1)));
-        } else {
-            treeObject.setPos(world.grid.getGridInDirection(treeObject.getPos(), new THREE.Vector3(0, -1, -1)));
-        }
-        if (!world.grid.checkIfInGrid(treeObject.getPos())) {
-            goForward = !goForward;
-        }
-    }
-
 
     for (let i = 0; i < 200; i++) {
         let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * 20,0,(Math.random() - 0.5)*20), new THREE.Vector3(0,0), material);

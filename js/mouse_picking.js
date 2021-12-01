@@ -1,6 +1,5 @@
 import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
 import {DragControls} from "https://unpkg.com/three@0.126.1/examples/jsm/controls/DragControls.js";
-import {Terrain} from "./world/Objects.js";
 
 const PickingStage = {
     FREE: 0,
@@ -89,24 +88,4 @@ function mouse_up(event) {
 function mouse_move(event) {
     mouse.x = (event.clientX / innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / innerHeight) * 2 + 1;
-}
-
-function get_mouse_intersect() {
-    const intersects = raycaster.intersectObjects(mousePicker.scene.children);
-    if (intersects.length) {
-        let intersect = intersects[0];
-
-        let i = 1;
-        while ((intersect.object == mousePicker.pickedObject) && i < intersects.length) {
-            intersect = intersects[i];
-            i++;
-        }
-        if (intersect.object == mousePicker.pickedObject) {
-            return null;
-        }
-
-        return intersect;
-    }
-
-    return null;
 }

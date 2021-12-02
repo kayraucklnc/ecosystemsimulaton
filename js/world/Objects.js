@@ -34,14 +34,18 @@ class Sphere extends ObjectBases.MovableObjectBase {
     }
 }
 
-class LightIndicator extends Sphere {
+class LightIndicator extends ObjectBases.WorldObjectBase {
     constructor(pos, rotation, material, target) {
         super(pos, rotation, material);
         this.toFollow = target;
 
         this.selectable = true;
 
+        const sphereGeometry = new THREE.SphereGeometry(0.5);
+        this.mesh = new THREE.Mesh(sphereGeometry, material);
+
         this.setPos(this.toFollow.position);
+        this.setRot(rotation);
     }
 
     update() {
@@ -82,7 +86,7 @@ class Terrain extends ObjectBases.WorldObjectBase {
     }
 
     getHeight(vec2) {
-        return perlin.get(vec2.x * parameters.plane.noiseScale, vec2.y * parameters.plane.noiseScale);
+        return perlin.get(vec2.x * parameters.plane.noiseScale, vec2.y * parameters.plane.noiseScale) * parameters.plane.heightMultiplier;
     }
 
     changePlaneGeometry(parameters) {
@@ -97,6 +101,12 @@ class Terrain extends ObjectBases.WorldObjectBase {
         if (this.grid) {
             this.grid.createGridGeometry(parameters);
         }
+
+        world.objects.forEach((x) => {
+            if(x instanceof Human){
+                world.fixObjectPosRot(x);
+            }
+        })
     }
 
     update() {

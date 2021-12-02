@@ -1,5 +1,5 @@
 function drawthechart() {
-    google.charts.load('current', {'packages':['corechart']});
+    google.charts.load('current', {'packages': ['corechart']});
     google.charts.setOnLoadCallback(drawChart);
 
     function drawChart(time) {
@@ -11,32 +11,49 @@ function drawthechart() {
         data.addColumn('number', 'Tree');
         updateData();
         // Set chart options
-        var options = {'title':' ',
-            'width':700,
-            'height':400,
+        var options = {
+            'title': ' ',
+            'width': chartSettings.chartSize.width,
+            'height': chartSettings.chartSize.height,
+            curveType: "function",
+            legend: {position: 'top', textStyle: {color: 'white', fontSize: 15}, maxLines: 10},
+            backgroundColor: "black",
+            lineWidth: 6,
+            chartArea: {left: 50, top: 100, width: '80%', height: '80%'},
             vAxis: {
-                viewWindowMode:'explicit',
+                gridlines: {
+                    color: "gray",
+                },
+                minorGridlines: {
+                    count: 0,
+                },
+                textStyle: {color: 'white', fontSize: 16},
+                viewWindowMode: 'explicit',
                 viewWindow: {
-                    max:100,
-                    min:0
+                    max: 200,
+                    min: 0
                 }
-            },};
+            },
+        };
 
         // Instantiate and draw our chart, passing in some options.
         const graphDiv = document.createElement("div");
         var chart = new google.visualization.LineChart(graphDiv);
-        document.body.appendChild(graphDiv);
+        document.getElementById("chartHolder").appendChild(graphDiv);
 
         setInterval(() => {
-            updateData();
-            chart.draw(data, options);
-        }, 100);
+            if(isSimActive){
+                updateData();
+                chart.draw(data, options);
+            }
+        }, 200);
 
-        function updateData(){
+        function updateData() {
             let dataCount = 50;
-            if(data.Wf.length >= dataCount){
+            if (data.Wf.length >= dataCount) {
                 data.removeRows(0, 1);
-            };
+            }
+            ;
 
             const datamap = new Map();
             world.objects.forEach((o) => {

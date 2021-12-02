@@ -1,5 +1,6 @@
 import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
 import * as ObjectBases from "./ObjectBases.js";
+import {treeMaterial} from "./Materials.js";
 
 class Box extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
@@ -107,7 +108,7 @@ class Tree extends ObjectBases.LivingObjectBase {
         super(pos, rotation, material);
         this.health = 100;
 
-        this.selectable = false;
+        this.selectable = true;
 
         const sphereGeometry = new THREE.SphereGeometry(0.15);
         this.mesh = new THREE.Mesh(sphereGeometry, material);
@@ -151,6 +152,8 @@ class Fox extends ObjectBases.MovableObjectBase {
         super(pos, rotation, material);
         this.health = 100;
         this.speed = 2;
+
+        this.selectable = true;
     }
 
     update() {
@@ -160,13 +163,108 @@ class Fox extends ObjectBases.MovableObjectBase {
     }
 }
 
+class Squirrel extends ObjectBases.MovableObjectBase {
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
+        this.health = 100;
+        this.speed = 0.1;
+
+        this.selectable = true;
+
+        const sphereGeometry = new THREE.SphereGeometry(0.08);
+        this.mesh = new THREE.Mesh(sphereGeometry, material);
+
+        this.setPos(pos);
+        this.setRot(rotation);
+
+        this.movement = 0.0;
+
+        this.squirrelStates = {
+            Idle: 0,
+            Moving: 1,
+            Running: 2,
+            Planting: 3
+        }
+
+        this.state = this.squirrelStates.Idle;
+        this.stateTicker = 0;
+
+        this.targetPos = null;
+    }
+
+    update() {
+        this.stateTicker++;
+        switch (this.state) {
+            case this.squirrelStates.Idle:
+                this.idle();
+                break;
+            case this.squirrelStates.Moving:
+                this.moving();
+                break;
+            case this.squirrelStates.Running:
+                this.running();
+                break;
+            case this.squirrelStates.Planting:
+                this.planting();
+                break;
+        }
+    }
+
+    switchState(newState) {
+        this.state = newState;
+        this.stateTicker = 0;
+    }
+
+    idle() {
+        if (this.stateTicker > 10) {
+            this.switchState(this.squirrelStates.Moving);
+        }
+    }
+
+    moving() {
+        while (this.targetPos == null) {
+            const randomPoint = new THREE.Vector3((Math.random() - 0.5) * 4, 0, (Math.random() - 0.5) * 4).add(this.getPos());
+            if (world.grid.checkIfInGrid(randomPoint) && !world.checkPos(randomPoint)) {
+                this.targetPos = world.getCellCenter(randomPoint);
+            }
+        }
+
+        this.movement += this.speed;
+        const movementVector = this.getMovementVectorToTarget(this.targetPos);
+        if (this.movement >= 1 && !world.checkNeighbour(this.getPos(), movementVector)) {
+            world.moveObjectOnGridInDirection(this, movementVector);
+            this.movement = 0.0;
+        }
+
+        if (this.checkIfTargetReached(this.targetPos)) {
+            this.targetPos = null;
+            this.switchState(this.squirrelStates.Planting);
+        }
+    }
+
+    running() {
+
+    }
+
+    planting() {
+        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
+
+        const newTree = new Tree(neighbourPos, new THREE.Vector3(), treeMaterial);
+        if (world.grid.checkIfInGrid(neighbourPos)) {
+            world.instantiateObject(newTree);
+        }
+
+        this.switchState(this.squirrelStates.Idle);
+    }
+}
+
 class Human extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
         this.speed = 0.1;
 
-        this.selectable = false;
+        this.selectable = true;
 
         const cube = new THREE.BoxGeometry(0.25, 0.25, 0.25);
         this.mesh = new THREE.Mesh(cube, material);
@@ -193,10 +291,10 @@ class Human extends ObjectBases.MovableObjectBase {
         )
         this.target = closest;
 
-        if (this.checkIfNextToTarget()) {
+        if (this.target != null && this.checkIfNextToTarget(this.target.getPos())) {
             this.target.applyDamage(2);
         } else if (this.target != null) {
-            let movementVector = this.getMovementVectorToTarget();
+            let movementVector = this.getMovementVectorToTarget(this.target.getPos());
 
             if (this.movement < 1) {
                 this.movement += this.speed;
@@ -209,4 +307,4 @@ class Human extends ObjectBases.MovableObjectBase {
     }
 }
 
-export {Sphere, LightIndicator, MouseFollower, Terrain, Box, Human, Tree};
+export {Sphere, LightIndicator, MouseFollower, Terrain, Box, Human, Tree, Squirrel};

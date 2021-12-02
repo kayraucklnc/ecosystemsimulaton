@@ -6,9 +6,9 @@ function drawthechart() {
         // Create the data table.
         data = new google.visualization.DataTable();
         data.addColumn('string', 'Year');
-        data.addColumn('number', 'CountA');
-        data.addColumn('number', 'CountB');
-        data.addColumn('number', 'CountC');
+        data.addColumn('number', 'Human');
+        data.addColumn('number', 'Squirrel');
+        data.addColumn('number', 'Tree');
         updateData();
         // Set chart options
         var options = {'title':' ',
@@ -17,8 +17,8 @@ function drawthechart() {
             vAxis: {
                 viewWindowMode:'explicit',
                 viewWindow: {
-                    max:0.7,
-                    min:-0.7
+                    max:100,
+                    min:0
                 }
             },};
 
@@ -37,7 +37,18 @@ function drawthechart() {
             if(data.Wf.length >= dataCount){
                 data.removeRows(0, 1);
             };
-            let rows = [[" ", perlin.get(2, frameCount/100), perlin.get(3.86, frameCount/150), perlin.get(3.86, frameCount/80)]];
+
+            const datamap = new Map();
+            world.objects.forEach((o) => {
+                const typeName = o.constructor.name;
+                if (datamap.has(typeName)) {
+                    datamap.set(typeName, datamap.get(typeName) + 1);
+                } else {
+                    datamap.set(typeName, 1);
+                }
+            })
+            let rows = [[" ", datamap.get("Human"), datamap.get("Squirrel"), datamap.get("Tree")]];
+            // let rows = [[" ", perlin.get(2, frameCount/100), perlin.get(3.86, frameCount/150), perlin.get(3.86, frameCount/80)]];
             data.addRows(rows);
         }
     }

@@ -136,7 +136,7 @@ class Grid {
     // Gets a Three.Vector3 and returns if included in grid.
     checkIfInGrid(pos) {
         let {i, j} = this.getGridIndex(pos);
-        return !(i < 0 || j < 0 || i > this.widthInGrid - 1 || j > this.widthInGrid - 1);
+        return i >= 0 && j >= 0 && i < this.widthInGrid && j < this.widthInGrid;
     }
 
     checkIfAtBorder(pos) {

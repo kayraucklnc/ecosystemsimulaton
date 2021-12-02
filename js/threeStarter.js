@@ -4,9 +4,7 @@ import {World} from "../../ecosystemsimulaton/js/world/World.js";
 import * as Objects from "../../ecosystemsimulaton/js/world/Objects.js";
 import * as Grid from "../../ecosystemsimulaton/js/world/Grid.js";
 import { MousePicker } from "../../ecosystemsimulaton/js/mouse_picking.js";
-
-const fShader = document.getElementById("fragmentShader").text;
-const vShader = document.getElementById("vertexShader").text;
+import * as Materials from "../../ecosystemsimulaton/js/world/Materials.js";
 
 function createInitScene() {
     const scene = new THREE.Scene();
@@ -40,50 +38,31 @@ function createInitControls(camera, renderer) {
 
 function createTestSceneElements(scene) {
 
-    const uniforms3 = THREE.UniformsUtils.merge([
-        THREE.UniformsLib["lights"],
-        {
-            color: {type: "c", value: new THREE.Color("skyblue")},
-        },
-    ]);
-
-    const material = new THREE.ShaderMaterial({
-        uniforms: uniforms3,
-        vertexShader: vShader,
-        fragmentShader: fShader,
-        side: THREE.DoubleSide,
-        lights: true,
-    });
-
-    const planeMat = new THREE.MeshPhongMaterial({
-        color: 0xff0000,
-        side: THREE.DoubleSide,
-        flatShading: THREE.FlatShading,
-    });
-
-    let terrainObject = new Objects.Terrain( new THREE.Vector3(0, -0.01, 0), new THREE.Vector3(0, 0), planeMat );
+    let terrainObject = new Objects.Terrain( new THREE.Vector3(0, -0.01, 0), new THREE.Vector3(0, 0), Materials.planeMat );
     world.instantiateObject(terrainObject, false);
 
     let grid = new Grid.Grid(scene, terrainObject, parameters.plane.gridWidth);
 
-    let treeObject = new Objects.Tree(new THREE.Vector3(-2,0,4), new THREE.Vector3(0,0), material);
-    world.instantiateObject(treeObject);
-
     for (let i = 0; i < 200; i++) {
-        let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * 20,0,(Math.random() - 0.5)*20), new THREE.Vector3(0,0), material);
+        let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * 20,0,(Math.random() - 0.5)*20), new THREE.Vector3(0,0), Materials.treeMaterial);
         world.instantiateObject(treeObject);
     }
 
     for (let i = 0; i < 50; i++) {
-        let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5)*20, 0, (Math.random() - 0.5)*20), new THREE.Vector3(0,0), material);
+        let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5)*20, 0, (Math.random() - 0.5)*20), new THREE.Vector3(0,0), Materials.humanMaterial);
         world.instantiateObject(humanObject);
     }
 
+    for (let i = 0; i < 20; i++) {
+        let squirrelObject = new Objects.Squirrel(new THREE.Vector3((Math.random() - 0.5)*20, 0, (Math.random() - 0.5)*20), new THREE.Vector3(0,0), Materials.squirrelMaterial);
+        world.instantiateObject(squirrelObject);
+    }
+
     const pointLight = new THREE.PointLight(0xffffff, 1, 100);
-    pointLight.position.set( 5, 3, 0 );
+    pointLight.position.set( 2, 7, 1 );
     world.instantiateLight(pointLight);
 
-    let lightSphereObject = new Objects.LightIndicator( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), material, pointLight );
+    let lightSphereObject = new Objects.LightIndicator( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.lightIndicatorMaterial, pointLight );
     world.instantiateObject(lightSphereObject, false);
 
     return {terrainObject};

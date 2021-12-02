@@ -4,6 +4,8 @@
 [ Berk ] Procuderal Terrain [Scale/pos/resulution] (Kayra)
 [ Kayra ] Dünyadaki kişi sayılarını canlı gösteren grafik.
 [ Kayra ] Gui.js aklımıza gelen tüm ayarlarla doldurma.
+[ Safa ] Eşya seçme mouse ile sürükleyip hareket ettirme. (örn. Point Light.)
+[ Safa ] Dünyayı gridlere bölücez. Her birine bir entity gelecek.
 
 
 --- OnGoing ---
@@ -11,8 +13,6 @@
 [ Yiğit ] Shader içine sadece Color değil Texture Loading ve onunla renderlama.
 [ Yiğit ] Game Logic
 [ Kayra ] Herhangi bir şeyi dünyaya koyabilecek bir brush
-[ Safa ] Eşya seçme mouse ile sürükleyip hareket ettirme. (örn. Point Light.)
-[ Safa ] Dünyayı gridlere bölücez. Her birine bir entity gelecek.
 [ Berk ] Terrain Generation daha detaylı olmalı. (Şu videodaki gibi: https://www.youtube.com/watch?v=wbpMiKiSKm8&list=PLFt_AvWsXl0eBW2EiBtl_sxmDtSgZBxB3&index=1)
 [ Berk ] A* / İçine 0 1 le dolu matrix alacak. Girişten çıkışa 0lardan ilerleyen yolu output verecek.
 

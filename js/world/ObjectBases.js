@@ -69,16 +69,16 @@ class MovableObjectBase extends LivingObjectBase {
     }
 
     attack(target) {}
-    checkIfTargetReached() {
-        return this.getPos().equals(this.target.getPos());
+    checkIfTargetReached(targetPos) {
+        return this.getPos().distanceTo(targetPos) <= world.getCellSize() / 2.0;
     }
 
-    checkIfNextToTarget() {
-        return this.target != null && this.getPos().distanceTo(this.target.getPos()) <= world.getCellSize() * 1.5;
+    checkIfNextToTarget(targetPos) {
+        return this.getPos().distanceTo(targetPos) <= world.getCellSize() * 1.5;
     }
 
-    getMovementVectorToTarget() {
-        let movementVector = new THREE.Vector3().subVectors(this.target.getPos(), this.getPos());
+    getMovementVectorToTarget(targetPos) {
+        let movementVector = new THREE.Vector3().subVectors(targetPos, this.getPos());
         let x = Math.abs(movementVector.x);
         let z = Math.abs(movementVector.z);
         if (x > z) {

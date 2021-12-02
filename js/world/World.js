@@ -23,6 +23,10 @@ class World {
         return this.grid.cellSize;
     }
 
+    getCellCenter(pos) {
+        return this.grid.getGridPos(pos);
+    }
+
     checkPos(pos) {
         return this.grid.checkGrid(pos);
     }

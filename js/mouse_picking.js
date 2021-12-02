@@ -46,7 +46,7 @@ function mouse_up(event) {
     if (event.button == 0) {
         // console.log("mouse_up");
 
-        const intersects = raycaster.intersectObjects(mousePicker.scene.children);
+        const intersects = raycaster.intersectObjects(world.parentObject.children);
         let intersect = null;
         if (intersects.length) {
             intersect = intersects[0];

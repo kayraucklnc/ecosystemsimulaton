@@ -107,6 +107,8 @@ class Tree extends ObjectBases.LivingObjectBase {
         super(pos, rotation, material);
         this.health = 100;
 
+        this.selectable = false;
+
         const sphereGeometry = new THREE.SphereGeometry(0.15);
         this.mesh = new THREE.Mesh(sphereGeometry, material);
 
@@ -163,6 +165,8 @@ class Human extends ObjectBases.MovableObjectBase {
         super(pos, rotation, material);
         this.health = 100;
         this.speed = 0.1;
+
+        this.selectable = false;
 
         const cube = new THREE.BoxGeometry(0.25, 0.25, 0.25);
         this.mesh = new THREE.Mesh(cube, material);

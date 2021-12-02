@@ -68,6 +68,7 @@ class Grid {
         this.cellSize = (box.max.x - box.min.x) / this.widthInGrid;
         this.mesh = new THREE.LineSegments(
             new THREE.PlaneBufferGeometry( (box.max.x - box.min.x), (box.max.y - box.min.y), this.widthInGrid, this.widthInGrid ).toGrid(),
+            // TODO ÖZEL MATERIAL
             new THREE.LineBasicMaterial( {
                 color: 0x7a7474
             } )

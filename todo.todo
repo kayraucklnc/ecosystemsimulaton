@@ -11,12 +11,12 @@
 [ Safa ] Dünyayı gridlere bölücez. Her birine bir entity gelecek.
 [ Kayra ] Herhangi bir şeyi dünyaya koyabilecek bir brush
 [ Kayra ] Sol ve sağ menüler
+[ Safa ] Hız doğru çalışıyor mu kontrol et
 
 --- OnGoing ---
 [ Yiğit ] Fox - Human classlarının meshlerini external alıp renderlama.
 [ Yiğit ] Shader içine sadece Color değil Texture Loading ve onunla renderlama.
 [ Yiğit ] Game Logic
-[ Safa ] Hız doğru çalışıyor mu kontrol et--
 [ Safa ] Mouse Picking should be disabled when brush is enabled.
 [ Berk ] Terrain Generation daha detaylı olmalı. (Şu videodaki gibi: https://www.youtube.com/watch?v=wbpMiKiSKm8&list=PLFt_AvWsXl0eBW2EiBtl_sxmDtSgZBxB3&index=1)
 [ Berk ] A* / İçine 0 1 le dolu matrix alacak. Girişten çıkışa 0lardan ilerleyen yolu output verecek.

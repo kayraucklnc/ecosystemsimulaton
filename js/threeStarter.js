@@ -39,7 +39,7 @@ function createInitControls(camera, renderer) {
 
 function createTestSceneElements(scene) {
 
-    let terrainObject = new Objects.Terrain(new THREE.Vector3(0, -0.01, 0), new THREE.Vector3(0, 0), Materials.planeMat);
+    let terrainObject = new Objects.Terrain(new THREE.Vector3(0, -0.03, 0), new THREE.Vector3(0, 0), Materials.planeMat);
     world.instantiateObject(terrainObject, false);
 
     let grid = new Grid.Grid(scene, terrainObject, parameters.plane.gridWidth);
@@ -91,8 +91,11 @@ function threeStarter() {
 
     function worldLoop() {
         setTimeout(worldLoop, (1000 / 60) / simulation.timeScale);
+
         if (isSimActive) {
-            world.update();
+            for (let i = 0; i < simulation.timeScale / 16.6; i++) {
+                world.update();
+            }
         }
     }
 

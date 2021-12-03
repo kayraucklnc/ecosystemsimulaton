@@ -62,19 +62,19 @@ class World {
         newPos.y = newPos.y + (sizeVec.y * 0.5);
         object.setPos(newPos);
 
+        //TODO: ROTATE TOWARDS SLOPE
         // let vecOne = (new THREE.Vector3()).addVectors(gridCenter, (new THREE.Vector3(this.getCellSize() / 2.0, 0, 0)));
         // vecOne.y = this.grid.terrain.getHeight(new THREE.Vector2(vecOne.x, vecOne.z));
         // let vecTwo = (new THREE.Vector3()).addVectors(gridCenter, (new THREE.Vector3(0, 0, this.getCellSize() / 2.0)));
         // vecTwo.y = this.grid.terrain.getHeight(new THREE.Vector2(vecTwo.x, vecTwo.z));
-        //
         // vecOne.cross(vecTwo).normalize();
-        //
         // let upVector = new THREE.Vector3(0, 1, 0);
         // let newQuaternion = new THREE.Quaternion().setFromUnitVectors(rotVec, vecOne);
         // object.getQuaternion().multiply(newQuaternion);
     }
 
     instantiateObject(object, onGrid = true) {
+        //TODO: Grid üzerindekiler ayrı alınabilmeli
         let pos = object.getPos();
         if (onGrid) {
             if (this.checkPos(pos)) {

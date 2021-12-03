@@ -1,7 +1,7 @@
 let parameters = {
     plane: {
         scale: 20,
-        gridWidth: 60,
+        gridWidth: 30,
         noiseScale: 0.21,
         resolution: 35,
         heightMultiplier: 2,

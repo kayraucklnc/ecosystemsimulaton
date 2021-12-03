@@ -2,7 +2,7 @@ function drawthechart() {
     google.charts.load('current', {'packages': ['corechart']});
     google.charts.setOnLoadCallback(drawChart);
 
-    function drawChart(time) {
+    function drawChart() {
         // Create the data table.
         data = new google.visualization.DataTable();
         data.addColumn('string', 'Year');
@@ -52,18 +52,18 @@ function drawthechart() {
             let dataCount = 50;
             if (data.Wf.length >= dataCount) {
                 data.removeRows(0, 1);
-            }
-            ;
+            };
 
             const datamap = new Map();
             world.objects.forEach((o) => {
+                //TODO: OPTIMIZE
                 const typeName = o.constructor.name;
                 if (datamap.has(typeName)) {
                     datamap.set(typeName, datamap.get(typeName) + 1);
                 } else {
                     datamap.set(typeName, 1);
                 }
-            })
+            });
             let rows = [[" ", datamap.get("Human"), datamap.get("Squirrel"), datamap.get("Tree")]];
             // let rows = [[" ", perlin.get(2, frameCount/100), perlin.get(3.86, frameCount/150), perlin.get(3.86, frameCount/80)]];
             data.addRows(rows);

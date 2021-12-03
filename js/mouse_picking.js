@@ -30,10 +30,10 @@ export class MousePicker {
 
 function createDragControls(mousePicker, objects) {
     mousePicker.dragControls = new DragControls(objects, mousePicker.camera, mousePicker.renderer.domElement);
-    mousePicker.dragControls.addEventListener("dragstart", (event) => {
+    mousePicker.dragControls.addEventListener("dragstart", () => {
         orbitControls.enabled = false;
     })
-    mousePicker.dragControls.addEventListener("dragend", (event) => {
+    mousePicker.dragControls.addEventListener("dragend", () => {
         orbitControls.enabled = true;
     })
     mousePicker.dragControls.transformGroup = true;
@@ -86,6 +86,6 @@ function mouse_up(event) {
 }
 
 function mouse_move(event) {
-    mouse.x = (event.clientX / innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / innerHeight) * 2 + 1;
+    mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
+    mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
 }

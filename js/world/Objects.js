@@ -1,6 +1,6 @@
 import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
 import * as ObjectBases from "./ObjectBases.js";
-import {treeMaterial} from "./Materials.js";
+import {planeMat, treeMaterial} from "./Materials.js";
 
 class Box extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
@@ -317,4 +317,20 @@ class Human extends ObjectBases.MovableObjectBase {
     }
 }
 
-export {Sphere, LightIndicator, MouseFollower, Terrain, Box, Human, Tree, Squirrel};
+class Wall extends ObjectBases.WorldObjectBase {
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
+
+        const cube = new THREE.BoxGeometry(world.getCellSize(), 1.2, world.getCellSize()).translate(0,-0.5,0);
+        this.mesh = new THREE.Mesh(cube, material);
+
+        this.setPos(pos);
+        this.setRot(rotation);
+
+    }
+
+    update() {
+    }
+}
+
+export {Sphere, LightIndicator, MouseFollower, Terrain, Box, Human, Tree, Squirrel, Wall};

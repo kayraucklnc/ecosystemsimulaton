@@ -1,9 +1,12 @@
 --- Done ---
 [ Safa  ] Game object/Fox/Tree class data structure
 [ Kayra ] Render loop
-[ Berk ] Procuderal Terrain [Scale/pos/resulution] (Kayra)
-[ Kayra ] Dünyadaki kişi sayılarını canlı gösteren grafik.
+[ Kayra ] Sol ve sağ menüler
+[ Kayra ] Herhangi bir şeyi dünyaya koyabilecek bir brush
 [ Kayra ] Gui.js aklımıza gelen tüm ayarlarla doldurma.
+[ Kayra ] Dünyadaki kişi sayılarını canlı gösteren grafik.
+[ Kayra ] Procuderal Terrain [Scale/pos/resulution]
+[ Safa  ] Game object/Fox/Tree class data structure
 [ Safa ] Eşya seçme mouse ile sürükleyip hareket ettirme. (örn. Point Light.)
 [ Safa ] Dünyayı gridlere bölücez. Her birine bir entity gelecek.
 

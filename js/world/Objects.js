@@ -120,7 +120,7 @@ class Tree extends ObjectBases.LivingObjectBase {
 
         this.selectable = true;
 
-        const sphereGeometry = new THREE.SphereGeometry(0.15);
+        const sphereGeometry = new THREE.SphereGeometry(0.12).translate(0,0.08,0);
         this.mesh = new THREE.Mesh(sphereGeometry, material);
 
         this.setPos(pos);
@@ -181,7 +181,7 @@ class Squirrel extends ObjectBases.MovableObjectBase {
 
         this.selectable = true;
 
-        const sphereGeometry = new THREE.SphereGeometry(0.08);
+        const sphereGeometry = new THREE.SphereGeometry(0.08).translate(0,0.04,0);
         this.mesh = new THREE.Mesh(sphereGeometry, material);
 
         this.setPos(pos);
@@ -276,7 +276,7 @@ class Human extends ObjectBases.MovableObjectBase {
 
         this.selectable = true;
 
-        const cube = new THREE.BoxGeometry(0.25, 0.25, 0.25);
+        const cube = new THREE.BoxGeometry(world.getCellSize(), world.getCellSize(), world.getCellSize()).translate(0,world.getCellSize()/2,0);
         this.mesh = new THREE.Mesh(cube, material);
 
         this.setPos(pos);
@@ -321,7 +321,7 @@ class Wall extends ObjectBases.WorldObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
 
-        const cube = new THREE.BoxGeometry(world.getCellSize(), 1.2, world.getCellSize()).translate(0,-0.5,0);
+        const cube = new THREE.BoxGeometry(world.getCellSize(), 1.2, world.getCellSize()).translate(0,0.6,0);
         this.mesh = new THREE.Mesh(cube, material);
 
         this.setPos(pos);

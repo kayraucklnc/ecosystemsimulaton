@@ -52,25 +52,42 @@ class World {
 
     fixObjectPosRot(object) {
         let gridCenter = this.grid.getGridPos(object.getPos());
-        if (!object.mesh.geometry.boundingBox) {
-            object.mesh.geometry.computeBoundingBox()
-        }
-        let boundingBox = object.mesh.geometry.boundingBox;
-        let sizeVec = new THREE.Vector3();
-        boundingBox.getSize(sizeVec);
         let newPos = (new THREE.Vector3().copy(gridCenter));
-        newPos.y = newPos.y + (sizeVec.y * 0.5);
         object.setPos(newPos);
+        let normal = this.getNormalVector(gridCenter);
+        var up = new THREE.Vector3(0, 1, 0);
 
-        //TODO: ROTATE TOWARDS SLOPE
-        // let vecOne = (new THREE.Vector3()).addVectors(gridCenter, (new THREE.Vector3(this.getCellSize() / 2.0, 0, 0)));
-        // vecOne.y = this.grid.terrain.getHeight(new THREE.Vector2(vecOne.x, vecOne.z));
-        // let vecTwo = (new THREE.Vector3()).addVectors(gridCenter, (new THREE.Vector3(0, 0, this.getCellSize() / 2.0)));
-        // vecTwo.y = this.grid.terrain.getHeight(new THREE.Vector2(vecTwo.x, vecTwo.z));
-        // vecOne.cross(vecTwo).normalize();
-        // let upVector = new THREE.Vector3(0, 1, 0);
-        // let newQuaternion = new THREE.Quaternion().setFromUnitVectors(rotVec, vecOne);
-        // object.getQuaternion().multiply(newQuaternion);
+        object.mesh.quaternion.setFromUnitVectors(up, normal.clone());
+
+        //Align its look around itself
+        object.mesh.rotateOnWorldAxis(normal, 0);
+
+    }
+
+    getNormalVector(gridCenter) {
+        let vecOne = (new THREE.Vector3()).addVectors(gridCenter, (new THREE.Vector3(this.getCellSize() / 2.0, 0, 0)));
+        vecOne.y = this.grid.terrain.getHeight(new THREE.Vector2(vecOne.x, vecOne.z));
+        let vecTwo = (new THREE.Vector3()).addVectors(gridCenter, (new THREE.Vector3(0, 0, this.getCellSize() / 2.0)));
+        vecTwo.y = this.grid.terrain.getHeight(new THREE.Vector2(vecTwo.x, vecTwo.z));
+        vecOne.sub(gridCenter);
+        vecTwo.sub(gridCenter);
+        let crossed = new THREE.Vector3(vecOne.y * vecTwo.z - (vecTwo.y * vecOne.z), vecOne.z * vecTwo.x - (vecTwo.z * vecOne.x), vecOne.x * vecTwo.y - (vecTwo.x * vecOne.y));
+        if (crossed.y < 0) {
+            crossed.negate();
+        }
+        return crossed.normalize();
+    }
+
+    addLine(gridCenter, vec, color) {
+        const points = [];
+        points.push(gridCenter);
+        points.push(vec);
+        let geometry = new THREE.BufferGeometry().setFromPoints(points);
+        let line = new THREE.Line(geometry, new THREE.LineBasicMaterial({
+            color: color,
+            linewidth: 12,
+        }));
+        this.scene.add(line);
     }
 
     instantiateObject(object, onGrid = true) {
@@ -141,7 +158,9 @@ class World {
     }
 
     update() {
-        this.objects.forEach((x) => { x.update(); });
+        this.objects.forEach((x) => {
+            x.update();
+        });
     }
 }
 

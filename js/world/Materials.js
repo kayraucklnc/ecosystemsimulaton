@@ -36,6 +36,19 @@ const humanMaterial = new THREE.ShaderMaterial({
     lights: true,
 });
 
+const wallMaterial = new THREE.ShaderMaterial({
+    uniforms: THREE.UniformsUtils.merge([
+        THREE.UniformsLib["lights"],
+        {
+            color: {type: "c", value: new THREE.Color(0x696969)},
+        },
+    ]),
+    vertexShader: vShader,
+    fragmentShader: fShader,
+    side: THREE.DoubleSide,
+    lights: true,
+});
+
 const squirrelMaterial = new THREE.ShaderMaterial({
     uniforms: THREE.UniformsUtils.merge([
         THREE.UniformsLib["lights"],
@@ -62,4 +75,4 @@ const lightIndicatorMaterial = new THREE.ShaderMaterial({
     lights: true,
 });
 
-export {lightIndicatorMaterial, squirrelMaterial, humanMaterial, treeMaterial, planeMat};
+export {lightIndicatorMaterial, squirrelMaterial, humanMaterial, treeMaterial, planeMat, wallMaterial};

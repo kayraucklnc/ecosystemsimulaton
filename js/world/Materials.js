@@ -1,4 +1,5 @@
-import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
+// import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
+import * as THREE from "../library/three.js-r135/build/three.module.js";
 
 const vShader = document.getElementById("vertexShader").text;
 const fShader = document.getElementById("fragmentShader").text;

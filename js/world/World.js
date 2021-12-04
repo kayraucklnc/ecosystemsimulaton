@@ -1,4 +1,7 @@
-import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
+// import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
+import * as THREE from "../library/three.js-r135/build/three.module.js";
+
+import * as Objects from "../world/Objects.js"
 
 class World {
     constructor(scene) {
@@ -54,13 +57,14 @@ class World {
         let gridCenter = this.grid.getGridPos(object.getPos());
         let newPos = (new THREE.Vector3().copy(gridCenter));
         object.setPos(newPos);
-        let normal = this.getNormalVector(gridCenter);
-        var up = new THREE.Vector3(0, 1, 0);
+        if(!(object instanceof Objects.Wall)){
+            let normal = this.getNormalVector(gridCenter);
+            var up = new THREE.Vector3(0, 1, 0);
+            object.mesh.quaternion.setFromUnitVectors(up, normal.clone());
 
-        object.mesh.quaternion.setFromUnitVectors(up, normal.clone());
-
-        //Align its look around itself
-        object.mesh.rotateOnWorldAxis(normal, 0);
+            //Align its look around itself
+            object.mesh.rotateOnWorldAxis(normal, 0);
+        }
 
     }
 

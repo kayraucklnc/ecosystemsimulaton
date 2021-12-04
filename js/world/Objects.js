@@ -1,4 +1,4 @@
-import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
+import * as THREE from "../library/three.js-r135/build/three.module.js";
 import * as ObjectBases from "./ObjectBases.js";
 import {planeMat, treeMaterial} from "./Materials.js";
 
@@ -113,6 +113,7 @@ class Terrain extends ObjectBases.WorldObjectBase {
     }
 }
 
+
 class Tree extends ObjectBases.LivingObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
@@ -120,12 +121,13 @@ class Tree extends ObjectBases.LivingObjectBase {
 
         this.selectable = true;
 
-        const sphereGeometry = new THREE.SphereGeometry(0.12).translate(0,0.08,0);
-        this.mesh = new THREE.Mesh(sphereGeometry, material);
+        this.mesh = meshes.tree.clone();
 
         this.setPos(pos);
         this.setRot(rotation);
     }
+
+
 
     applyDamage(damage) {
         super.applyDamage(damage);
@@ -276,8 +278,10 @@ class Human extends ObjectBases.MovableObjectBase {
 
         this.selectable = true;
 
-        const cube = new THREE.BoxGeometry(world.getCellSize(), world.getCellSize(), world.getCellSize()).translate(0,world.getCellSize()/2,0);
-        this.mesh = new THREE.Mesh(cube, material);
+        // const cube = new THREE.BoxGeometry(world.getCellSize(), world.getCellSize(), world.getCellSize()).translate(0,world.getCellSize()/2,0);
+        // this.mesh = new THREE.Mesh(cube, material);
+
+        this.mesh = meshes.human.clone();
 
         this.setPos(pos);
         this.setRot(rotation);
@@ -321,7 +325,7 @@ class Wall extends ObjectBases.WorldObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
 
-        const cube = new THREE.BoxGeometry(world.getCellSize(), 1.2, world.getCellSize()).translate(0,0.6,0);
+        const cube = new THREE.BoxGeometry(world.getCellSize(), 0.8, world.getCellSize()).translate(0,0.3,0);
         this.mesh = new THREE.Mesh(cube, material);
 
         this.setPos(pos);

@@ -36,3 +36,8 @@ let canvasSize = {
     width: innerWidth - chartSettings.chartSize.width-rigthBar.width,
     height: innerHeight,
 };
+
+let meshes = {
+    tree: null,
+    human: null,
+}

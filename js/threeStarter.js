@@ -1,10 +1,12 @@
-import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
-import {OrbitControls} from "https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js";
+import * as THREE from "../../ecosystemsimulaton/js/library/three.js-r135/build/three.module.js";
+import {OrbitControls} from "../../ecosystemsimulaton/js/library/three.js-r135/examples/jsm/controls/OrbitControls.js";
+
 import {World} from "../../ecosystemsimulaton/js/world/World.js";
 import * as Objects from "../../ecosystemsimulaton/js/world/Objects.js";
 import * as Grid from "../../ecosystemsimulaton/js/world/Grid.js";
 import {MousePicker} from "../../ecosystemsimulaton/js/mouse_picking.js";
 import * as Materials from "../../ecosystemsimulaton/js/world/Materials.js";
+import {loadObject} from "../../ecosystemsimulaton/js/util/loadGLTF.js";
 
 function createInitScene() {
     const scene = new THREE.Scene();
@@ -59,7 +61,7 @@ function createTestSceneElements(scene) {
         world.instantiateObject(squirrelObject);
     }
 
-    const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+    const pointLight = new THREE.PointLight(0xffffff, 1, 50);
     pointLight.position.set(2, 7, 1);
     world.instantiateLight(pointLight);
 
@@ -76,7 +78,6 @@ function threeStarter() {
     const controls = createInitControls(camera, renderer);
     const {terrainObject: _terrainObject} = createTestSceneElements(scene);
     terrainObject = _terrainObject;
-
     gui.setTerrain(terrainObject);
 
     function loop() {
@@ -100,4 +101,20 @@ function threeStarter() {
     loop();
 }
 
-window.onload = threeStarter();
+
+function preload() {
+    let treePromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "tree.glb");
+    });
+    let humanPromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "human.glb");
+    });
+
+    Promise.all([treePromise, humanPromise]).then((mesh) => {
+        meshes.tree = mesh[0];
+        meshes.human = mesh[1];
+        threeStarter();
+    });
+}
+
+window.onload = preload();

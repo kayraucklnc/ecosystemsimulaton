@@ -1,5 +1,8 @@
-import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
-import {DragControls} from "https://unpkg.com/three@0.126.1/examples/jsm/controls/DragControls.js";
+// import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
+import * as THREE from "../../ecosystemsimulaton/js/library/three.js-r135/build/three.module.js";
+import {DragControls} from "../../ecosystemsimulaton/js/library/three.js-r135/examples/jsm/controls/DragControls.js";
+
+// import {DragControls} from "https://unpkg.com/three@0.126.1/examples/jsm/controls/DragControls.js";
 
 const PickingStage = {
     FREE: 0,

@@ -12,16 +12,20 @@
 [ Kayra ] Herhangi bir şeyi dünyaya koyabilecek bir brush
 [ Kayra ] Sol ve sağ menüler
 [ Safa ] Hız doğru çalışıyor mu kontrol et
+[ Birlikte ] Fox - Human classlarının meshlerini external alıp renderlama.
 
 --- OnGoing ---
-[ Yiğit ] Fox - Human classlarının meshlerini external alıp renderlama.
-[ Yiğit ] Shader içine sadece Color değil Texture Loading ve onunla renderlama.
 [ Yiğit ] Game Logic
+[ Yiğit ] Tree - Human - Squirrel - Fox - House   Human Fox ve Tree öldürüyor, ev yapıyor. Squirrel ağaçla çoğalıyor, ağaç dikiyor. Fox Squirrel yiyor. (Şimdilik)
+[ Yiğit ] Objelerin meshleri.
 [ Safa ] Mouse Picking should be disabled when brush is enabled.
-[ Berk ] Terrain Generation daha detaylı olmalı. (Şu videodaki gibi: https://www.youtube.com/watch?v=wbpMiKiSKm8&list=PLFt_AvWsXl0eBW2EiBtl_sxmDtSgZBxB3&index=1)
-[ Berk ] A* / İçine 0 1 le dolu matrix alacak. Girişten çıkışa 0lardan ilerleyen yolu output verecek.
+[ Safa ] Gridde kapladığı yerler farklı olabilecek.
+[ Kayra ] Hareket ettiği yöne baksınlar.
+[ Kayra ] World içerisinde her türden kaç obje olduğunu içinde sayacak.
+[ Kayra ] Terrain Generation daha detaylı olmalı. (Şu videodaki gibi: https://www.youtube.com/watch?v=wbpMiKiSKm8&list=PLFt_AvWsXl0eBW2EiBtl_sxmDtSgZBxB3&index=1)
+[ Safa ] A* / İçine 0 1 le dolu matrix alacak. Girişten çıkışa 0lardan ilerleyen yolu output verecek.
 
 --- TO DO ---
+[ Yiğit ] Shader içine sadece Color değil Texture Loading ve onunla renderlama.
 [ Kayra ] Water Shader - (Bump Mapping ile) ve Water Plane
-[ ] Tree - Human - Squirrel - Fox - House   Human Fox ve Tree öldürüyor, ev yapıyor. Squirrel ağaçla çoğalıyor, ağaç dikiyor. Fox Squirrel yiyor. (Şimdilik)
 [ ] Brush ile dünyada değişiklikler yapılabilecek (Duvar, Ev, Ağaç, İnsan, Fox)

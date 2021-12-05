@@ -1,59 +1,113 @@
 <!DOCTYPE html>
 <html>
-  <head>
-      <title>Ecosystem Simulation</title>
-  </head>
-  <body>
-    <script type="module" src="/js/threeStarter.js"></script>
-    <script src="/js/app.js"></script>
-    <script src="js/util/perlinNoise.js"></script>
-    <script src="js/parameters.js"></script>
-    <script src="js/library/dat.gui.min.js"></script>
-    <script src="js/gui/gui.js"></script>
-    <script src="js/world/World.js"></script>
-    <script src="js/world/ObjectBases.js"></script>
-    <script src="js/world/Objects.js" type="module"></script>
-    <script id="vertexShader" type="x-shader/x-vertex" src="shader.vert">
-        varying vec2 vUv;
-        varying vec3 vNormal;
-        varying vec3 vPosition;
-        void main() {
-            vUv = uv;
+<head>
+    <link rel="stylesheet" href="css/sliderStyle.css">
+    <link rel="stylesheet" href="css/button.css">
+    <link rel="stylesheet" href="css/selection.css">
+    <title>Ecosystem Simulation</title>
+</head>
+<!--Load the AJAX API-->
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
 
-            vNormal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
-            vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
+</script>
+
+<body style="margin: 0; overflow: hidden">
+<script src="js/util/loadGLTF.js" type="module"></script>
+<script src="/js/app.js"></script>
+<script type="module" src="/js/threeStarter.js"></script>
+<script src="js/util/perlinNoise.js"></script>
+<script src="js/util/domElementHandlers.js"></script>
+<script src="js/util/chartDrawer.js"></script>
+<script src="js/parameters.js"></script>
+<script src="js/library/dat.gui.min.js"></script>
+<script src="js/gui/gui.js"></script>
+<script src="js/world/World.js" type="module"></script>
+<script src="js/world/Grid.js" type="module"></script>
+<script src="js/mouse/drawerHandler.js" type="module"></script>
+<script src="js/world/ObjectBases.js" type="module"></script>
+<script src="js/world/Objects.js" type="module"></script>
+<script src="js/world/Materials.js" type="module"></script>
+<script id="vertexShader" type="x-shader/x-vertex" src="shader.vert">
+    varying vec2 vUv;
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+    void main() {
+        vUv = uv;
+
+        vNormal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
+        vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
 
 
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-    </script>
-    <script id="fragmentShader" type="x-shader/x-fragment">
-        struct PointLight {
-            vec3 color;
-            vec3 position;
-            float distance;
-        };
-        uniform PointLight pointLights[NUM_POINT_LIGHTS];
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+</script>
+<script id="fragmentShader" type="x-shader/x-fragment">
+    struct PointLight {
+        vec3 color;
+        vec3 position;
+        float distance;
+    };
+    uniform PointLight pointLights[NUM_POINT_LIGHTS];
 
-        varying vec3 vNormal;
-        varying vec3 vPosition;
-        uniform vec3 color;
-        varying vec2 vUv;
-        void main() {
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+    uniform vec3 color;
+    varying vec2 vUv;
+    void main() {
 
-            vec4 addedLights = vec4(0.0,
-            0.0,
-            0.0,
-            1.0);
-            for (int l = 0; l < NUM_POINT_LIGHTS; l++) {
-                vec3 lightDirection = normalize(vPosition - pointLights[l].position);
-                addedLights.rgb += clamp(dot(-lightDirection, vNormal), 0.0, 1.0)
-                                    * pointLights[l].color;
+        vec4 addedLights = vec4(0.0,
+        0.0,
+        0.0,
+        1.0);
+        for (int l = 0; l < NUM_POINT_LIGHTS; l++) {
+            vec3 distanceVec = vPosition - pointLights[l].position;
+            vec3 lightDirection = normalize(distanceVec);
+            float attuanation = 0.0;
+            if(float(pointLights[l].distance) >= length(distanceVec)){
+                attuanation = pow((1.0 - (length(distanceVec) / float(pointLights[l].distance))), 2.0);
             }
-            addedLights = max(vec4(0.3), addedLights);
 
-            gl_FragColor = vec4(color, 1.)*addedLights;
+            addedLights.rgb += clamp(dot(-lightDirection, vNormal), 0.0, 1.0) * (pointLights[l].color * attuanation);
         }
-    </script>
-  </body>
+        addedLights = max(vec4(0.3), addedLights);
+        addedLights = min(vec4(1.5), addedLights);
+
+        gl_FragColor = vec4(color, 1.)*addedLights;
+    }
+</script>
+<div id="holder" style="display: flex; background-color: black; flex-direction: row; justify-content: flex-end;">
+    <div style="background-color: black" id="leftBar">
+        <div style="background-color: black" id="chartHolder">
+        </div>
+        <div>
+            <div style="text-align: center; padding: 10px">
+                <div style="font-size: 18pt; color: aliceblue">Timescale</div>
+                <input onchange="simulationSpeedChange()" style="width: 100%;" type="range" min="0.1" max="200"
+                       value="1" step="0.1" class="slider" id="timescale-slider">
+            </div>
+            <div style="text-align: center; padding: 10px">
+                <button onclick="simulationToggle()" class="button" style="font-size: 20pt" id="stop-sim-button">Pause
+                    Simulation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div style="background-color: black" id="midBar"></div>
+
+    <div style="background-color: black; width: 320px; margin-top: 200px" id="rightBar">
+        <div style="text-align: center; margin: 15px">
+            <input onchange="brushChange()" type="checkbox" id="brush"><label style="color: white" for="brush">Brush</label>
+            <input onchange="eraserChange()" type="checkbox" id="eraser"><label style="color: white" for="eraser">Eraser</label>
+        </div>
+        <select name="brushElements" id="brushElements" class="list-choice" style="width: 100%">
+            <option value="human">Human</option>
+            <option value="wall">Wall</option>
+            <option value="squirrel">Squirrel</option>
+            <option value="tree">Tree</option>
+        </select>
+    </div>
+</div>
+</body>
 </html>

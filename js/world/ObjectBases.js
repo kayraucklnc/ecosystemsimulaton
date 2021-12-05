@@ -1,7 +1,12 @@
+// import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
+import * as THREE from "../library/three.js-r135/build/three.module.js";
+
 class WorldObjectBase {
     constructor(pos, rotation, material) {
         this.mesh = null;
         this.material = material;
+
+        this.selectable = false;
 
         this.setPos(pos);
         this.setRot(rotation);
@@ -29,6 +34,15 @@ class WorldObjectBase {
         }
     }
 
+    getQuaternion() {
+        return this.mesh.quaternion;
+    }
+    setQuaternion(quaternion) {
+        if (this.mesh != null) {
+            this.mesh.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+        }
+    }
+
     update() {}
     setModel() {}
     setTexture() {}
@@ -43,7 +57,9 @@ class LivingObjectBase extends WorldObjectBase {
     applyDamage(damage) {
         this.health -= damage;
     };
-    die() {}
+    die() {
+        world.deleteObject(this);
+    }
 }
 
 class MovableObjectBase extends LivingObjectBase {
@@ -54,11 +70,36 @@ class MovableObjectBase extends LivingObjectBase {
     }
 
     attack(target) {}
-    checkIfTargetReached() {
-        return this.pos.equals(this.target.pos);
+    checkIfTargetReached(targetPos) {
+        return this.getPos().distanceTo(targetPos) <= world.getCellSize() / 2.0;
     }
 
-    checkIfNextToTarget() {
-        return this.target != null && this.pos.subtract(this.target.pos).magnitude <= 1;
+    checkIfNextToTarget(targetPos) {
+        return this.getPos().distanceTo(targetPos) <= world.getCellSize() * 1.5;
+    }
+
+    getMovementVectorToTarget(targetPos) {
+        let movementVector = new THREE.Vector3().subVectors(targetPos, this.getPos());
+        let x = Math.abs(movementVector.x);
+        let z = Math.abs(movementVector.z);
+        if (x > z) {
+            movementVector.x *= 2.0;
+            movementVector.z /= 2.0;
+        } else if (x < z) {
+            movementVector.x /= 2.0;
+            movementVector.z *= 2.0;
+        } else {
+            if (Math.random() > 0.5) {
+                movementVector.x *= 2.0;
+                movementVector.z /= 2.0;
+            } else {
+                movementVector.x /= 2.0;
+                movementVector.z *= 2.0;
+            }
+        }
+        movementVector = movementVector.normalize().multiplyScalar(this.speed);
+        return movementVector;
     }
 }
+
+export {WorldObjectBase, LivingObjectBase, MovableObjectBase};

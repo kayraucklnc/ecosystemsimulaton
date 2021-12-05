@@ -1,102 +1,183 @@
-import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
-import {OrbitControls} from "https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js";
-import * as Objects from "../../ecosystemsimulaton/js/world/Objects.js";
+import * as THREE from "../../ecosystemsimulaton/js/library/three.js-r135/build/three.module.js";
+import {OrbitControls} from "../../ecosystemsimulaton/js/library/three.js-r135/examples/jsm/controls/OrbitControls.js";
 
-const fShader = document.getElementById("fragmentShader").text;
-const vShader = document.getElementById("vertexShader").text;
+import {World} from "../../ecosystemsimulaton/js/world/World.js";
+import * as Objects from "../../ecosystemsimulaton/js/world/Objects.js";
+import * as Grid from "../../ecosystemsimulaton/js/world/Grid.js";
+import {MousePicker} from "../../ecosystemsimulaton/js/mouse_picking.js";
+import * as Materials from "../../ecosystemsimulaton/js/world/Materials.js";
+import {loadObject} from "../../ecosystemsimulaton/js/util/loadGLTF.js";
 
 function createInitScene() {
     const scene = new THREE.Scene();
     world = new World(scene);
-    const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer();
+
+    const camera = new THREE.PerspectiveCamera(
+        75,
+        canvasSize.width / canvasSize.height,
+        0.1,
+        1000
+    );
+    renderer = new THREE.WebGLRenderer();
     raycaster = new THREE.Raycaster();
+    mousePicker = new MousePicker(scene, camera, renderer);
 
     camera.position.y = 3;
     camera.position.z = 6;
-    renderer.setSize(innerWidth, innerHeight);
-    document.body.appendChild(renderer.domElement);
-    return {scene, camera, renderer};
+    renderer.setSize(canvasSize.width, canvasSize.height);
+    renderer.domElement.style.display = "";
+    document.getElementById("midBar").appendChild(renderer.domElement);
+    return {scene, camera};
 }
 
 function createInitControls(camera, renderer) {
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(0, 0, 0);
+    orbitControls = new OrbitControls(camera, renderer.domElement);
+    orbitControls.target.set(0, 0, 0);
     // controls.maxPolarAngle = Math.PI / 3;
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.1;
-    return controls;
+    orbitControls.enableDamping = true;
+    orbitControls.dampingFactor = 0.1;
+    return orbitControls;
 }
 
-function createTestSceneElements() {
+function createTestSceneElements(scene) {
 
-    const uniforms3 = THREE.UniformsUtils.merge([
-        THREE.UniformsLib["lights"],
-        {
-            color: {type: "c", value: new THREE.Color("skyblue")},
-        },
-    ]);
+    let terrainObject = new Objects.Terrain(new THREE.Vector3(0, -0.03, 0), new THREE.Vector3(0, 0), Materials.planeMat);
+    world.instantiateObject(terrainObject, false);
 
-    const material = new THREE.ShaderMaterial({
-        uniforms: uniforms3,
-        vertexShader: vShader,
-        fragmentShader: fShader,
-        side: THREE.DoubleSide,
-        lights: true,
-    });
+    let grid = new Grid.Grid(scene, terrainObject, parameters.plane.gridWidth);
 
-    const planeMat = new THREE.MeshPhongMaterial({
-        color: 0xff0000,
-        side: THREE.DoubleSide,
-        flatShading: THREE.FlatShading,
-    });
+    for (let i = 0; i < 100; i++) {
+        let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.treeMaterial);
+        world.instantiateObject(treeObject);
+    }
 
-    let terrainObject = new Objects.Terrain( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), planeMat );
-    let mouseFollowerObject = new Objects.MouseFollower( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), material, terrainObject );
-    let cubeObject = new Objects.Box( new THREE.Vector3(0, 2, 0), new THREE.Vector3(0, 0), material );
+    for (let i = 0; i < 150; i++) {
+        let grassObject = new Objects.Grass(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.treeMaterial);
+        world.instantiateObject(grassObject);
+    }
 
-    const pointLight = new THREE.PointLight(0xffffff, 1, 100);
-    pointLight.position.set( 5, 3, 0 );
+/*
+    for (let i = 0; i < 200; i++) {
+        let wheatObject = new Objects.Wheat(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.treeMaterial);
+        world.instantiateObject(wheatObject);
+    }
+*/
 
-    let lightSphereObject = new Objects.LightIndicator( new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), material, pointLight );
+    for (let i = 0; i < 30; i++) {
+        let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.humanMaterial);
+        world.instantiateObject(humanObject);
+    }
 
-    return {terrainObject, mouseFollowerObject, cubeObject, pointLight, lightSphereObject};
+    for (let i = 0; i < 5; i++) {
+        let squirrelObject = new Objects.Squirrel(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+        world.instantiateObject(squirrelObject);
+    }
+
+    for (let i = 0; i < 20; i++) {
+        let pigObject = new Objects.Pig(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+        world.instantiateObject(pigObject);
+    }
+
+    for (let i = 0; i < 10; i++) {
+        let wolfObject = new Objects.Wolf(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+        world.instantiateObject(wolfObject);
+    }
+
+    for (let i = 0; i < 25; i++) {
+        let rabbitObject = new Objects.Rabbit(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+        world.instantiateObject(rabbitObject);
+    }
+
+    for (let i = 0; i < 10; i++) {
+        let foxObject = new Objects.Fox(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+        world.instantiateObject(foxObject);
+    }
+
+    const pointLight = new THREE.PointLight(0xffffff, 1, 50);
+    pointLight.position.set(2, 7, 1);
+    world.instantiateLight(pointLight);
+
+    let lightSphereObject = new Objects.LightIndicator(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.lightIndicatorMaterial, pointLight);
+    world.instantiateObject(lightSphereObject, false);
+
+
+    return {terrainObject};
 }
 
 function threeStarter() {
-    const {scene, camera, renderer} = createInitScene();
+    drawthechart();
+    const {scene, camera} = createInitScene();
     const controls = createInitControls(camera, renderer);
-    const {terrainObject, mouseFollowerObject, cubeObject, pointLight, lightSphereObject} = createTestSceneElements();
-
-    world.instantiateObject(terrainObject);
-    world.instantiateObject(mouseFollowerObject);
-    world.instantiateObject(cubeObject);
-    world.instantiateObject(lightSphereObject);
-
-    world.instantiateLight(pointLight);
-
+    const {terrainObject: _terrainObject} = createTestSceneElements(scene);
+    terrainObject = _terrainObject;
     gui.setTerrain(terrainObject);
 
     function loop() {
         frameCount++;
-        requestAnimationFrame(loop);
+        setTimeout(loop, 1000 / 60);
 
-        controls.update();
-
-        pointLight.position.set( Math.cos(frameCount * 0.1)*3, 2, Math.sin(frameCount * 0.1)*3);
         raycaster.setFromCamera(mouse, camera);
 
-        world.update();
-
+        controls.update();
         renderer.render(scene, camera);
     }
 
+    function worldLoop() {
+        setTimeout(worldLoop, (1000 / 60) / simulation.timeScale);
+
+        if (isSimActive) {
+            for (let i = 0; i < simulation.timeScale / 16.6; i++) {
+                world.update();
+            }
+        }
+    }
+
+    worldLoop();
     loop();
 }
 
-addEventListener("mousemove", (event) => {
-    mouse.x = (event.clientX / innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / innerHeight) * 2 + 1;
-})
 
-window.onload = threeStarter();
+function preload() {
+    let treePromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "tree.glb");
+    });
+    let humanPromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "human.glb");
+    });
+    let grassPromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "grass.glb");
+    });
+    let wheatPromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "wheat.glb");
+    });
+    let pigPromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "pig.glb");
+    });
+    let wolfPromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "wolf.glb");
+    });
+    let rabbitPromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "rabbit.glb");
+    });
+    let foxPromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "fox.glb");
+    });
+    let eaglePromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "eagle.glb");
+    })
+
+    Promise.all([treePromise, humanPromise, grassPromise, wheatPromise, pigPromise, wolfPromise, rabbitPromise, foxPromise, eaglePromise]).then((mesh) => {
+        meshes.tree = mesh[0];
+        meshes.human = mesh[1];
+        meshes.grass = mesh[2];
+        meshes.wheat = mesh[3];
+        meshes.pig = mesh[4];
+        meshes.wolf = mesh[5];
+        meshes.rabbit = mesh[6];
+        meshes.fox = mesh[7];
+        meshes.eagle = mesh[8];
+        threeStarter();
+    });
+}
+
+window.onload = preload();

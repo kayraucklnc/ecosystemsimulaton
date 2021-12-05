@@ -87,6 +87,13 @@ class Terrain extends ObjectBases.WorldObjectBase {
 
     getHeight(vec2) {
         return perlin.get(vec2.x * parameters.plane.noiseScale, vec2.y * parameters.plane.noiseScale) * parameters.plane.heightMultiplier;
+        // return getComplexHeight(vec2, lacunarity, persistance);
+    }
+
+    getComplexHeight(vec2, lacunarity, persistance) {
+        //İREM
+        //Should return a float;
+        return undefined;
     }
 
     changePlaneGeometry(parameters) {

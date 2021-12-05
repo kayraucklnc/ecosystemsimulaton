@@ -1,4 +1,3 @@
-// import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
 import * as THREE from "../library/three.js-r135/build/three.module.js";
 
 import * as Objects from "../world/Objects.js"
@@ -63,7 +62,8 @@ class World {
             object.mesh.quaternion.setFromUnitVectors(up, normal.clone());
 
             //Align its look around itself
-            object.mesh.rotateOnWorldAxis(normal, 0);
+            // object.mesh.rotateOnWorldAxis(normal, Math.PI/4);
+            // object.mesh.rotateY(Math.PI/4);
         }
 
     }
@@ -79,6 +79,10 @@ class World {
         if (crossed.y < 0) {
             crossed.negate();
         }
+
+
+
+
         return crossed.normalize();
     }
 

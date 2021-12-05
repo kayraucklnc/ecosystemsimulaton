@@ -1,5 +1,6 @@
 // import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
 import * as THREE from "../library/three.js-r135/build/three.module.js";
+import * as AStar from "../util/AStar.js";
 
 class WorldObjectBase {
     constructor(pos, rotation, material) {
@@ -67,6 +68,8 @@ class MovableObjectBase extends LivingObjectBase {
         super(pos, rotation, material);
         this.speed = null;
         this.target = null;
+
+        this.path = [];
     }
 
     attack(target) {}
@@ -99,6 +102,31 @@ class MovableObjectBase extends LivingObjectBase {
         }
         movementVector = movementVector.normalize().multiplyScalar(this.speed);
         return movementVector;
+    }
+
+    setPathWithAStar(targetPos) {
+        this.path = AStar.findPath(this.getPos(), targetPos);
+    }
+
+    findClosestWithAStar(checkFunc) {
+        let closest = null;
+        let closestPathLen = Infinity;
+        let closestPath = null;
+        for (let worldObject of world.objects) {
+            if (!checkFunc(worldObject)) {
+                continue;
+            }
+            let currentPath = AStar.findPath(this.getPos(), worldObject.getPos());
+            if (currentPath.length < closestPathLen) {
+                closestPathLen = currentPath.length;
+                closest = worldObject;
+                closestPath = currentPath;
+            }
+        }
+
+        this.path = closestPath;
+
+        return closest;
     }
 }
 

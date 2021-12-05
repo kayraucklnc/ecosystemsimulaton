@@ -291,30 +291,31 @@ class Human extends ObjectBases.MovableObjectBase {
 
     update() {
         //Should find the closest tree.
-        let closest = null;
-        let closestDist = Infinity;
-        let currPos = this.getPos();
-        world.objects.forEach(
-            function(value, index) {
-                let dist = (new THREE.Vector3()).subVectors(value.getPos(), currPos).lengthSq();
-                if (value instanceof Tree && (closest == null || dist < closestDist)) {
-                    closest = value;
-                    closestDist = dist;
-                }
-            }
-        )
-        this.target = closest;
+        // let closest = null;
+        // let closestDist = Infinity;
+        // let currPos = this.getPos();
+        // world.objects.forEach(
+        //     function(value, index) {
+        //         let dist = (new THREE.Vector3()).subVectors(value.getPos(), currPos).lengthSq();
+        //         if (value instanceof Tree && (closest == null || dist < closestDist)) {
+        //             closest = value;
+        //             closestDist = dist;
+        //         }
+        //     }
+        // )
+        this.target = this.findClosestWithAStar((o) => {return o instanceof Tree;});
 
         if (this.target != null && this.checkIfNextToTarget(this.target.getPos())) {
             this.target.applyDamage(2);
-        } else if (this.target != null) {
-            let movementVector = this.getMovementVectorToTarget(this.target.getPos());
+        } else if (this.path) {
+            let movementVector = this.path[0];
 
             if (this.movement < 1) {
                 this.movement += this.speed;
-            } else if (!world.checkNeighbour(this.getPos(), movementVector)) {
+            } else if (!world.checkPos(movementVector)) {
                 this.movement = 0.0;
-                world.moveObjectOnGridInDirection(this, movementVector);
+                world.moveObjectOnGrid(this, movementVector);
+                this.path.splice(0, 1);
                 // console.log("Human is moving towards tree. Current Pos: " + pos.x + ", " + pos.y + ", " + pos.z);
             }
         }

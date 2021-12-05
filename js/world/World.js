@@ -68,6 +68,10 @@ class World {
 
     }
 
+    checkIfInGrid(pos) {
+        return this.grid.checkIfInGrid(pos);
+    }
+
     getNormalVector(gridCenter) {
         let vecOne = (new THREE.Vector3()).addVectors(gridCenter, (new THREE.Vector3(this.getCellSize() / 2.0, 0, 0)));
         vecOne.y = this.grid.terrain.getHeight(new THREE.Vector2(vecOne.x, vecOne.z));

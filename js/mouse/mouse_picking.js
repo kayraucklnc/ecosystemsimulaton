@@ -1,8 +1,5 @@
-// import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
-import * as THREE from "../../ecosystemsimulaton/js/library/three.js-r135/build/three.module.js";
-import {DragControls} from "../../ecosystemsimulaton/js/library/three.js-r135/examples/jsm/controls/DragControls.js";
-
-// import {DragControls} from "https://unpkg.com/three@0.126.1/examples/jsm/controls/DragControls.js";
+import * as THREE from "../library/three.js-r135/build/three.module.js";
+import {DragControls} from "../library/three.js-r135/examples/jsm/controls/DragControls.js";
 
 const PickingStage = {
     FREE: 0,
@@ -28,6 +25,8 @@ export class MousePicker {
 
         window.addEventListener("pointerup", mouse_up);
         window.addEventListener('pointermove', mouse_move);
+
+        this.isActive = true;
     }
 }
 
@@ -66,7 +65,7 @@ function mouse_up(event) {
             mousePicker.axesHelper.visible = false;
         }
 
-        if (mousePicker.stage == PickingStage.FREE && intersect && intersect.object != mousePicker.axesHelper) {
+        if (mousePicker.isActive && mousePicker.stage == PickingStage.FREE && intersect && intersect.object != mousePicker.axesHelper) {
             if (!world.getObjectOfMesh(intersect.object).selectable) {
                 return;
             }

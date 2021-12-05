@@ -125,9 +125,6 @@ class Grid {
 
     // Gets a Three.Vector3 and returns if there is an object there.
     checkGrid(pos) {
-        if (!this.checkIfInGrid(pos)) {
-            return false;
-        }
         let result = this.getPos(pos);
         return result != null;
     }

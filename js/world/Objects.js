@@ -269,7 +269,7 @@ class Squirrel extends ObjectBases.MovableObjectBase {
         const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
 
         const newTree = new Tree(neighbourPos, new THREE.Vector3(), treeMaterial);
-        if (world.grid.checkIfInGrid(neighbourPos)) {
+        if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
             world.instantiateObject(newTree);
         }
 

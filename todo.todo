@@ -13,6 +13,8 @@
 [ Kayra ] Sol ve sağ menüler
 [ Safa ] Hız doğru çalışıyor mu kontrol et
 [ Kayra ] Shader içine sadece Color değil Texture Loading ve onunla renderlama.
+[ Kayra ] Paths are visible to the eye
+[ Kayra ] Harekete döndüğü yöne bakma.
 [ Yiğit ] Game Logic
 
 --- OnGoing ---
@@ -24,7 +26,6 @@
 [ İrem ] Terrain Generation daha detaylı olmalı. (Şu videodaki gibi: https://www.youtube.com/watch?v=wbpMiKiSKm8&list=PLFt_AvWsXl0eBW2EiBtl_sxmDtSgZBxB3&index=1)
 [ İrem ] Terrainin rengi yüksekliğine göre değişmeli.
 [ Kayra ] Shaderlar glsl dosyalarından alınmalı
-[ Kayra ] Harekete döndüğü yöne bakma.
 [ Kayra ] World içinde kaç obje olduğunu optimize bakmalı
 
 --- TO DO ---

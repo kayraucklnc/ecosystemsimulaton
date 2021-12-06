@@ -212,7 +212,9 @@ class MovableObjectBase extends LivingObjectBase {
                 this.movement = 0.0;
                 world.moveObjectOnGrid(this, movementVector);
                 this.path.splice(0, 1);
-                onMove();
+                if (onMove) {
+                    onMove();
+                }
 
             } else {
                 onStuck();

@@ -248,7 +248,7 @@ class Squirrel extends ObjectBases.MovableObjectBase {
                     this.targetPos = null;
                     return;
                 }
-            }, false
+            }, null, false
         )
     }
 

@@ -68,7 +68,7 @@ function createTestSceneElements(scene) {
         world.instantiateObject(squirrelObject);
     }
 
-    const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+    const pointLight = new THREE.PointLight(0xffffff, 1.05, 100);
     pointLight.position.set(2, 9, 1);
     world.instantiateLight(pointLight);
 
@@ -101,12 +101,12 @@ function threeStarter() {
 
     function worldLoop() {
         if (isSimActive) {
-            for (let i = 0; i < simulation.timeScale / 16.6; i++) {
+            for (let i = 0; i < simulation.timeScale / (1000 / 60); i++) {
                 world.update();
             }
         }
 
-        setTimeout(worldLoop, (1000 / 60) / simulation.timeScale);
+        setTimeout(worldLoop, (1000 / 60) / (Math.min(1000 / 60, simulation.timeScale)));
     }
 
     worldLoop();

@@ -112,31 +112,31 @@ class MovableObjectBase extends LivingObjectBase {
         return movementVector;
     }
 
-    setPathWithAStar(targetPos) {
-        this.path = AStar.findPath(this.getPos(), targetPos);
-    }
-
     findClosestWithAStar(checkFunc) {
         let closestDist = Infinity;
-        let closestTen = [];
-        for (let worldObject of world.objects) {
-            if (!checkFunc(worldObject)) {
-                continue;
-            }
-            let currDist = this.getPos().distanceToSquared(worldObject.getPos());
-            if (currDist < closestDist) {
-                closestTen.push(worldObject);
-                closestDist = currDist;
-
-                if (closestTen.length > 10) {
-                    closestTen.splice(0, 1);
-                }
-            }
-        }
+        // let closestTen = [];
+        // for (let worldObject of world.objects) {
+        //     if (!checkFunc(worldObject)) {
+        //         continue;
+        //     }
+        //     let currDist = this.getPos().distanceToSquared(worldObject.getPos());
+        //     if (currDist < closestDist) {
+        //         closestTen.push(worldObject);
+        //         closestDist = currDist;
+        //
+        //         if (closestTen.length > 10) {
+        //             closestTen.splice(0, 1);
+        //         }
+        //     }
+        // }
+        let cloneObjects = [...world.objects];
+        let thisPos = this.getPos();
+        cloneObjects = cloneObjects.filter(checkFunc);
+        cloneObjects.sort((a,b) => (a.getPos().distanceToSquared(thisPos) > b.getPos().distanceToSquared(thisPos)) ? 1 : -1);
 
         let closest = null;
-        for (let i = closestTen.length - 1; i >= 0; i--) {
-            closest = closestTen[i];
+        for (let i = 0; i < cloneObjects.length; i++) {
+            closest = cloneObjects[i];
             this.path = AStar.findPath(this.getPos(), closest.getPos());
             if (this.path != null) {
                 break;

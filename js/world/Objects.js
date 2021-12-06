@@ -1,6 +1,7 @@
 import * as THREE from "../library/three.js-r135/build/three.module.js";
 import * as ObjectBases from "./ObjectBases.js";
-import {planeMat, treeMaterial} from "./Materials.js";
+import {treeMaterial} from "./Materials.js";
+import * as AStar from "../util/AStar.js";
 
 class Box extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
@@ -230,18 +231,30 @@ class Squirrel extends ObjectBases.MovableObjectBase {
     }
 
     moving() {
-        while (this.targetPos == null) {
+        if (this.targetPos == null || this.path == null) {
             const randomPoint = new THREE.Vector3((Math.random() - 0.5) * 4, 0, (Math.random() - 0.5) * 4).add(this.getPos());
             if (world.grid.checkIfInGrid(randomPoint) && !world.checkPos(randomPoint)) {
                 this.targetPos = world.getCellCenter(randomPoint);
+                this.path = AStar.findPath(this.getPos(), this.targetPos);
             }
+        }
+        if (this.path == null) {
+            this.switchState(this.squirrelStates.Idle);
+            return;
         }
 
         this.movement += this.speed;
-        const movementVector = this.getMovementVectorToTarget(this.targetPos);
-        if (this.movement >= 1 && !world.checkNeighbour(this.getPos(), movementVector)) {
-            world.moveObjectOnGridInDirection(this, movementVector);
-            this.movement = 0.0;
+        const nextPos = this.path[0];
+        if (this.movement >= 1) {
+            if (!world.checkPos(nextPos)) {
+                world.moveObjectOnGrid(this, nextPos);
+                this.movement = 0.0;
+            } else {
+                this.path = AStar.findPath(this.getPos(), this.targetPos);
+                if (this.path == null) {
+                    this.targetPos = null;
+                }
+            }
         }
 
         if (this.checkIfTargetReached(this.targetPos)) {
@@ -306,6 +319,7 @@ class Human extends ObjectBases.MovableObjectBase {
                 this.path.splice(0, 1);
                 // console.log("Human is moving towards tree. Current Pos: " + pos.x + ", " + pos.y + ", " + pos.z);
             } else {
+                console.log("Takıldım");
                 this.target = null;
             }
         }

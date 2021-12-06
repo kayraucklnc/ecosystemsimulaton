@@ -291,7 +291,7 @@ class Human extends ObjectBases.MovableObjectBase {
         if (this.target) {
             this.executePath(
                 () => {
-                    if (this.target.applyDamage(2)) {
+                    if (this.target.applyDamage(1)) {
                         this.target = null;
                     }
                 },

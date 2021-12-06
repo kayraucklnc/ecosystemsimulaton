@@ -50,11 +50,15 @@ function createTestSceneElements(scene) {
     // world.instantiateObject(treeObject);
     // let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.humanMaterial);
     // world.instantiateObject(humanObject);
+    // let squirrelObject = new Objects.Squirrel(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+    // world.instantiateObject(squirrelObject);
 
     // let treeObject = new Objects.Tree(new THREE.Vector3(-6, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
     // world.instantiateObject(treeObject);
     // let humanObject = new Objects.Human(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);
     // world.instantiateObject(humanObject);
+    // let squirrelObject = new Objects.Squirrel(new THREE.Vector3(6,0,0), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+    // world.instantiateObject(squirrelObject);
 
     for (let i = 0; i < 200; i++) {
         let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.treeMaterial);

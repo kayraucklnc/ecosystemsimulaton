@@ -1,4 +1,5 @@
 import * as THREE from "../library/three.js-r135/build/three.module.js";
+import {PriorityQueue} from "../library/datastructures-js/priority-queue/priorityQueue.js";
 
 class Node {
     constructor() {
@@ -11,8 +12,13 @@ class Node {
     }
 }
 
-function areVectorsEqual(v1, v2, epsilon = Number.EPSILON) {
-    return ( ( Math.abs( v1.x - v2.x ) < epsilon ) && ( Math.abs( v1.y - v2.y ) < epsilon ) && ( Math.abs( v1.z - v2.z ) < epsilon ) );
+function recreatePQueue(pQueue) {
+    let arrayOfQueue = pQueue.toArray();
+    pQueue.clear();
+    for (let item of arrayOfQueue) {
+        pQueue.enqueue(item, item.costOfGrid);
+    }
+    return pQueue;
 }
 
 function getVectorHash(vec) {
@@ -20,8 +26,18 @@ function getVectorHash(vec) {
 }
 
 function findPath(startingPos, targetPos) {
-    let openNodes = [];	// Nodes that haven't been visited yet.
-    let closedNodes = [];	// Nodes that have already been visited.
+    /* world.getCellCenter Gets center position of the grid in world coordinates (THREE.Vector3).
+     * world.getCellSize Returns the width of the each grid.
+    */
+    let openNodes = new PriorityQueue({
+        compare: (n1, n2) => {
+            if (n1.costOfGrid > n2.costOfGrid) return 1;
+            if (n1.costOfGrid < n2.costOfGrid) return -1;
+            return 0;
+        }
+    });	// Nodes that haven't been visited yet.
+    let openNodesSet = new Set();
+    let closedNodesSet = new Set();	// Nodes that have already been visited.
     const startingGrid = world.getCellCenter(startingPos);
     const targetGrid = world.getCellCenter(targetPos);
 
@@ -31,37 +47,24 @@ function findPath(startingPos, targetPos) {
     let firstNode = new Node();
     firstNode.position = startingGrid;
     firstNode.distFromStart = 0;
-    firstNode.distToTarget = startingGrid.distanceTo(targetGrid);
+    firstNode.distToTarget = startingGrid.distanceToSquared(targetGrid);
     firstNode.costOfGrid = firstNode.distFromStart + firstNode.distToTarget;
     gridToNode.set(getVectorHash(startingGrid), firstNode);
-    openNodes.push(firstNode);
+
+    openNodes.enqueue(firstNode, firstNode.costOfGrid);
+    openNodesSet.add(firstNode);
 
     //Keep getting best node until the destination point is reached.
     let currentNode = null;
-    while(openNodes.length > 0) {
-        // Choose the lowest one.
-        let lowestIndex = null;
-        let lowF = Infinity;
+    while(!openNodes.isEmpty()) {
+        currentNode = openNodes.dequeue();
 
-        //Loop through the open nodes around the starting target
-        for (let i = 0; i < openNodes.length; i++) {
-            let tempNode = openNodes[i];
-
-            //get the node within open list that has the lowest F value
-            if (tempNode.costOfGrid < lowF) {
-                lowF = tempNode.costOfGrid;
-                lowestIndex = i;
-            }
-        }
-
-        currentNode = openNodes[lowestIndex];
-
-        if (areVectorsEqual(currentNode.position, targetGrid, 0.2)) {
+        if (currentNode.position.equals(targetGrid)) {
             break;
         }
 
-        openNodes.splice(lowestIndex, 1);
-        closedNodes.push(currentNode);
+        openNodesSet.delete(currentNode);
+        closedNodesSet.add(currentNode);
 
         //Grab all visible neighbors of the current best node
         const neighbourVectors = [
@@ -76,7 +79,7 @@ function findPath(startingPos, targetPos) {
 
         for (let neighbourVector of neighbourVectors) {
             let neighbourGrid = world.getNeighbourPos(currentNode.position, neighbourVector);
-            if(!world.checkIfInGrid(neighbourGrid) || (!areVectorsEqual(neighbourGrid, targetGrid) && world.checkPos(neighbourGrid))) {
+            if(!world.checkIfInGrid(neighbourGrid) || (!neighbourGrid.equals(targetGrid)) && world.checkPos(neighbourGrid)) {
                 continue;
             }
 
@@ -89,20 +92,22 @@ function findPath(startingPos, targetPos) {
                 gridToNode.set(getVectorHash(neighbourGrid), neighbourNode);
             }
 
-            if(containsNode(closedNodes, neighbourNode)) {
+            if(closedNodesSet.has(neighbourNode)) {
                 continue;
             }
 
-            let distFromStartValue = currentNode.distFromStart + currentNode.position.distanceTo(neighbourGrid);
+            let distFromStartValue = currentNode.distFromStart + currentNode.position.distanceToSquared(neighbourGrid);
             let gScoreIsBest = false;
 
             //if currentNode is not in the openNodes array calculate its G, H and F values
-            if (!containsNode(openNodes, neighbourNode)) {
+            if (!openNodesSet.has(neighbourNode)) {
                 gScoreIsBest = true;
 
                 //Distance from the neighbor to the target node
-                neighbourNode.distToTarget = targetGrid.distanceTo(neighbourGrid);
-                openNodes.push(neighbourNode);
+                neighbourNode.distToTarget = targetGrid.distanceToSquared(neighbourGrid);
+
+                openNodes.enqueue(neighbourNode, neighbourNode.costOfGrid);
+                openNodesSet.add(neighbourNode);
 
             } else if (distFromStartValue < neighbourNode.distFromStart) {
                 gScoreIsBest = true;
@@ -115,12 +120,14 @@ function findPath(startingPos, targetPos) {
                 //Total Cost
                 neighbourNode.costOfGrid = neighbourNode.distFromStart + neighbourNode.distToTarget;
                 neighbourNode.cameFrom = currentNode;
+
+                openNodes = recreatePQueue(openNodes);
             }
         }
     }
 
     let path = null;
-    if (areVectorsEqual(currentNode.position, targetGrid, 0.2)) {
+    if (currentNode.position.equals(targetGrid)) {
         path = [];
         let currNode = currentNode;
 
@@ -133,20 +140,6 @@ function findPath(startingPos, targetPos) {
     }
 
     return path;
-}
-
-/*
-Checks to see if a waypoint is contained within a given array
-*/
-function containsNode(A, searchValue)
-{
-    for (let j = 0; j < A.length; j++)
-    {
-        if (areVectorsEqual(A[j].position, searchValue.position, 0.2)) {
-            return true;
-        }
-    }
-    return false;
 }
 
 export {findPath};

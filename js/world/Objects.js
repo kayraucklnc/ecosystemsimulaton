@@ -160,7 +160,7 @@ class Fox extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
-        this.speed = 2;
+        this.speed = 0.04;
 
         this.selectable = true;
     }
@@ -176,7 +176,7 @@ class Squirrel extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
-        this.speed = 0.1;
+        this.speed = 0.04;
 
         this.selectable = true;
 
@@ -238,7 +238,7 @@ class Squirrel extends ObjectBases.MovableObjectBase {
                 this.path = AStar.findPath(this.getPos(), this.targetPos);
             }
         }
-        if (this.path == null) {
+        if (this.targetPos == null || this.path == null) {
             this.switchState(this.squirrelStates.Idle);
             return;
         }
@@ -251,8 +251,9 @@ class Squirrel extends ObjectBases.MovableObjectBase {
                 this.movement = 0.0;
             } else {
                 this.path = AStar.findPath(this.getPos(), this.targetPos);
-                if (this.path == null) {
+                if (!this.path || this.path.length == 1) {
                     this.targetPos = null;
+                    return;
                 }
             }
         }
@@ -283,7 +284,8 @@ class Human extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
-        this.speed = 0.1;
+        this.speed = 0.02;
+        this.target = null;
 
         this.selectable = true;
 
@@ -294,34 +296,23 @@ class Human extends ObjectBases.MovableObjectBase {
 
         this.setPos(pos);
         this.setRot(rotation);
-
-        this.movement = 0.0;
     }
 
     update() {
         if (this.target == null) {
-            console.log("Finding target.");
             this.target = this.findClosestWithAStar((o) => {return o instanceof Tree;});
         }
 
-        if (this.target != null && this.checkIfNextToTarget(this.target.getPos())) {
-            if (this.target.applyDamage(2)) {
-                this.target = null;
-            }
-        } else if (this.path != null && this.path.length > 0) {
-            let movementVector = this.path[0];
-
-            if (this.movement < 1) {
-                this.movement += this.speed;
-            } else if (!world.checkPos(movementVector)) {
-                this.movement = 0.0;
-                world.moveObjectOnGrid(this, movementVector);
-                this.path.splice(0, 1);
-                // console.log("Human is moving towards tree. Current Pos: " + pos.x + ", " + pos.y + ", " + pos.z);
-            } else {
-                console.log("Takıldım");
-                this.target = null;
-            }
+        if (this.target) {
+            this.executePath(
+                () => {
+                    if (this.target.applyDamage(2)) {
+                        this.target = null;
+                    }
+                },
+                () => {
+                    this.target = null;
+                }, true);
         }
     }
 }

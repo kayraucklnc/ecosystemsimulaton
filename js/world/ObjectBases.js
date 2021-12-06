@@ -55,9 +55,17 @@ class LivingObjectBase extends WorldObjectBase {
         this.health = null;
     }
 
+    //Returns if object is dead after damage.
     applyDamage(damage) {
         this.health -= damage;
+        if (this.health <= 0) {
+            this.die();
+            return true;
+        }
+
+        return false;
     };
+
     die() {
         world.deleteObject(this);
     }
@@ -109,22 +117,31 @@ class MovableObjectBase extends LivingObjectBase {
     }
 
     findClosestWithAStar(checkFunc) {
-        let closest = null;
-        let closestPathLen = Infinity;
-        let closestPath = null;
+        let closestDist = Infinity;
+        let closestTen = [];
         for (let worldObject of world.objects) {
             if (!checkFunc(worldObject)) {
                 continue;
             }
-            let currentPath = AStar.findPath(this.getPos(), worldObject.getPos());
-            if (currentPath.length < closestPathLen) {
-                closestPathLen = currentPath.length;
-                closest = worldObject;
-                closestPath = currentPath;
+            let currDist = this.getPos().distanceToSquared(worldObject.getPos());
+            if (currDist < closestDist) {
+                closestTen.push(worldObject);
+                closestDist = currDist;
+
+                if (closestTen.length > 10) {
+                    closestTen.splice(0, 1);
+                }
             }
         }
 
-        this.path = closestPath;
+        let closest = null;
+        for (let i = closestTen.length - 1; i >= 0; i--) {
+            closest = closestTen[i];
+            this.path = AStar.findPath(this.getPos(), closest.getPos());
+            if (this.path != null) {
+                break;
+            }
+        }
 
         return closest;
     }

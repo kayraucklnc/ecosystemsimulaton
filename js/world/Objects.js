@@ -130,8 +130,8 @@ class Tree extends ObjectBases.LivingObjectBase {
 
 
     applyDamage(damage) {
-        super.applyDamage(damage);
         // console.log("Tree got " + damage + " damage.")
+        return super.applyDamage(damage);
     }
 
     update() {
@@ -146,10 +146,6 @@ class Tree extends ObjectBases.LivingObjectBase {
         // }
         // runVector.normalize();
         // this.getPos().add(runVector.multiplyScalar(0.03));
-
-        if (this.health <= 0) {
-            this.die();
-        }
     }
 
     die() {
@@ -290,24 +286,16 @@ class Human extends ObjectBases.MovableObjectBase {
     }
 
     update() {
-        //Should find the closest tree.
-        // let closest = null;
-        // let closestDist = Infinity;
-        // let currPos = this.getPos();
-        // world.objects.forEach(
-        //     function(value, index) {
-        //         let dist = (new THREE.Vector3()).subVectors(value.getPos(), currPos).lengthSq();
-        //         if (value instanceof Tree && (closest == null || dist < closestDist)) {
-        //             closest = value;
-        //             closestDist = dist;
-        //         }
-        //     }
-        // )
-        this.target = this.findClosestWithAStar((o) => {return o instanceof Tree;});
+        if (this.target == null) {
+            console.log("Finding target.");
+            this.target = this.findClosestWithAStar((o) => {return o instanceof Tree;});
+        }
 
         if (this.target != null && this.checkIfNextToTarget(this.target.getPos())) {
-            this.target.applyDamage(2);
-        } else if (this.path) {
+            if (this.target.applyDamage(2)) {
+                this.target = null;
+            }
+        } else if (this.path != null && this.path.length > 0) {
             let movementVector = this.path[0];
 
             if (this.movement < 1) {
@@ -317,6 +305,8 @@ class Human extends ObjectBases.MovableObjectBase {
                 world.moveObjectOnGrid(this, movementVector);
                 this.path.splice(0, 1);
                 // console.log("Human is moving towards tree. Current Pos: " + pos.x + ", " + pos.y + ", " + pos.z);
+            } else {
+                this.target = null;
             }
         }
     }

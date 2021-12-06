@@ -76,8 +76,7 @@ function findPath(startingPos, targetPos) {
 
         for (let neighbourVector of neighbourVectors) {
             let neighbourGrid = world.getNeighbourPos(currentNode.position, neighbourVector);
-
-            if(!world.checkIfInGrid(neighbourGrid) || world.checkPos(neighbourGrid)) {
+            if(!world.checkIfInGrid(neighbourGrid) || (!areVectorsEqual(neighbourGrid, targetGrid) && world.checkPos(neighbourGrid))) {
                 continue;
             }
 
@@ -128,7 +127,7 @@ function findPath(startingPos, targetPos) {
         //retrieve the parents of each of the nodes, beginning with the final node to retrieve the shortest path
         while (currNode.cameFrom) {
             path.push(currNode.position);
-            currNode = currentNode.cameFrom;
+            currNode = currNode.cameFrom;
         }
         path = path.reverse();
     }

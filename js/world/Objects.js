@@ -243,25 +243,19 @@ class Squirrel extends ObjectBases.MovableObjectBase {
             return;
         }
 
-        this.movement += this.speed;
-        const nextPos = this.path[0];
-        if (this.movement >= 1) {
-            if (!world.checkPos(nextPos)) {
-                world.moveObjectOnGrid(this, nextPos);
-                this.movement = 0.0;
-            } else {
+        this.executePath(
+            () => {
+                this.targetPos = null;
+                this.switchState(this.squirrelStates.Planting);
+            },
+            () => {
                 this.path = AStar.findPath(this.getPos(), this.targetPos);
                 if (!this.path || this.path.length == 1) {
                     this.targetPos = null;
                     return;
                 }
-            }
-        }
-
-        if (this.checkIfTargetReached(this.targetPos)) {
-            this.targetPos = null;
-            this.switchState(this.squirrelStates.Planting);
-        }
+            }, false
+        )
     }
 
     running() {

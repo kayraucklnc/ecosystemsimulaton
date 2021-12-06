@@ -16,6 +16,7 @@ class WorldObjectBase {
     getPos() {
         return this.mesh.position;
     }
+
     setPos(vec3) {
         if (this.mesh != null) {
             this.mesh.position.x = vec3.x;
@@ -27,6 +28,7 @@ class WorldObjectBase {
     getRot() {
         return this.mesh.rotation;
     }
+
     setRot(vec3) {
         if (this.mesh != null) {
             this.mesh.rotation.x = vec3.x;
@@ -38,15 +40,21 @@ class WorldObjectBase {
     getQuaternion() {
         return this.mesh.quaternion;
     }
+
     setQuaternion(quaternion) {
         if (this.mesh != null) {
             this.mesh.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
         }
     }
 
-    update() {}
-    setModel() {}
-    setTexture() {}
+    update() {
+    }
+
+    setModel() {
+    }
+
+    setTexture() {
+    }
 }
 
 class LivingObjectBase extends WorldObjectBase {
@@ -79,30 +87,56 @@ class MovableObjectBase extends LivingObjectBase {
         this.path = [];
         this.pathLines = [];
         this.pathColor = world.getRandomColor();
-        this.pathHeight = world.randomFloatFromInterval(world.getCellSize()/4, world.getCellSize()); 
+        this.pathHeight = world.randomFloatFromInterval(world.getCellSize() / 4, world.getCellSize());
 
         this.movement = 0.0;
     }
 
-    createPathLines(path) {
+    createLines(path) {
         this.pathLines.forEach((pL) => {
             world.scene.remove(pL);
         });
         this.pathLines = [];
-        
+
         let line = world.createLine(this.getPos(), path[0], this.pathHeight, this.pathColor);
         this.pathLines.push(line);
         world.scene.add(line);
-        
-        for(let i = 0; i<path.length - 1; i++){
-            let line = world.createLine(path[i], path[i+1], this.pathHeight, this.pathColor);
+
+        for (let i = 0; i < path.length - 1; i++) {
+            let line = world.createLine(path[i], path[i + 1], this.pathHeight, this.pathColor);
             this.pathLines.push(line);
             world.scene.add(line);
-        };
+        }
     }
 
+    myangleTo(u, v, normal){
+        let angle = Math.acos(new THREE.Vector3().copy(u).normalize().dot(new THREE.Vector3().copy(v).normalize()));
+        let cross = new THREE.Vector3().crossVectors(u, v);
+        if (new THREE.Vector3().copy(normal).normalize().dot(new THREE.Vector3().copy(cross).normalize()) < 0) { // Or > 0
+            angle = -angle;
+        }
+        return angle;
+    }
+    
+    lookTowardsPath() {
+        //Align its look around itself
+        let projMovement = new THREE.Vector3().subVectors(this.path[0], this.getPos()).projectOnPlane(world.getNormalVector(this.getPos())).normalize().multiplyScalar(world.getCellSize() / 2);
 
-    attack(target) {}
+        let projZAxis = new THREE.Vector3().addVectors(this.getPos(), (new THREE.Vector3(0, 0, world.getCellSize() / 2.0)));
+        projZAxis.y = world.grid.terrain.getHeight(new THREE.Vector2(projZAxis.x, projZAxis.z));
+        projZAxis.sub(this.getPos());
+        // world.scene.add(world.createLine(this.getPos(), new THREE.Vector3().addVectors(projZAxis, this.getPos())));
+        // world.scene.add(world.createLine(this.getPos(), new THREE.Vector3().addVectors(projMovement, this.getPos()), 0,"#ff0000"));
+        let angleInRad = this.myangleTo(projZAxis, projMovement, world.getNormalVector(this.getPos()));
+        // let angleInRad = this.myangleTo(new THREE.Vector3(1,0,1), new THREE.Vector3(0,0,1), world.getNormalVector(this.getPos()));
+        console.log(angleInRad);
+        this.mesh.rotation.y = angleInRad;
+    }
+    
+
+    attack(target) {
+    }
+
     checkIfTargetReached(targetPos) {
         return this.getPos().distanceToSquared(targetPos) <= Math.pow(world.getCellSize() / 2.0, 2.0);
     }
@@ -138,7 +172,7 @@ class MovableObjectBase extends LivingObjectBase {
         let cloneObjects = [...world.objects];
         let thisPos = this.getPos();
         cloneObjects = cloneObjects.filter(checkFunc);
-        cloneObjects.sort((a,b) => (a.getPos().distanceToSquared(thisPos) > b.getPos().distanceToSquared(thisPos)) ? 1 : -1);
+        cloneObjects.sort((a, b) => (a.getPos().distanceToSquared(thisPos) > b.getPos().distanceToSquared(thisPos)) ? 1 : -1);
 
         let closest = null;
         for (let i = 0; i < cloneObjects.length; i++) {
@@ -153,7 +187,8 @@ class MovableObjectBase extends LivingObjectBase {
     }
 
     // onReach and onStuck are functions. Needs targetPos to be assigned.
-    executePath(onReach, onStuck, onMove = () => {}, hasTargetOnDest = false) {
+    executePath(onReach, onStuck, onMove = () => {
+    }, hasTargetOnDest = false) {
         if (this.path == null) {
             onStuck();
             return;
@@ -162,7 +197,7 @@ class MovableObjectBase extends LivingObjectBase {
         let targetPos = null;
         let reachCheck = null;
         if (hasTargetOnDest) {
-            targetPos = this.path[this.path.length-1]
+            targetPos = this.path[this.path.length - 1]
             reachCheck = this.checkIfNextToTarget(targetPos);
         } else {
             // targetPos = this.getPos();

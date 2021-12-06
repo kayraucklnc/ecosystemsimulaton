@@ -112,7 +112,7 @@ class Terrain extends ObjectBases.WorldObjectBase {
 
         world.objects.forEach((x) => {
             if(x instanceof Human){
-                world.fixObjectPosRot(x);
+                world.fixObjectPos(x);
             }
         })
     }
@@ -304,7 +304,8 @@ class Human extends ObjectBases.MovableObjectBase {
                 () => {
                     this.target = null;
                 }, (e) => {
-                    this.createPathLines(this.path);
+                    this.createLines(this.path);
+                    this.lookTowardsPath();
                 } ,true);
         }
     }

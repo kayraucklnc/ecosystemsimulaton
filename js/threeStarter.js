@@ -52,8 +52,8 @@ function createTestSceneElements(scene) {
     // world.instantiateObject(humanObject);
     // let squirrelObject = new Objects.Squirrel(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
     // world.instantiateObject(squirrelObject);
-
-    // let treeObject = new Objects.Tree(new THREE.Vector3(-6, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
+    //
+    // let treeObject = new Objects.Tree(new THREE.Vector3(6, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
     // world.instantiateObject(treeObject);
     // let humanObject = new Objects.Human(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);
     // world.instantiateObject(humanObject);
@@ -105,13 +105,13 @@ function threeStarter() {
     }
 
     function worldLoop() {
-        setTimeout(worldLoop, (1000 / 60) / simulation.timeScale);
-
         if (isSimActive) {
+
             for (let i = 0; i < simulation.timeScale / 16.6; i++) {
                 world.update();
             }
         }
+        setTimeout(worldLoop, (1000 / 60) / simulation.timeScale);
     }
 
     worldLoop();

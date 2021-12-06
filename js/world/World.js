@@ -15,6 +15,31 @@ class World {
         this.parentObject = new THREE.Object3D();
         this.scene.add(this.parentObject);
     }
+    
+    getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    randomFloatFromInterval(min, max) { // min and max included 
+        return (Math.random() * (max - min) + min);
+    }
+    
+    createLine(from, to, height, color) {
+        const points = [];
+        points.push(new THREE.Vector3(0, height , 0).add(from));
+        points.push(new THREE.Vector3(0, height, 0).add(to));
+        let geometry = new THREE.BufferGeometry().setFromPoints(points);
+        let line = new THREE.Line(geometry, new THREE.LineBasicMaterial({
+            color: color,
+            linewidth: 12,
+        }));
+        return line;
+    }
 
     getObjectOfMesh(mesh) {
         return this.meshIdToObject.get(mesh.id);
@@ -56,7 +81,7 @@ class World {
         let gridCenter = this.grid.getGridPos(object.getPos());
         let newPos = (new THREE.Vector3().copy(gridCenter));
         object.setPos(newPos);
-        if(!(object instanceof Objects.Wall)){
+        if (!(object instanceof Objects.Wall)) {
             let normal = this.getNormalVector(gridCenter);
             var up = new THREE.Vector3(0, 1, 0);
             object.mesh.quaternion.setFromUnitVectors(up, normal.clone());
@@ -84,23 +109,9 @@ class World {
             crossed.negate();
         }
 
-
-
-
         return crossed.normalize();
     }
 
-    addLine(gridCenter, vec, color) {
-        const points = [];
-        points.push(gridCenter);
-        points.push(vec);
-        let geometry = new THREE.BufferGeometry().setFromPoints(points);
-        let line = new THREE.Line(geometry, new THREE.LineBasicMaterial({
-            color: color,
-            linewidth: 12,
-        }));
-        this.scene.add(line);
-    }
 
     instantiateObject(object, onGrid = true) {
         //TODO: Grid üzerindekiler ayrı alınabilmeli

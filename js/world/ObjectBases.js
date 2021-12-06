@@ -77,9 +77,30 @@ class MovableObjectBase extends LivingObjectBase {
         this.speed = null;
 
         this.path = [];
+        this.pathLines = [];
+        this.pathColor = world.getRandomColor();
+        this.pathHeight = world.randomFloatFromInterval(world.getCellSize()/4, world.getCellSize()); 
 
         this.movement = 0.0;
     }
+
+    createPathLines(path) {
+        this.pathLines.forEach((pL) => {
+            world.scene.remove(pL);
+        });
+        this.pathLines = [];
+        
+        let line = world.createLine(this.getPos(), path[0], this.pathHeight, this.pathColor);
+        this.pathLines.push(line);
+        world.scene.add(line);
+        
+        for(let i = 0; i<path.length - 1; i++){
+            let line = world.createLine(path[i], path[i+1], this.pathHeight, this.pathColor);
+            this.pathLines.push(line);
+            world.scene.add(line);
+        };
+    }
+
 
     attack(target) {}
     checkIfTargetReached(targetPos) {
@@ -132,7 +153,7 @@ class MovableObjectBase extends LivingObjectBase {
     }
 
     // onReach and onStuck are functions. Needs targetPos to be assigned.
-    executePath(onReach, onStuck, hasTargetOnDest = false) {
+    executePath(onReach, onStuck, onMove = () => {}, hasTargetOnDest = false) {
         if (this.path == null) {
             onStuck();
             return;
@@ -159,6 +180,7 @@ class MovableObjectBase extends LivingObjectBase {
                 this.movement = 0.0;
                 world.moveObjectOnGrid(this, movementVector);
                 this.path.splice(0, 1);
+                onMove();
 
             } else {
                 onStuck();

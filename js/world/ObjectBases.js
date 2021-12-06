@@ -88,7 +88,7 @@ class MovableObjectBase extends LivingObjectBase {
         this.pathLines = [];
         this.pathColor = world.getRandomColor();
         this.pathHeight = world.randomFloatFromInterval(world.getCellSize() / 4, world.getCellSize());
-
+        this.lastPos = pos;
         this.movement = 0.0;
     }
 
@@ -109,7 +109,7 @@ class MovableObjectBase extends LivingObjectBase {
         }
     }
 
-    myangleTo(u, v, normal){
+    myAngleTo(u, v, normal){
         let angle = Math.acos(new THREE.Vector3().copy(u).normalize().dot(new THREE.Vector3().copy(v).normalize()));
         let cross = new THREE.Vector3().crossVectors(u, v);
         if (new THREE.Vector3().copy(normal).normalize().dot(new THREE.Vector3().copy(cross).normalize()) < 0) { // Or > 0
@@ -120,15 +120,13 @@ class MovableObjectBase extends LivingObjectBase {
     
     lookTowardsPath() {
         //Align its look around itself
-        let projMovement = new THREE.Vector3().subVectors(this.path[0], this.getPos()).projectOnPlane(world.getNormalVector(this.getPos())).normalize().multiplyScalar(world.getCellSize() / 2);
-
+        let projMovement = new THREE.Vector3().subVectors(this.getPos(), this.lastPos).projectOnPlane(world.getNormalVector(this.getPos())).normalize().multiplyScalar(world.getCellSize() / 2);
         let projZAxis = new THREE.Vector3().addVectors(this.getPos(), (new THREE.Vector3(0, 0, world.getCellSize() / 2.0)));
         projZAxis.y = world.grid.terrain.getHeight(new THREE.Vector2(projZAxis.x, projZAxis.z));
         projZAxis.sub(this.getPos());
         // world.scene.add(world.createLine(this.getPos(), new THREE.Vector3().addVectors(projZAxis, this.getPos())));
         // world.scene.add(world.createLine(this.getPos(), new THREE.Vector3().addVectors(projMovement, this.getPos()), 0,"#ff0000"));
-        let angleInRad = this.myangleTo(projZAxis, projMovement, world.getNormalVector(this.getPos()));
-        console.log(angleInRad);
+        let angleInRad = this.myAngleTo(projZAxis, projMovement, world.getNormalVector(this.getPos()));
         this.mesh.rotateY(angleInRad);
     }
     
@@ -211,6 +209,7 @@ class MovableObjectBase extends LivingObjectBase {
             if (this.movement < 1) {
                 this.movement += this.speed;
             } else if (!world.checkPos(movementVector)) {
+                this.lastPos = new THREE.Vector3().copy(this.getPos());
                 this.movement = 0.0;
                 world.moveObjectOnGrid(this, movementVector);
                 this.path.splice(0, 1);

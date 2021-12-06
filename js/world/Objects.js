@@ -86,15 +86,17 @@ class Terrain extends ObjectBases.WorldObjectBase {
     }
 
     getHeight(vec2) {
-        return perlin.get(vec2.x * parameters.plane.noiseScale, vec2.y * parameters.plane.noiseScale) * parameters.plane.heightMultiplier;
-        // return getComplexHeight(vec2, lacunarity, persistance);
+        //return perlin.get(vec2.x * parameters.plane.noiseScale, vec2.y * parameters.plane.noiseScale) * parameters.plane.heightMultiplier;
+        var r = 0;
+        for (var i = 0; i <= 5; i++) {
+            var frequency = Math.pow(parameters.plane.lacunarity, i);
+            var amplitude = Math.pow(parameters.plane.persistance, i);
+            var noise = perlin.get(vec2.x *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness, vec2.y *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness ) ;
+            r += noise * amplitude;
+        }
+        return r * parameters.plane.heightMultiplier;
     }
 
-    getComplexHeight(vec2, lacunarity, persistance) {
-        //İREM
-        //Should return a float;
-        return undefined;
-    }
 
     changePlaneGeometry(parameters) {
         this.mesh.geometry = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale, parameters.plane.resolution, parameters.plane.resolution);

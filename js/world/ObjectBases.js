@@ -15,6 +15,7 @@ class WorldObjectBase {
     getPos() {
         return this.mesh.position;
     }
+
     setPos(vec3) {
         if (this.mesh != null) {
             this.mesh.position.x = vec3.x;
@@ -26,6 +27,7 @@ class WorldObjectBase {
     getRot() {
         return this.mesh.rotation;
     }
+
     setRot(vec3) {
         if (this.mesh != null) {
             this.mesh.rotation.x = vec3.x;
@@ -37,15 +39,21 @@ class WorldObjectBase {
     getQuaternion() {
         return this.mesh.quaternion;
     }
+
     setQuaternion(quaternion) {
         if (this.mesh != null) {
             this.mesh.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
         }
     }
 
-    update() {}
-    setModel() {}
-    setTexture() {}
+    update() {
+    }
+
+    setModel() {
+    }
+
+    setTexture() {
+    }
 }
 
 class LivingObjectBase extends WorldObjectBase {
@@ -76,11 +84,55 @@ class MovableObjectBase extends LivingObjectBase {
         this.speed = null;
 
         this.path = [];
-
+        this.pathLines = [];
+        this.pathColor = world.getRandomColor();
+        this.pathHeight = world.randomFloatFromInterval(world.getCellSize() / 4, world.getCellSize());
+        this.lastPos = pos;
         this.movement = 0.0;
     }
 
-    attack(target) {}
+    createLines(path) {
+        this.pathLines.forEach((pL) => {
+            world.scene.remove(pL);
+        });
+        this.pathLines = [];
+
+        let line = world.createLine(this.getPos(), path[0], this.pathHeight, this.pathColor);
+        this.pathLines.push(line);
+        world.scene.add(line);
+
+        for (let i = 0; i < path.length - 1; i++) {
+            let line = world.createLine(path[i], path[i + 1], this.pathHeight, this.pathColor);
+            this.pathLines.push(line);
+            world.scene.add(line);
+        }
+    }
+
+    myAngleTo(u, v, normal){
+        let angle = Math.acos(new THREE.Vector3().copy(u).normalize().dot(new THREE.Vector3().copy(v).normalize()));
+        let cross = new THREE.Vector3().crossVectors(u, v);
+        if (new THREE.Vector3().copy(normal).normalize().dot(new THREE.Vector3().copy(cross).normalize()) < 0) { // Or > 0
+            angle = -angle;
+        }
+        return angle;
+    }
+    
+    lookTowardsPath() {
+        //Align its look around itself
+        let projMovement = new THREE.Vector3().subVectors(this.getPos(), this.lastPos).projectOnPlane(world.getNormalVector(this.getPos())).normalize().multiplyScalar(world.getCellSize() / 2);
+        let projZAxis = new THREE.Vector3().addVectors(this.getPos(), (new THREE.Vector3(0, 0, world.getCellSize() / 2.0)));
+        projZAxis.y = world.grid.terrain.getHeight(new THREE.Vector2(projZAxis.x, projZAxis.z));
+        projZAxis.sub(this.getPos());
+        // world.scene.add(world.createLine(this.getPos(), new THREE.Vector3().addVectors(projZAxis, this.getPos())));
+        // world.scene.add(world.createLine(this.getPos(), new THREE.Vector3().addVectors(projMovement, this.getPos()), 0,"#ff0000"));
+        let angleInRad = this.myAngleTo(projZAxis, projMovement, world.getNormalVector(this.getPos()));
+        this.mesh.rotateY(angleInRad);
+    }
+    
+
+    attack(target) {
+    }
+
     checkIfTargetReached(targetPos) {
         return this.getPos().distanceToSquared(targetPos) <= Math.pow(world.getCellSize() / 2.0, 2.0);
     }
@@ -116,7 +168,7 @@ class MovableObjectBase extends LivingObjectBase {
         let cloneObjects = [...world.objects];
         let thisPos = this.getPos();
         cloneObjects = cloneObjects.filter(checkFunc);
-        cloneObjects.sort((a,b) => (a.getPos().distanceToSquared(thisPos) > b.getPos().distanceToSquared(thisPos)) ? 1 : -1);
+        cloneObjects.sort((a, b) => (a.getPos().distanceToSquared(thisPos) > b.getPos().distanceToSquared(thisPos)) ? 1 : -1);
 
         let closest = null;
         for (let i = 0; i < cloneObjects.length; i++) {
@@ -131,7 +183,8 @@ class MovableObjectBase extends LivingObjectBase {
     }
 
     // onReach and onStuck are functions. Needs targetPos to be assigned.
-    executePath(onReach, onStuck, hasTargetOnDest = false) {
+    executePath(onReach, onStuck, onMove = () => {
+    }, hasTargetOnDest = false) {
         if (this.path == null) {
             onStuck();
             return;
@@ -140,7 +193,7 @@ class MovableObjectBase extends LivingObjectBase {
         let targetPos = null;
         let reachCheck = null;
         if (hasTargetOnDest) {
-            targetPos = this.path[this.path.length-1]
+            targetPos = this.path[this.path.length - 1]
             reachCheck = this.checkIfNextToTarget(targetPos);
         } else {
             // targetPos = this.getPos();
@@ -155,9 +208,11 @@ class MovableObjectBase extends LivingObjectBase {
             if (this.movement < 1) {
                 this.movement += this.speed;
             } else if (!world.checkPos(movementVector)) {
+                this.lastPos = new THREE.Vector3().copy(this.getPos());
                 this.movement = 0.0;
                 world.moveObjectOnGrid(this, movementVector);
                 this.path.splice(0, 1);
+                onMove();
 
             } else {
                 onStuck();

@@ -88,6 +88,13 @@ class Terrain extends ObjectBases.WorldObjectBase {
 
     getHeight(vec2) {
         return perlin.get(vec2.x * parameters.plane.noiseScale, vec2.y * parameters.plane.noiseScale) * parameters.plane.heightMultiplier;
+        // return getComplexHeight(vec2, lacunarity, persistance);
+    }
+
+    getComplexHeight(vec2, lacunarity, persistance) {
+        //İREM
+        //Should return a float;
+        return undefined;
     }
 
     changePlaneGeometry(parameters) {
@@ -105,7 +112,7 @@ class Terrain extends ObjectBases.WorldObjectBase {
 
         world.objects.forEach((x) => {
             if(x instanceof Human){
-                world.fixObjectPosRot(x);
+                world.fixObjectPos(x);
             }
         })
     }
@@ -136,23 +143,10 @@ class Tree extends ObjectBases.LivingObjectBase {
     }
 
     update() {
-        // let runVector = new THREE.Vector3();
-        // for (let i = 0; i < world.objects.length; i++) {
-        //     let obj = world.objects[i];
-        //
-        //     if (obj instanceof Human) {
-        //         let runVec = new THREE.Vector3().subVectors(this.getPos(), obj.getPos());
-        //         runVector.add(runVec);
-        //     }
-        // }
-        // runVector.normalize();
-        // this.getPos().add(runVector.multiplyScalar(0.03));
     }
 
     die() {
         super.die();
-        // let pos = this.getPos();
-        // console.log("Tree on position " + pos.x + ", " + pos.y + ", " + pos.z + " died.")
     }
 }
 
@@ -283,9 +277,6 @@ class Human extends ObjectBases.MovableObjectBase {
 
         this.selectable = true;
 
-        // const cube = new THREE.BoxGeometry(world.getCellSize(), world.getCellSize(), world.getCellSize()).translate(0,world.getCellSize()/2,0);
-        // this.mesh = new THREE.Mesh(cube, material);
-
         this.mesh = meshes.human.clone();
 
         this.setPos(pos);
@@ -306,7 +297,10 @@ class Human extends ObjectBases.MovableObjectBase {
                 },
                 () => {
                     this.target = null;
-                }, true);
+                }, (e) => {
+                    this.createLines(this.path);
+                    this.lookTowardsPath();
+                } ,true);
         }
     }
 }

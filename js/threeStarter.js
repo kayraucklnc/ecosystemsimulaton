@@ -93,6 +93,7 @@ function threeStarter() {
         raycaster.setFromCamera(mouse, camera);
 
         controls.update();
+
         renderer.render(scene, camera);
 
         setTimeout(loop, 1000 / 60);

@@ -128,9 +128,8 @@ class MovableObjectBase extends LivingObjectBase {
         // world.scene.add(world.createLine(this.getPos(), new THREE.Vector3().addVectors(projZAxis, this.getPos())));
         // world.scene.add(world.createLine(this.getPos(), new THREE.Vector3().addVectors(projMovement, this.getPos()), 0,"#ff0000"));
         let angleInRad = this.myangleTo(projZAxis, projMovement, world.getNormalVector(this.getPos()));
-        // let angleInRad = this.myangleTo(new THREE.Vector3(1,0,1), new THREE.Vector3(0,0,1), world.getNormalVector(this.getPos()));
         console.log(angleInRad);
-        this.mesh.rotation.y = angleInRad;
+        this.mesh.rotateY(angleInRad);
     }
     
 

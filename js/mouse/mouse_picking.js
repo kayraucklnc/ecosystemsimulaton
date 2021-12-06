@@ -25,6 +25,8 @@ export class MousePicker {
 
         window.addEventListener("pointerup", mouse_up);
         window.addEventListener('pointermove', mouse_move);
+
+        this.isActive = true;
     }
 }
 
@@ -63,7 +65,7 @@ function mouse_up(event) {
             mousePicker.axesHelper.visible = false;
         }
 
-        if (mousePicker.stage == PickingStage.FREE && intersect && intersect.object != mousePicker.axesHelper) {
+        if (mousePicker.isActive && mousePicker.stage == PickingStage.FREE && intersect && intersect.object != mousePicker.axesHelper) {
             if (!world.getObjectOfMesh(intersect.object).selectable) {
                 return;
             }

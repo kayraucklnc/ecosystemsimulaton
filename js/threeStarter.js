@@ -4,7 +4,7 @@ import {OrbitControls} from "../../ecosystemsimulaton/js/library/three.js-r135/e
 import {World} from "../../ecosystemsimulaton/js/world/World.js";
 import * as Objects from "../../ecosystemsimulaton/js/world/Objects.js";
 import * as Grid from "../../ecosystemsimulaton/js/world/Grid.js";
-import {MousePicker} from "../../ecosystemsimulaton/js/mouse_picking.js";
+import {MousePicker} from "../../ecosystemsimulaton/js/mouse/mouse_picking.js";
 import * as Materials from "../../ecosystemsimulaton/js/world/Materials.js";
 import {loadObject} from "../../ecosystemsimulaton/js/util/loadGLTF.js";
 
@@ -46,12 +46,26 @@ function createTestSceneElements(scene) {
 
     let grid = new Grid.Grid(scene, terrainObject, parameters.plane.gridWidth);
 
+    // let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.treeMaterial);
+    // world.instantiateObject(treeObject);
+    // let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.humanMaterial);
+    // world.instantiateObject(humanObject);
+    // let squirrelObject = new Objects.Squirrel(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+    // world.instantiateObject(squirrelObject);
+
+    // let treeObject = new Objects.Tree(new THREE.Vector3(-6, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
+    // world.instantiateObject(treeObject);
+    // let humanObject = new Objects.Human(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);
+    // world.instantiateObject(humanObject);
+    // let squirrelObject = new Objects.Squirrel(new THREE.Vector3(6,0,0), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+    // world.instantiateObject(squirrelObject);
+
     for (let i = 0; i < 200; i++) {
         let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.treeMaterial);
         world.instantiateObject(treeObject);
     }
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 50; i++) {
         let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.humanMaterial);
         world.instantiateObject(humanObject);
     }

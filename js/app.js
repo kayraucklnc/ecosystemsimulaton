@@ -41,3 +41,7 @@ let meshes = {
     tree: null,
     human: null,
 }
+
+let textures = {
+    terrainNormalMap: null
+}

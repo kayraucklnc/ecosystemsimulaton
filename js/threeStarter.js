@@ -6,7 +6,7 @@ import * as Objects from "../../ecosystemsimulaton/js/world/Objects.js";
 import * as Grid from "../../ecosystemsimulaton/js/world/Grid.js";
 import {MousePicker} from "../../ecosystemsimulaton/js/mouse/mouse_picking.js";
 import * as Materials from "../../ecosystemsimulaton/js/world/Materials.js";
-import {loadObject} from "../../ecosystemsimulaton/js/util/loadGLTF.js";
+import * as DataLoader from "../../ecosystemsimulaton/js/util/loadData.js";
 
 function createInitScene() {
     const scene = new THREE.Scene();
@@ -41,7 +41,7 @@ function createInitControls(camera, renderer) {
 
 function createTestSceneElements(scene) {
 
-    let terrainObject = new Objects.Terrain(new THREE.Vector3(0, -0.03, 0), new THREE.Vector3(0, 0), Materials.planeMat);
+    let terrainObject = new Objects.Terrain(new THREE.Vector3(0, -0.03, 0), new THREE.Vector3(0, 0), Materials.planeCustomMat);
     world.instantiateObject(terrainObject, false);
 
     let grid = new Grid.Grid(scene, terrainObject, parameters.plane.gridWidth);
@@ -81,6 +81,8 @@ function createTestSceneElements(scene) {
 
 function threeStarter() {
     drawthechart();
+    Materials.createAllMaterials();
+
     const {scene, camera} = createInitScene();
     const controls = createInitControls(camera, renderer);
     const {terrainObject: _terrainObject} = createTestSceneElements(scene);
@@ -113,20 +115,18 @@ function threeStarter() {
     loop();
 }
 
-
 function preload() {
-    let treePromise = new Promise((resolve, reject) => {
-        loadObject(resolve, "tree.glb");
-    });
-    let humanPromise = new Promise((resolve, reject) => {
-        loadObject(resolve, "human.glb");
+    let loadObjectPromise = new Promise((resolve, reject) => {
+        DataLoader.loadObjectMeshes(resolve);
     });
 
-    Promise.all([treePromise, humanPromise]).then((mesh) => {
-        meshes.tree = mesh[0];
-        meshes.human = mesh[1];
-        threeStarter();
+    let loadTexturesPromise = new Promise((resolve, reject) => {
+        DataLoader.loadTextures(resolve);
     });
+
+    Promise.all([loadObjectPromise, loadTexturesPromise]).then(() => {
+        threeStarter();
+    })
 }
 
 window.onload = preload();

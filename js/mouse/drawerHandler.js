@@ -16,22 +16,24 @@ class DrawerHandler {
         if (e.button === 0 && this.isDrag && intersects[0] != null) {
             let intersectPoint = intersects[0].point;
             if (drawMode.brush) {
-                let element;
-                switch (document.getElementById("brushElements").value) {
-                    case "wall":
-                        element = new Objects.Wall(intersectPoint, new THREE.Vector3(0, 0), Materials.wallMaterial);
-                        break;
-                    case "human":
-                        element = new Objects.Human(intersectPoint, new THREE.Vector3(0, 0), Materials.humanMaterial);
-                        break;
-                    case "tree":
-                        element = new Objects.Tree(intersectPoint, new THREE.Vector3(0, 0), Materials.treeMaterial);
-                        break;
-                    case "squirrel":
-                        element = new Objects.Squirrel(intersectPoint, new THREE.Vector3(0, 0), Materials.squirrelMaterial);
-                        break;
+                if(!world.getPos(intersectPoint)){
+                    let element;
+                    switch (document.getElementById("brushElements").value) {
+                        case "wall":
+                            element = new Objects.Wall(intersectPoint, new THREE.Vector3(0, 0), Materials.wallMaterial);
+                            break;
+                        case "human":
+                            element = new Objects.Human(intersectPoint, new THREE.Vector3(0, 0), Materials.humanMaterial);
+                            break;
+                        case "tree":
+                            element = new Objects.Tree(intersectPoint, new THREE.Vector3(0, 0), Materials.treeMaterial);
+                            break;
+                        case "squirrel":
+                            element = new Objects.Squirrel(intersectPoint, new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+                            break;
+                    }
+                    world.instantiateObject(element, true);
                 }
-                world.instantiateObject(element, true);
             } else if (drawMode.eraser) {
                 let object = world.getPos(intersectPoint);
                 if(object){

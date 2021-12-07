@@ -10,6 +10,7 @@ let drawMode = {
     brush: false,
     eraser: false,
 };
+let datamap = new Map();
 let mouse = {
     x: undefined,
     y: undefined,

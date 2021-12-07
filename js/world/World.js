@@ -1,6 +1,7 @@
 import * as THREE from "../library/three.js-r135/build/three.module.js";
 
 import * as Objects from "../world/Objects.js"
+import * as ObjectBases from "../world/ObjectBases.js";
 
 class World {
     constructor(scene) {
@@ -15,7 +16,7 @@ class World {
         this.parentObject = new THREE.Object3D();
         this.scene.add(this.parentObject);
     }
-    
+
     getRandomColor() {
         var letters = '0123456789ABCDEF';
         var color = '#';
@@ -28,7 +29,7 @@ class World {
     randomFloatFromInterval(min, max) { // min and max included 
         return (Math.random() * (max - min) + min);
     }
-    
+
     createLine(from, to, height = 0, color = "#ffffff") {
         const points = [];
         let inHeight = world.getNormalVector(from).multiplyScalar(height);
@@ -92,7 +93,7 @@ class World {
         }
 
     }
-    
+
 
     checkIfInGrid(pos) {
         return this.grid.checkIfInGrid(pos);
@@ -114,38 +115,49 @@ class World {
     }
 
 
+    //Returns whether the placement was successful
     instantiateObject(object, onGrid = true) {
         //TODO: Grid üzerindekiler ayrı alınabilmeli
         let pos = object.getPos();
         if (onGrid) {
             if (this.checkPos(pos)) {
                 this.deleteObject(this.grid.getPos(pos));
+                return false;
+            } else {
+                this.fixObjectPos(object);
+                this.grid.setPos(object.getPos(), object);
             }
-
-            this.fixObjectPos(object);
-
-            this.grid.setPos(object.getPos(), object);
         }
 
         this.parentObject.add(object.mesh);
         this.objects.push(object);
 
         this.meshIdToObject.set(object.mesh.id, object);
+        return true;
     }
 
+    getMaxLiving(){
+        return Math.max(...datamap.values());
+    }
+    
     deleteObject(object) {
+        if(object instanceof ObjectBases.LivingObjectBase){
+            let typeName = object.constructor.name;
+            datamap.set(typeName, datamap.get(typeName) - 1);
+            ObjectBases.LivingObjectBase.maxLiving = Math.max(datamap.get(typeName), ObjectBases.LivingObjectBase.maxLiving);
+        }
+
         let pos = object.getPos();
         if (this.grid.checkIfInGrid(pos) && this.grid.getPos(pos) === object) {
             this.grid.clearPos(pos);
         }
-
         const indexOf = this.objects.indexOf(object);
         if (indexOf != -1) {
             this.objects.splice(indexOf, 1);
+
         }
 
         this.parentObject.remove(object.mesh);
-
         this.meshIdToObject.delete(object.mesh.id);
     }
 

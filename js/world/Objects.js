@@ -304,7 +304,7 @@ class Human extends ObjectBases.MovableObjectBase {
                 () => {
                     this.target = null;
                 }, (e) => {
-                    this.createLines(this.path);
+                    // this.createLines(this.path);
                     this.lookTowardsPath();
                 } ,true);
         }

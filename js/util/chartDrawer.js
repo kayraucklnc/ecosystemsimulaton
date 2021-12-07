@@ -1,17 +1,9 @@
 function drawthechart() {
     google.charts.load('current', {'packages': ['corechart']});
     google.charts.setOnLoadCallback(drawChart);
-
-    function drawChart() {
-        // Create the data table.
-        data = new google.visualization.DataTable();
-        data.addColumn('string', 'Year');
-        data.addColumn('number', 'Human');
-        data.addColumn('number', 'Squirrel');
-        data.addColumn('number', 'Tree');
-        updateData();
-        // Set chart options
-        var options = {
+    let options = null;
+    function updateOptions(){
+        options = {
             'title': ' ',
             'width': chartSettings.chartSize.width,
             'height': chartSettings.chartSize.height,
@@ -30,11 +22,24 @@ function drawthechart() {
                 textStyle: {color: 'white', fontSize: 16},
                 viewWindowMode: 'explicit',
                 viewWindow: {
-                    max: 200,
+                    //Adjust the max value in the graph by changing here, can multiply/divide/getMax
+                    max: world.getMaxLiving(),
                     min: 0
                 }
             },
         };
+    }
+    
+    function drawChart() {
+        // Create the data table.
+        data = new google.visualization.DataTable();
+        data.addColumn('string', 'Year');
+        data.addColumn('number', 'Human');
+        data.addColumn('number', 'Squirrel');
+        data.addColumn('number', 'Tree');
+        updateData();
+        // Set chart options
+        
 
         // Instantiate and draw our chart, passing in some options.
         const graphDiv = document.createElement("div");
@@ -42,7 +47,8 @@ function drawthechart() {
         document.getElementById("chartHolder").appendChild(graphDiv);
 
         setInterval(() => {
-            if(isSimActive){
+            if (isSimActive) {
+                updateOptions();
                 updateData();
                 chart.draw(data, options);
             }
@@ -53,17 +59,6 @@ function drawthechart() {
             if (data.Wf.length >= dataCount) {
                 data.removeRows(0, 1);
             };
-
-            const datamap = new Map();
-            world.objects.forEach((o) => {
-                //TODO: OPTIMIZE
-                const typeName = o.constructor.name;
-                if (datamap.has(typeName)) {
-                    datamap.set(typeName, datamap.get(typeName) + 1);
-                } else {
-                    datamap.set(typeName, 1);
-                }
-            });
             let rows = [[" ", datamap.get("Human"), datamap.get("Squirrel"), datamap.get("Tree")]];
             // let rows = [[" ", perlin.get(2, frameCount/100), perlin.get(3.86, frameCount/150), perlin.get(3.86, frameCount/80)]];
             data.addRows(rows);

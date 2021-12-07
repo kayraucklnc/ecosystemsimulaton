@@ -6,6 +6,7 @@ let parameters = {
         resolution: 65,
         heightMultiplier: 2,
         color: [0, 128, 255],
+        gridVisible: true
     },
     clouds: {
         thickness: 0.5,

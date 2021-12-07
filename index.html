@@ -98,7 +98,6 @@
     uniform sampler2D normal_map;
     uniform float maxTerrainHeight;
     void main() {
-
         vec3 terrainColor;
         float height = float(worldPosition.y) / float(maxTerrainHeight);
         if (height < -0.34) {
@@ -108,6 +107,8 @@
         } else {
             terrainColor = vec3(0.87450980392, 0.90980392157, 0.94117647059);
         }
+
+        vec3 bumpNormal = normalize(texture2D(normal_map, vUv).rgb * 2.0 - 1.0);
 
         vec4 addedLights = vec4(0.0,
         0.0,
@@ -126,7 +127,10 @@
         addedLights = max(vec4(0.3), addedLights);
         addedLights = min(vec4(1.5), addedLights);
 
-        gl_FragColor = vec4(terrainColor, 1.) * addedLights;
+        // gl_FragColor = vec4(terrainColor, 1.) * addedLights;
+        // gl_FragColor = vec4(bumpNormal, 1.) * addedLights;
+        gl_FragColor = vec4(texture2D(normal_map, vUv, 0.0).xyz, 1.) * addedLights;
+        // gl_FragColor = vec4(worldPosition.y, worldPosition.y, worldPosition.y, 1.) * addedLights;
     }
 </script>
 <div id="holder" style="display: flex; background-color: black; flex-direction: row; justify-content: flex-end;">

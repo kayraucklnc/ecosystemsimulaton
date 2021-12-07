@@ -33,10 +33,13 @@ class Grid {
     constructor(scene, terrain, widthInGrid) {
         world.grid = this;
 
+        this.gridVisible = true;
+
         this.scene = scene;
         this.terrain = terrain;
         terrain.grid = this;
         this.widthInGrid = widthInGrid;
+
         this.mesh = null;
 
         this.minPoint = null
@@ -55,7 +58,14 @@ class Grid {
         this.createGridGeometry(parameters);
     }
 
-    createGridGeometry(parameters) {
+    setGridVisible(toSet) {
+        if (toSet != this.gridVisible) {
+            this.gridVisible = toSet;
+            this.createGridGeometry();
+        }
+    }
+
+    createGridGeometry() {
         if (this.mesh) {
             this.scene.remove(this.mesh);
         }
@@ -65,24 +75,27 @@ class Grid {
         this.minPoint = new THREE.Vector3().copy(box.min);
         this.maxPoint = new THREE.Vector3().copy(box.max);
         this.cellSize = (box.max.x - box.min.x) / this.widthInGrid;
-        this.mesh = new THREE.LineSegments(
-            new THREE.PlaneBufferGeometry( (box.max.x - box.min.x), (box.max.y - box.min.y), this.widthInGrid, this.widthInGrid ).toGrid(),
-            // TODO ÖZEL MATERIAL
-            new THREE.LineBasicMaterial( {
-                color: 0x636363
-            } )
-        );
 
-        const vertexArray = this.mesh.geometry.attributes.position.array;
-        const length = vertexArray.length;
-        for (let i = 0; i < length; i += 3) {
-            let x = vertexArray[i];
-            let y = vertexArray[i+1];
-            vertexArray[i+2] = this.terrain.getHeight(new THREE.Vector2(x, -y));
+        if (this.gridVisible) {
+            this.mesh = new THREE.LineSegments(
+                new THREE.PlaneBufferGeometry( (box.max.x - box.min.x), (box.max.y - box.min.y), this.widthInGrid, this.widthInGrid ).toGrid(),
+                // TODO ÖZEL MATERIAL
+                new THREE.LineBasicMaterial( {
+                    color: 0x636363
+                } )
+            );
+
+            const vertexArray = this.mesh.geometry.attributes.position.array;
+            const length = vertexArray.length;
+            for (let i = 0; i < length; i += 3) {
+                let x = vertexArray[i];
+                let y = vertexArray[i+1];
+                vertexArray[i+2] = this.terrain.getHeight(new THREE.Vector2(x, -y));
+            }
+
+            this.mesh.rotation.x = this.mesh.rotation.x - Math.PI / 2;
+            this.scene.add(this.mesh);
         }
-
-        this.mesh.rotation.x = this.mesh.rotation.x - Math.PI / 2;
-        this.scene.add(this.mesh);
     }
 
     getGridIndex(pos) {

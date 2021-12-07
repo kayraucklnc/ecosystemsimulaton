@@ -19,6 +19,8 @@ class GUI {
         this.resolution = terrainFolder.add(parameters.plane, 'resolution', 4, 100).name("Resolution");
         this.color = terrainFolder.addColor(parameters.plane, 'color').name("Surface Color");
 
+        this.gridVisible = terrainFolder.add(parameters.plane, 'gridVisible').name("Grid");
+
         this.setOnChanges();
     }
 
@@ -39,6 +41,10 @@ class GUI {
         this.heightMultiplier.onChange(() => {
             this.terrain.changePlaneGeometry( parameters );
         });
+
+        this.gridVisible.onChange(() => {
+            world.grid.setGridVisible( parameters.plane.gridVisible );
+        })
     }
 }
 

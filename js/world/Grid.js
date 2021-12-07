@@ -33,7 +33,7 @@ class Grid {
     constructor(scene, terrain, widthInGrid) {
         world.grid = this;
 
-        this.gridVisible = true;
+        this.gridVisible = parameters.plane.gridVisible;
 
         this.scene = scene;
         this.terrain = terrain;

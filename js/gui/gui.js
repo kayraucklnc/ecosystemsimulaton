@@ -6,6 +6,8 @@ class GUI {
 
         const terrainFolder = this.gui.addFolder("Terrain");
         const cloudsFolder  = this.gui.addFolder("Clouds");
+        const simulationFolder = this.gui.addFolder("Simulation");
+
 
 
         cloudsFolder.add(parameters.clouds,'thickness', 0.1, 1).name("Thickness");
@@ -21,8 +23,9 @@ class GUI {
         this.smoothness = terrainFolder.add(parameters.plane, 'smoothness', 0, 4).name("Smoothness");
         this.persistance = terrainFolder.add(parameters.plane, 'persistance', 0, 1, 0.001).name("Persistance");
         this.color = terrainFolder.addColor(parameters.plane, 'color').name("Surface Color");
-
         this.gridVisible = terrainFolder.add(parameters.plane, 'gridVisible').name("Grid");
+
+        this.showPaths = simulationFolder.add(parameters.simulation, 'showPaths').name("Show Paths");
 
         this.setOnChanges();
     }
@@ -53,10 +56,9 @@ class GUI {
         this.smoothness.onChange(() => {
             this.terrain.changePlaneGeometry( parameters );
         });
-
         this.gridVisible.onChange(() => {
             world.grid.setGridVisible( parameters.plane.gridVisible );
-        })
+        });
     }
 }
 

@@ -91,20 +91,30 @@ class MovableObjectBase extends LivingObjectBase {
         this.movement = 0.0;
     }
 
-    createLines(path) {
+    cleanLines() {
         this.pathLines.forEach((pL) => {
             world.scene.remove(pL);
         });
         this.pathLines = [];
+    }
 
-        let line = world.createLine(this.getPos(), path[0], this.pathHeight, this.pathColor);
-        this.pathLines.push(line);
-        world.scene.add(line);
+    createLines(path) {
+        this.cleanLines();
 
-        for (let i = 0; i < path.length - 1; i++) {
-            let line = world.createLine(path[i], path[i + 1], this.pathHeight, this.pathColor);
+        if (path != null && path.length > 0) {
+            // let line = world.createLine(this.getPos(), path[path.length - 1], this.pathHeight, this.pathColor);
+            // this.pathLines.push(line);
+            // world.scene.add(line);
+
+            let line = world.createLine(this.getPos(), path[0], this.pathHeight, this.pathColor);
             this.pathLines.push(line);
             world.scene.add(line);
+
+            for (let i = 0; i < path.length - 1; i++) {
+                let line = world.createLine(path[i], path[i + 1], this.pathHeight, this.pathColor);
+                this.pathLines.push(line);
+                world.scene.add(line);
+            }
         }
     }
 
@@ -193,7 +203,7 @@ class MovableObjectBase extends LivingObjectBase {
         let targetPos = null;
         let reachCheck = null;
         if (hasTargetOnDest) {
-            targetPos = this.path[this.path.length - 1]
+            targetPos = this.path.length > 0 ? this.path[this.path.length - 1]: this.getPos();
             reachCheck = this.checkIfNextToTarget(targetPos);
         } else {
             // targetPos = this.getPos();

@@ -15,6 +15,8 @@
 [ Kayra ] Shader içine sadece Color değil Texture Loading ve onunla renderlama.
 [ Kayra ] Paths are visible to the eye
 [ Kayra ] Harekete döndüğü yöne bakma.
+[ Kayra ] World içinde kaç obje olduğunu optimize bakmalı.
+[ Kayra ] chartDrawer responsiveness.
 [ Yiğit ] Game Logic
 [ Safa ] A* / İçine 0 1 le dolu matrix alacak. Girişten çıkışa 0lardan ilerleyen yolu output verecek.
 [ Safa ] Mouse Picking should be disabled when brush is enabled.
@@ -25,9 +27,12 @@
 [ Yiğit ] diğer classları implement ediyo
 [ Safa ] Her obje farklı classta
 [ İrem ] Terrain Generation daha detaylı olmalı. (Şu videodaki gibi: https://www.youtube.com/watch?v=wbpMiKiSKm8&list=PLFt_AvWsXl0eBW2EiBtl_sxmDtSgZBxB3&index=1)
+[ Safa ] Mouse Picking should be disabled when brush is enabled.
+[ Safa ] A* / İçine 0 1 le dolu matrix alacak. Girişten çıkışa 0lardan ilerleyen yolu output verecek.
+[ İrem ] Terrain Generation daha detaylı olmalı. (Şu videodaki gibi: https://www.youtube.com/watch?v=wbpMiKiSKm8&list=PLFt_AvWsXl0eBW2EiBtl_sxmDtSgZBxB3&index=1).
 [ İrem ] Terrainin rengi yüksekliğine göre değişmeli.
-[ Kayra ] Shaderlar glsl dosyalarından alınmalı
-[ Kayra ] World içinde kaç obje olduğunu optimize bakmalı
+[ İrem ] Load/Save template.
+[ Kayra ] Shaderlar glsl dosyalarından alınmalı.
 
 --- TO DO ---
 [ Kayra ] Save functionality

@@ -55,24 +55,36 @@ class WorldObjectBase {
 }
 
 class LivingObjectBase extends WorldObjectBase {
+    static maxLiving = 0;
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = null;
+        this.hasDied = false;
+
+        let typeName = this.constructor.name;
+        if (datamap.has(typeName)) {
+            datamap.set(typeName, datamap.get(typeName) + 1);
+        } else {
+            datamap.set(typeName, 1);
+        }
+        LivingObjectBase.maxLiving = Math.max(datamap.get(typeName), LivingObjectBase.maxLiving);
     }
 
     //Returns if object is dead after damage.
     applyDamage(damage) {
         this.health -= damage;
-        if (this.health <= 0) {
+        if (this.health != null && this.health <= 0) {
             this.die();
             return true;
         }
-
         return false;
     };
 
     die() {
-        world.deleteObject(this);
+        if (!this.hasDied) {
+            world.deleteObject(this);
+            this.hasDied = true;
+        }
     }
 }
 
@@ -116,7 +128,7 @@ class MovableObjectBase extends LivingObjectBase {
         }
     }
 
-    myAngleTo(u, v, normal){
+    myAngleTo(u, v, normal) {
         let angle = Math.acos(new THREE.Vector3().copy(u).normalize().dot(new THREE.Vector3().copy(v).normalize()));
         let cross = new THREE.Vector3().crossVectors(u, v);
         if (new THREE.Vector3().copy(normal).normalize().dot(new THREE.Vector3().copy(cross).normalize()) < 0) { // Or > 0

@@ -13,18 +13,20 @@
 </script>
 
 <body style="margin: 0; overflow: hidden">
-<script src="js/util/loadGLTF.js" type="module"></script>
+<script src="js/util/loadData.js" type="module"></script>
 <script src="/js/app.js"></script>
 <script type="module" src="/js/threeStarter.js"></script>
 <script src="js/util/perlinNoise.js"></script>
 <script src="js/util/domElementHandlers.js"></script>
 <script src="js/util/chartDrawer.js"></script>
+<script src="js/util/AStar.js" type="module"></script>
 <script src="js/parameters.js"></script>
 <script src="js/library/dat.gui.min.js"></script>
 <script src="js/gui/gui.js"></script>
 <script src="js/world/World.js" type="module"></script>
 <script src="js/world/Grid.js" type="module"></script>
 <script src="js/mouse/drawerHandler.js" type="module"></script>
+<script src="js/mouse/mouse_picking.js" type="module"></script>
 <script src="js/world/ObjectBases.js" type="module"></script>
 <script src="js/world/Objects.js" type="module"></script>
 <script src="js/world/Materials.js" type="module"></script>
@@ -32,12 +34,14 @@
     varying vec2 vUv;
     varying vec3 vNormal;
     varying vec3 vPosition;
+
+    varying vec3 worldPosition;
     void main() {
         vUv = uv;
+        worldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
 
         vNormal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
         vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
-
 
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
@@ -76,6 +80,59 @@
         gl_FragColor = vec4(color, 1.)*addedLights;
     }
 </script>
+<script id="terrainFragmentShader" type="x-shader/x-fragment">
+    struct PointLight {
+        vec3 color;
+        vec3 position;
+        float distance;
+    };
+    uniform PointLight pointLights[NUM_POINT_LIGHTS];
+
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+    uniform vec3 color;
+    varying vec2 vUv;
+
+    varying vec3 worldPosition;
+
+    uniform sampler2D normal_map;
+    uniform float maxTerrainHeight;
+    void main() {
+        vec3 terrainColor;
+        float height = float(worldPosition.y) / float(maxTerrainHeight);
+        if (height < -0.34) {
+            terrainColor = vec3(0.76470588235, 0.66274509804, 0.54509803922);
+        } else if (height < 0.35) {
+            terrainColor = vec3(0.06666666667, 0.48627450980, 0.07450980392);
+        } else {
+            terrainColor = vec3(0.87450980392, 0.90980392157, 0.94117647059);
+        }
+
+        vec3 bumpNormal = normalize(texture2D(normal_map, vUv).rgb * 2.0 - 1.0);
+
+        vec4 addedLights = vec4(0.0,
+        0.0,
+        0.0,
+        1.0);
+        for (int l = 0; l < NUM_POINT_LIGHTS; l++) {
+            vec3 distanceVec = vPosition - pointLights[l].position;
+            vec3 lightDirection = normalize(distanceVec);
+            float attuanation = 0.0;
+            if(float(pointLights[l].distance) >= length(distanceVec)){
+                attuanation = pow((1.0 - (length(distanceVec) / float(pointLights[l].distance))), 2.0);
+            }
+
+            addedLights.rgb += clamp(dot(-lightDirection, vNormal), 0.0, 1.0) * (pointLights[l].color * attuanation);
+        }
+        addedLights = max(vec4(0.3), addedLights);
+        addedLights = min(vec4(1.5), addedLights);
+
+        // gl_FragColor = vec4(terrainColor, 1.) * addedLights;
+        // gl_FragColor = vec4(bumpNormal, 1.) * addedLights;
+        gl_FragColor = vec4(texture2D(normal_map, vUv, 0.0).xyz, 1.) * addedLights;
+        // gl_FragColor = vec4(worldPosition.y, worldPosition.y, worldPosition.y, 1.) * addedLights;
+    }
+</script>
 <div id="holder" style="display: flex; background-color: black; flex-direction: row; justify-content: flex-end;">
     <div style="background-color: black" id="leftBar">
         <div style="background-color: black" id="chartHolder">
@@ -84,7 +141,7 @@
             <div style="text-align: center; padding: 10px">
                 <div style="font-size: 18pt; color: aliceblue">Timescale</div>
                 <input onchange="simulationSpeedChange()" style="width: 100%;" type="range" min="0.1" max="200"
-                       value="1" step="0.1" class="slider" id="timescale-slider">
+                       value="20" step="0.1" class="slider" id="timescale-slider">
             </div>
             <div style="text-align: center; padding: 10px">
                 <button onclick="simulationToggle()" class="button" style="font-size: 20pt" id="stop-sim-button">Pause

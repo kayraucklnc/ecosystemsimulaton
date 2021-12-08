@@ -1,6 +1,7 @@
 import * as THREE from "../library/three.js-r135/build/three.module.js";
 import * as ObjectBases from "./ObjectBases.js";
-import {planeMat, squirrelMaterial, treeMaterial} from "./Materials.js";
+import {treeMaterial} from "./Materials.js";
+import * as AStar from "../util/AStar.js";
 
 class Box extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
@@ -68,6 +69,7 @@ class MouseFollower extends Sphere {
             this.setPos(intersects[0].point);
         }
     }
+
 }
 
 class Terrain extends ObjectBases.WorldObjectBase {
@@ -86,8 +88,17 @@ class Terrain extends ObjectBases.WorldObjectBase {
     }
 
     getHeight(vec2) {
-        return perlin.get(vec2.x * parameters.plane.noiseScale, vec2.y * parameters.plane.noiseScale) * parameters.plane.heightMultiplier;
+        //return perlin.get(vec2.x * parameters.plane.noiseScale, vec2.y * parameters.plane.noiseScale) * parameters.plane.heightMultiplier;
+        var r = 0;
+        for (var i = 0; i <= 5; i++) {
+            var frequency = Math.pow(parameters.plane.lacunarity, i);
+            var amplitude = Math.pow(parameters.plane.persistance, i);
+            var noise = perlin.get(vec2.x *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness, vec2.y *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness ) ;
+            r += noise * amplitude;
+        }
+        return r * parameters.plane.heightMultiplier;
     }
+
 
     changePlaneGeometry(parameters) {
         this.mesh.geometry = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale, parameters.plane.resolution, parameters.plane.resolution);
@@ -104,7 +115,7 @@ class Terrain extends ObjectBases.WorldObjectBase {
 
         world.objects.forEach((x) => {
             if(x instanceof Human){
-                world.fixObjectPosRot(x);
+                world.fixObjectPos(x);
             }
         })
     }
@@ -131,23 +142,11 @@ class Tree extends ObjectBases.LivingObjectBase {
 
 
     applyDamage(damage) {
-        super.applyDamage(damage);
         // console.log("Tree got " + damage + " damage.")
+        return super.applyDamage(damage);
     }
 
     update() {
-        // let runVector = new THREE.Vector3();
-        // for (let i = 0; i < world.objects.length; i++) {
-        //     let obj = world.objects[i];
-        //
-        //     if (obj instanceof Human) {
-        //         let runVec = new THREE.Vector3().subVectors(this.getPos(), obj.getPos());
-        //         runVector.add(runVec);
-        //     }
-        // }
-        // runVector.normalize();
-        // this.getPos().add(runVector.multiplyScalar(0.03));
-
         if (this.health <= 0) {
             this.die();
         }
@@ -155,8 +154,6 @@ class Tree extends ObjectBases.LivingObjectBase {
 
     die() {
         super.die();
-        // let pos = this.getPos();
-        // console.log("Tree on position " + pos.x + ", " + pos.y + ", " + pos.z + " died.")
     }
 }
 
@@ -220,9 +217,9 @@ class Wheat extends ObjectBases.LivingObjectBase {
         this.setRot(rotation);
     }
 
-    applyDamage(damage) {
-        super.applyDamage(damage);
-    }
+//    applyDamage(damage) {
+//        super.applyDamage(damage);
+//    }
 
     update() {
         if (this.health <= 0) {
@@ -784,11 +781,10 @@ class Eagle {
 }
 
 class Squirrel extends ObjectBases.MovableObjectBase {
-    //TODO: remove squirrels
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
-        this.speed = 0.1;
+        this.speed = 0.04;
 
         this.selectable = true;
 
@@ -843,24 +839,31 @@ class Squirrel extends ObjectBases.MovableObjectBase {
     }
 
     moving() {
-        while (this.targetPos == null) {
+        if (this.targetPos == null || this.path == null) {
             const randomPoint = new THREE.Vector3((Math.random() - 0.5) * 4, 0, (Math.random() - 0.5) * 4).add(this.getPos());
             if (world.grid.checkIfInGrid(randomPoint) && !world.checkPos(randomPoint)) {
                 this.targetPos = world.getCellCenter(randomPoint);
+                this.path = AStar.findPath(this.getPos(), this.targetPos);
             }
         }
-
-        this.movement += this.speed;
-        const movementVector = this.getMovementVectorToTarget(this.targetPos);
-        if (this.movement >= 1 && !world.checkNeighbour(this.getPos(), movementVector)) {
-            world.moveObjectOnGridInDirection(this, movementVector);
-            this.movement = 0.0;
+        if (this.targetPos == null || this.path == null) {
+            this.switchState(this.squirrelStates.Idle);
+            return;
         }
 
-        if (this.checkIfTargetReached(this.targetPos)) {
-            this.targetPos = null;
-            this.switchState(this.squirrelStates.Planting);
-        }
+        this.executePath(
+            () => {
+                this.targetPos = null;
+                this.switchState(this.squirrelStates.Planting);
+            },
+            () => {
+                this.path = AStar.findPath(this.getPos(), this.targetPos);
+                if (!this.path || this.path.length == 1) {
+                    this.targetPos = null;
+                    return;
+                }
+            }, null, false
+        )
     }
 
     running() {
@@ -879,55 +882,45 @@ class Squirrel extends ObjectBases.MovableObjectBase {
     }
 }
 
+
 class Human extends ObjectBases.MovableObjectBase {
-    //TODO: implement storage area for storing the wood and food humans harvest, implement 5x5 grid reservation for house+wheat fields, implement human needs and behavior
-    //humans should stop killing animals and harvesting wood when they have enough resources in the stockpile, the lesser the resources the more likely they should be to hunt/harvest
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
-        this.speed = 0.1;
+        this.speed = 0.02;
+        this.target = null;
 
         this.selectable = true;
-
-        // const cube = new THREE.BoxGeometry(world.getCellSize(), world.getCellSize(), world.getCellSize()).translate(0,world.getCellSize()/2,0);
-        // this.mesh = new THREE.Mesh(cube, material);
 
         this.mesh = meshes.human.clone();
 
         this.setPos(pos);
         this.setRot(rotation);
-
-        this.movement = 0.0;
     }
 
     update() {
-        //Should find the closest tree.
-        let closest = null;
-        let closestDist = Infinity;
-        let currPos = this.getPos();
-        world.objects.forEach(
-            function(value, index) {
-                let dist = (new THREE.Vector3()).subVectors(value.getPos(), currPos).lengthSq();
-                if (value instanceof Tree && (closest == null || dist < closestDist)) {
-                    closest = value;
-                    closestDist = dist;
-                }
-            }
-        )
-        this.target = closest;
+        if (this.target == null) {
+            this.target = this.findClosestWithAStar((o) => {return o instanceof Tree;});
+        }
 
-        if (this.target != null && this.checkIfNextToTarget(this.target.getPos())) {
-            this.target.applyDamage(2);
-        } else if (this.target != null) {
-            let movementVector = this.getMovementVectorToTarget(this.target.getPos());
+        if (this.target) {
+            this.executePath(
+                () => {
+                    if (this.target.applyDamage(1)) {
+                        this.target = null;
+                    }
+                },
+                () => {
+                    this.target = null;
+                }, (e) => {
+                    if (parameters.simulation.showPaths) {
+                        this.createLines(this.path);
+                    } else {
+                        this.cleanLines();
+                    }
 
-            if (this.movement < 1) {
-                this.movement += this.speed;
-            } else if (!world.checkNeighbour(this.getPos(), movementVector)) {
-                this.movement = 0.0;
-                world.moveObjectOnGridInDirection(this, movementVector);
-                // console.log("Human is moving towards tree. Current Pos: " + pos.x + ", " + pos.y + ", " + pos.z);
-            }
+                    this.lookTowardsPath();
+                } ,true);
         }
     }
 }

@@ -15,7 +15,7 @@ let mouse = {
     y: undefined,
 };
 let simulation = {
-    timeScale: 0.5,
+    timeScale: 20,
 };
 let chartSettings = {
     chartSize: {
@@ -47,4 +47,8 @@ let meshes = {
     rabbit: null,
     fox: null,
     eagle: null
+}
+
+let textures = {
+    terrainNormalMap: null
 }

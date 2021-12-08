@@ -4,9 +4,9 @@ import {OrbitControls} from "../../ecosystemsimulaton/js/library/three.js-r135/e
 import {World} from "../../ecosystemsimulaton/js/world/World.js";
 import * as Objects from "../../ecosystemsimulaton/js/world/Objects.js";
 import * as Grid from "../../ecosystemsimulaton/js/world/Grid.js";
-import {MousePicker} from "../../ecosystemsimulaton/js/mouse_picking.js";
+import {MousePicker} from "../../ecosystemsimulaton/js/mouse/mouse_picking.js";
 import * as Materials from "../../ecosystemsimulaton/js/world/Materials.js";
-import {loadObject} from "../../ecosystemsimulaton/js/util/loadGLTF.js";
+import * as DataLoader from "../../ecosystemsimulaton/js/util/loadData.js";
 
 function createInitScene() {
     const scene = new THREE.Scene();
@@ -41,10 +41,17 @@ function createInitControls(camera, renderer) {
 
 function createTestSceneElements(scene) {
 
-    let terrainObject = new Objects.Terrain(new THREE.Vector3(0, -0.03, 0), new THREE.Vector3(0, 0), Materials.planeMat);
+    let terrainObject = new Objects.Terrain(new THREE.Vector3(0, -0.03, 0), new THREE.Vector3(0, 0), Materials.planeCustomMat);
     world.instantiateObject(terrainObject, false);
 
     let grid = new Grid.Grid(scene, terrainObject, parameters.plane.gridWidth);
+
+    // let treeObject = new Objects.Tree(new THREE.Vector3(-6, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
+    // world.instantiateObject(treeObject);
+    // let humanObject = new Objects.Human(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);
+    // world.instantiateObject(humanObject);
+    // let squirrelObject = new Objects.Squirrel(new THREE.Vector3(6,0,0), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+    // world.instantiateObject(squirrelObject);
 
     for (let i = 0; i < 100; i++) {
         let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.treeMaterial);
@@ -56,12 +63,12 @@ function createTestSceneElements(scene) {
         world.instantiateObject(grassObject);
     }
 
-/*
-    for (let i = 0; i < 200; i++) {
-        let wheatObject = new Objects.Wheat(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.treeMaterial);
-        world.instantiateObject(wheatObject);
-    }
-*/
+    /*
+        for (let i = 0; i < 200; i++) {
+            let wheatObject = new Objects.Wheat(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.treeMaterial);
+            world.instantiateObject(wheatObject);
+        }
+    */
 
     for (let i = 0; i < 30; i++) {
         let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.humanMaterial);
@@ -93,8 +100,8 @@ function createTestSceneElements(scene) {
         world.instantiateObject(foxObject);
     }
 
-    const pointLight = new THREE.PointLight(0xffffff, 1, 50);
-    pointLight.position.set(2, 7, 1);
+    const pointLight = new THREE.PointLight(0xffffff, 1.05, 100);
+    pointLight.position.set(2, 9, 1);
     world.instantiateLight(pointLight);
 
     let lightSphereObject = new Objects.LightIndicator(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.lightIndicatorMaterial, pointLight);
@@ -106,6 +113,8 @@ function createTestSceneElements(scene) {
 
 function threeStarter() {
     drawthechart();
+    Materials.createAllMaterials();
+
     const {scene, camera} = createInitScene();
     const controls = createInitControls(camera, renderer);
     const {terrainObject: _terrainObject} = createTestSceneElements(scene);
@@ -114,70 +123,46 @@ function threeStarter() {
 
     function loop() {
         frameCount++;
-        setTimeout(loop, 1000 / 60);
+        requestAnimationFrame(loop);
 
+        controls.update();
+
+        pointLight.position.set( Math.cos(frameCount * 0.1)*3, 2, Math.sin(frameCount * 0.1)*3);
         raycaster.setFromCamera(mouse, camera);
 
         controls.update();
+
         renderer.render(scene, camera);
+
+        setTimeout(loop, 1000 / 60);
     }
 
     function worldLoop() {
-        setTimeout(worldLoop, (1000 / 60) / simulation.timeScale);
-
         if (isSimActive) {
-            for (let i = 0; i < simulation.timeScale / 16.6; i++) {
+            for (let i = 0; i < simulation.timeScale / (1000 / 60); i++) {
                 world.update();
             }
         }
+
+        setTimeout(worldLoop, (1000 / 60) / (Math.min(1000 / 60, simulation.timeScale)));
     }
 
     worldLoop();
     loop();
 }
 
-
 function preload() {
-    let treePromise = new Promise((resolve, reject) => {
-        loadObject(resolve, "tree.glb");
+    let loadObjectPromise = new Promise((resolve, reject) => {
+        DataLoader.loadObjectMeshes(resolve);
     });
-    let humanPromise = new Promise((resolve, reject) => {
-        loadObject(resolve, "human.glb");
-    });
-    let grassPromise = new Promise((resolve, reject) => {
-        loadObject(resolve, "grass.glb");
-    });
-    let wheatPromise = new Promise((resolve, reject) => {
-        loadObject(resolve, "wheat.glb");
-    });
-    let pigPromise = new Promise((resolve, reject) => {
-        loadObject(resolve, "pig.glb");
-    });
-    let wolfPromise = new Promise((resolve, reject) => {
-        loadObject(resolve, "wolf.glb");
-    });
-    let rabbitPromise = new Promise((resolve, reject) => {
-        loadObject(resolve, "rabbit.glb");
-    });
-    let foxPromise = new Promise((resolve, reject) => {
-        loadObject(resolve, "fox.glb");
-    });
-    let eaglePromise = new Promise((resolve, reject) => {
-        loadObject(resolve, "eagle.glb");
-    })
 
-    Promise.all([treePromise, humanPromise, grassPromise, wheatPromise, pigPromise, wolfPromise, rabbitPromise, foxPromise, eaglePromise]).then((mesh) => {
-        meshes.tree = mesh[0];
-        meshes.human = mesh[1];
-        meshes.grass = mesh[2];
-        meshes.wheat = mesh[3];
-        meshes.pig = mesh[4];
-        meshes.wolf = mesh[5];
-        meshes.rabbit = mesh[6];
-        meshes.fox = mesh[7];
-        meshes.eagle = mesh[8];
-        threeStarter();
+    let loadTexturesPromise = new Promise((resolve, reject) => {
+        DataLoader.loadTextures(resolve);
     });
+
+    Promise.all([loadObjectPromise, loadTexturesPromise]).then(() => {
+        threeStarter();
+    })
 }
 
 window.onload = preload();

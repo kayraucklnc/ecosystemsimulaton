@@ -9,9 +9,6 @@ function drawthechart() {
         data.addColumn('number', 'Human');
         data.addColumn('number', 'Squirrel');
         data.addColumn('number', 'Tree');
-        data.addColumn('number','Pig');
-        data.addColumn('number', 'Wolf');
-        data.addColumn('number', 'Rabbit');
         updateData();
         // Set chart options
         var options = {
@@ -67,7 +64,7 @@ function drawthechart() {
                     datamap.set(typeName, 1);
                 }
             });
-            let rows = [[" ", datamap.get("Human"), datamap.get("Squirrel"), datamap.get("Tree"), datamap.get("Pig"), datamap.get("Wolf"), datamap.get("Rabbit")]];
+            let rows = [[" ", datamap.get("Human"), datamap.get("Squirrel"), datamap.get("Tree")]];
             // let rows = [[" ", perlin.get(2, frameCount/100), perlin.get(3.86, frameCount/150), perlin.get(3.86, frameCount/80)]];
             data.addRows(rows);
         }

@@ -1,6 +1,6 @@
 import * as THREE from "../library/three.js-r135/build/three.module.js";
 import * as ObjectBases from "./ObjectBases.js";
-import {treeMaterial} from "./Materials.js";
+import * as Materials from "./Materials.js";
 import * as AStar from "../util/AStar.js";
 
 class Box extends ObjectBases.MovableObjectBase {
@@ -189,13 +189,12 @@ class Grass extends ObjectBases.LivingObjectBase {
     }
 
     spread() {
-        const randomPoint = new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20).add(this.getPos());
+        const randomPoint = new THREE.Vector3((Math.random() - 0.5) * 10, 0, (Math.random() - 0.5) * 10).add(this.getPos());
         if (world.grid.checkIfInGrid(randomPoint) && !world.checkPos(randomPoint)) {
             this.spawnPos = world.getCellCenter(randomPoint);
-        }
-        const newGrass = new Grass(this.spawnPos, new THREE.Vector3(), treeMaterial);
-        if (world.grid.checkIfInGrid(this.spawnPos) && !world.checkPos(this.spawnPos)) {
+            const newGrass = new Grass(this.spawnPos, new THREE.Vector3(), Materials.treeMaterial);
             world.instantiateObject(newGrass);
+
         }
 
     }
@@ -290,7 +289,7 @@ class Fox extends ObjectBases.MovableObjectBase {
     spawn() {
         const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
 
-        const newFox = new Fox(neighbourPos, new THREE.Vector3(), squirrelMaterial);
+        const newFox = new Fox(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
             world.instantiateObject(newFox);
             this.hunger += 40;
@@ -426,7 +425,7 @@ class Rabbit extends ObjectBases.MovableObjectBase {
     spawn() {
         const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
 
-        const newRabbit = new Rabbit(neighbourPos, new THREE.Vector3(), squirrelMaterial);
+        const newRabbit = new Rabbit(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
             world.instantiateObject(newRabbit);
             this.hunger += 30;
@@ -625,7 +624,7 @@ class Pig extends ObjectBases.MovableObjectBase {
     spawn() {
         const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
 
-        const newPig = new Pig(neighbourPos, new THREE.Vector3(), squirrelMaterial);
+        const newPig = new Pig(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
             world.instantiateObject(newPig);
             this.hunger += 40;
@@ -691,7 +690,7 @@ class Wolf extends ObjectBases.MovableObjectBase {
     spawn() {
         const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
 
-        const newWolf = new Wolf(neighbourPos, new THREE.Vector3(), squirrelMaterial);
+        const newWolf = new Wolf(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
             world.instantiateObject(newWolf);
             this.hunger += 40;
@@ -873,7 +872,7 @@ class Squirrel extends ObjectBases.MovableObjectBase {
     planting() {
         const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
 
-        const newTree = new Tree(neighbourPos, new THREE.Vector3(), treeMaterial);
+        const newTree = new Tree(neighbourPos, new THREE.Vector3(), Materials.treeMaterial);
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
             world.instantiateObject(newTree);
         }

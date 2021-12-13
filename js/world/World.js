@@ -1,6 +1,7 @@
 import * as THREE from "../library/three.js-r135/build/three.module.js";
 import * as Objects from "../world/Objects.js"
 import {GridLayer} from "./Grid.js";
+import * as ObjectBases from "../world/ObjectBases.js";
 
 class World {
     constructor(scene) {
@@ -15,7 +16,7 @@ class World {
         this.parentObject = new THREE.Object3D();
         this.scene.add(this.parentObject);
     }
-    
+
     getRandomColor() {
         var letters = '0123456789ABCDEF';
         var color = '#';
@@ -28,7 +29,7 @@ class World {
     randomFloatFromInterval(min, max) { // min and max included 
         return (Math.random() * (max - min) + min);
     }
-    
+
     createLine(from, to, height = 0, color = "#ffffff") {
         const points = [];
         let inHeight = world.getNormalVector(from).multiplyScalar(height);
@@ -106,7 +107,7 @@ class World {
                 break;
         }
     }
-    
+
 
     checkIfInGrid(pos) {
         return this.grid.checkIfInGrid(pos);
@@ -129,34 +130,45 @@ class World {
 
     instantiateObjectOnGrid(object, layer=GridLayer.Surface) {
         let pos = object.getPos();
-        if (this.checkPos(pos, layer)) {
+        if (this.checkPos(pos)) {
             this.deleteObject(this.grid.getPos(pos, layer));
+            return false;
+        } else {
+            this.fixObjectPos(object);
+            this.grid.setPos(object.getPos(), object, layer);
         }
-
-        this.fixObjectPos(object);
-
-        this.grid.setPos(object.getPos(), object, layer);
 
         this.parentObject.add(object.mesh);
         this.objects.push(object);
 
         this.meshIdToObject.set(object.mesh.id, object);
+        return true;
     }
 
-
+    //Returns whether the placement was successful
     instantiateObject(object, onGrid=true) {
         if (onGrid) {
-            this.instantiateObjectOnGrid(object);
-            return;
+            return this.instantiateObjectOnGrid(object);
         }
 
         this.parentObject.add(object.mesh);
         this.objects.push(object);
 
         this.meshIdToObject.set(object.mesh.id, object);
+        return true;
+    }
+
+    getMaxLiving(){
+        return Math.max(...datamap.values());
     }
 
     deleteObject(object) {
+        if(object instanceof ObjectBases.LivingObjectBase){
+            let typeName = object.constructor.name;
+            datamap.set(typeName, datamap.get(typeName) - 1);
+            ObjectBases.LivingObjectBase.maxLiving = Math.max(datamap.get(typeName), ObjectBases.LivingObjectBase.maxLiving);
+        }
+
         let pos = object.getPos();
         let objectLayer = this.grid.getObjectLayer(object);
         if (this.grid.checkIfInGrid(pos) && objectLayer && this.grid.getPos(pos, objectLayer) === object) {
@@ -166,6 +178,7 @@ class World {
         const indexOf = this.objects.indexOf(object);
         if (indexOf != -1) {
             this.objects.splice(indexOf, 1);
+
         }
 
         this.parentObject.remove(object.mesh);

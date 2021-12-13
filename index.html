@@ -129,14 +129,14 @@
             terrainType = 1;
         } else if (heightWithRand < 0.35) { // Ground
             float perlin = texture2D(perlinMap, vUv).r;
-            float perlintwox = texture2D(perlinMap, vUv * 2.0).r;
-            float perlinthreex = texture2D(perlinMap, vUv * 3.0).r;
+            // float perlintwox = texture2D(perlinMap, vUv * 2.0).r;
+            // float perlinthreex = texture2D(perlinMap, vUv * 3.0).r;
             if(perlin > 0.25) { // Grass
                 terrainColor = vec3(0.06666666667, 0.48627450980, 0.07450980392);
             } else { // Dirt
                 terrainColor = vec3(0.42745098039, 0.31372549020, 0.24705882353);
             }
-                terrainType = 2;
+            terrainType = 2;
         } else { // Snow
             terrainColor = vec3(0.87450980392, 0.90980392157, 0.94117647059);
             terrainType = 3;

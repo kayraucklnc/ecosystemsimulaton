@@ -38,6 +38,7 @@
     varying vec3 worldPosition;
     void main() {
         vUv = uv;
+
         worldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
 
         vNormal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
@@ -81,6 +82,8 @@
     }
 </script>
 <script id="terrainFragmentShader" type="x-shader/x-fragment">
+    precision mediump float;
+
     struct PointLight {
         vec3 color;
         vec3 position;
@@ -95,20 +98,24 @@
 
     varying vec3 worldPosition;
 
-    uniform sampler2D normal_map;
+    uniform sampler2D normalMap;
     uniform float maxTerrainHeight;
     void main() {
         vec3 terrainColor;
         float height = float(worldPosition.y) / float(maxTerrainHeight);
         if (height < -0.34) {
-            terrainColor = vec3(0.76470588235, 0.66274509804, 0.54509803922);
+            // terrainColor = vec3(0.76470588235, 0.66274509804, 0.54509803922);
+            terrainColor = vec3(0.00000000000, 0.18431372549, 0.65490196078);
         } else if (height < 0.35) {
             terrainColor = vec3(0.06666666667, 0.48627450980, 0.07450980392);
         } else {
             terrainColor = vec3(0.87450980392, 0.90980392157, 0.94117647059);
         }
 
-        vec3 bumpNormal = normalize(texture2D(normal_map, vUv).rgb * 2.0 - 1.0);
+        // TODO vPosition ve pointLight[0].position kameraya göre pozisyon dönüyor. norm ise her zaman 0, 0, 1 temelli dönüyor.
+        // Tangent space nedir nasıl çalışır araştır ve normal mappingi tamamla.
+
+        vec3 norm = normalize(texture2D(normalMap, vUv).rgb * 2.0 - 1.0);
 
         vec4 addedLights = vec4(0.0,
         0.0,
@@ -127,9 +134,8 @@
         addedLights = max(vec4(0.3), addedLights);
         addedLights = min(vec4(1.5), addedLights);
 
-        // gl_FragColor = vec4(terrainColor, 1.) * addedLights;
-        // gl_FragColor = vec4(bumpNormal, 1.) * addedLights;
-        gl_FragColor = vec4(texture2D(normal_map, vUv, 0.0).xyz, 1.) * addedLights;
+        gl_FragColor = vec4(terrainColor, 1.) * addedLights;
+        // gl_FragColor = vec4(norm, 1.);
         // gl_FragColor = vec4(worldPosition.y, worldPosition.y, worldPosition.y, 1.) * addedLights;
     }
 </script>

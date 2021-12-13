@@ -120,6 +120,7 @@ class Terrain extends ObjectBases.WorldObjectBase {
     }
 
     update() {
+        console.log(this.grid.matrix);
     }
 }
 
@@ -263,7 +264,7 @@ class Squirrel extends ObjectBases.MovableObjectBase {
 
         const newTree = new Tree(neighbourPos, new THREE.Vector3(), treeMaterial);
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
-            world.instantiateObject(newTree);
+            world.instantiateObjectOnGrid(newTree);
         }
 
         this.switchState(this.squirrelStates.Idle);

@@ -19,12 +19,14 @@ function loadObjectMeshes(resolve) {
 
 function loadTextures(resolve) {
     let terrainNormalPromise = new Promise((resolve, reject) => {
-        const texture = new THREE.TextureLoader().load( "textures/terrain_normal_map.jpg", (tex) => {
-            resolve(tex);
+        const loader = new THREE.TextureLoader();
+        loader.crossOrigin = "";
+        loader.load( "textures/terrain_normal_map.jpg", (texture) => {
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set( 4, 4 );
+            resolve(texture);
         });
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set( 4, 4 );
     });
 
     Promise.all([terrainNormalPromise]).then((texture) => {

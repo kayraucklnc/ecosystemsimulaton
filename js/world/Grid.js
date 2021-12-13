@@ -28,6 +28,13 @@ Object.assign(THREE.PlaneBufferGeometry.prototype, {
     }
 });
 
+const GridLayer = {
+    Underground: 0,
+    Ground: 1,
+    Surface: 2,
+    InAir: 3
+}
+
 class Grid {
     // Gets the scene, terrain object and width grid count for the new grid.
     constructor(scene, terrain, widthInGrid) {
@@ -47,12 +54,17 @@ class Grid {
         this.cellSize = null;
 
         this.matrix = [];
-        for (let i = 0; i < this.widthInGrid; i++) {
-            let matrixRow = [];
-            for (let j = 0; j < this.widthInGrid; j++) {
-                matrixRow.push(null);
+        for (let k = 0; k < 4; k++) {
+            let subMatrix = [];
+            for (let i = 0; i < this.widthInGrid; i++) {
+                let matrixRow = [];
+                for (let j = 0; j < this.widthInGrid; j++) {
+                    matrixRow.push(null);
+                }
+                subMatrix.push(matrixRow);
             }
-            this.matrix.push(matrixRow);
+
+            this.matrix.push(subMatrix);
         }
 
         this.createGridGeometry(parameters);
@@ -119,28 +131,44 @@ class Grid {
     }
 
     // Gets a Three.Vector3 and returns the object there.
-    getPos(pos) {
+    getPos(pos, layer=GridLayer.Surface) {
         let {i, j} = this.getGridIndex(pos);
-        return this.matrix[i][j];
+        return this.matrix[layer][i][j];
     }
 
 
     // Gets a Three.Vector3 and Object. Puts the object into the appropriate position.
-    setPos(pos, object) {
+    setPos(pos, object, layer=GridLayer.Surface) {
         let {i, j} = this.getGridIndex(pos);
-        this.matrix[i][j] = object;
+        this.matrix[layer][i][j] = object;
     }
 
-    clearPos(pos) {
-        this.setPos(pos, null);
+    clearPos(pos, layer=GridLayer.Surface) {
+        this.setPos(pos, null, layer);
     }
 
 
     // Gets a Three.Vector3 and returns if there is an object there.
-    checkGrid(pos) {
-        let result = this.getPos(pos);
+    checkGrid(pos, layer=GridLayer.Surface) {
+        let result = this.getPos(pos, layer);
         return result != null;
     }
+
+    getObjectLayer(object) {
+        let pos = object.getPos();
+
+        let objectLayer;
+        for (let layerName in GridLayer) {
+            let layer = GridLayer[layerName];
+            if (this.getPos(pos, layer) === object) {
+                objectLayer = layer;
+                break;
+            }
+        }
+
+        return objectLayer;
+    }
+
 
     // Gets a Three.Vector3 and returns if included in grid.
     checkIfInGrid(pos) {
@@ -154,4 +182,4 @@ class Grid {
     }
 }
 
-export {Grid};
+export {Grid, GridLayer};

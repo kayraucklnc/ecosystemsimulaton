@@ -31,7 +31,7 @@ class DrawerHandler {
                         element = new Objects.Squirrel(intersectPoint, new THREE.Vector3(0, 0), Materials.squirrelMaterial);
                         break;
                 }
-                world.instantiateObject(element, true);
+                world.instantiateObjectOnGrid(element);
             } else if (drawMode.eraser) {
                 let object = world.getPos(intersectPoint);
                 if(object){

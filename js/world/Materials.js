@@ -18,26 +18,29 @@ let squirrelMaterial = null;
 let lightIndicatorMaterial = null;
 
 function createAllMaterials() {
-    // planeCustomMat = new THREE.ShaderMaterial({
-    //     uniforms: THREE.UniformsUtils.merge([
-    //         THREE.UniformsLib["lights"],
-    //         {
-    //             normal_map: { value: textures.terrainNormalMap },
-    //             maxTerrainHeight: { value: parameters.plane.heightMultiplier },
-    //             color: { value: new THREE.Color(0x1e692e) },
-    //         },
-    //     ]),
-    //     vertexShader: vShader,
-    //     fragmentShader: terrainFShader,
-    //     side: THREE.DoubleSide,
-    //     lights: true,
-    // });
-    planeCustomMat = new THREE.MeshPhongMaterial({
-        normalMap: textures.terrainNormalMap,
-        color: 0x3bdb43,
+    console.log(textures.terrainNormalMap);
+    let planeMatUniforms = THREE.UniformsUtils.merge([
+        THREE.UniformsLib["lights"],
+        {
+            normalMap: { value: textures.terrainNormalMap },
+            maxTerrainHeight: { value: parameters.plane.heightMultiplier },
+            // color: { value: new THREE.Color(0x1e692e) },
+        }
+    ]);
+    planeMatUniforms.normalMap.value = textures.terrainNormalMap;
+    planeCustomMat = new THREE.ShaderMaterial({
+        uniforms: planeMatUniforms,
+        vertexShader: vShader,
+        fragmentShader: terrainFShader,
         side: THREE.DoubleSide,
-        flatShading: THREE.FlatShading,
+        lights: true
     });
+    // planeCustomMat = new THREE.MeshPhongMaterial({
+    //     normalMap: textures.terrainNormalMap,
+    //     color: 0x3bdb43,
+    //     side: THREE.DoubleSide,
+    //     flatShading: THREE.FlatShading,
+    // });
 
     treeMaterial = new THREE.ShaderMaterial({
         uniforms: THREE.UniformsUtils.merge([

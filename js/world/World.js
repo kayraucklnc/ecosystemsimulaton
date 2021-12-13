@@ -1,6 +1,6 @@
 import * as THREE from "../library/three.js-r135/build/three.module.js";
-
 import * as Objects from "../world/Objects.js"
+import {GridLayer} from "./Grid.js";
 
 class World {
     constructor(scene) {
@@ -45,6 +45,10 @@ class World {
         return line;
     }
 
+    getObjects() {
+        return this.parentObject.children;
+    }
+
     getObjectOfMesh(mesh) {
         return this.meshIdToObject.get(mesh.id);
     }
@@ -58,26 +62,26 @@ class World {
         return this.grid.getGridPos(pos);
     }
 
-    checkPos(pos) {
-        return this.grid.checkGrid(pos);
+    checkPos(pos, layer=GridLayer.Surface) {
+        return this.grid.checkGrid(pos, layer);
     }
 
-    getPos(pos) {
-        return this.grid.getPos(pos);
+    getPos(pos, layer=GridLayer.Surface) {
+        return this.grid.getPos(pos, layer);
     }
 
     getNeighbourPos(pos, direction) {
         return this.grid.getGridInDirection(pos, direction);
     }
 
-    checkNeighbour(pos, direction) {
+    checkNeighbour(pos, direction, layer=GridLayer.Surface) {
         let neighbourPos = this.getNeighbourPos(pos, direction);
-        return this.grid.checkGrid(neighbourPos);
+        return this.grid.checkGrid(neighbourPos, layer);
     }
 
-    getNeighbour(pos, direction) {
+    getNeighbour(pos, direction, layer=GridLayer.Surface) {
         let neighbourPos = this.getNeighbourPos(pos, direction);
-        return this.grid.getPos(neighbourPos);
+        return this.grid.getPos(neighbourPos, layer);
     }
 
 
@@ -91,6 +95,16 @@ class World {
             object.mesh.quaternion.setFromUnitVectors(up, normal.clone());
         }
 
+        const objectLayer = this.grid.getObjectLayer(object);
+
+        switch(objectLayer) {
+            case 0:
+                object.setPos(newPos.add(new THREE.Vector3(0, -2, 0)));
+                break;
+            case 3:
+                object.setPos(newPos.add(new THREE.Vector3(0, 3, 0)));
+                break;
+        }
     }
     
 
@@ -113,18 +127,27 @@ class World {
         return crossed.normalize();
     }
 
-
-    instantiateObject(object, onGrid = true) {
-        //TODO: Grid üzerindekiler ayrı alınabilmeli
+    instantiateObjectOnGrid(object, layer=GridLayer.Surface) {
         let pos = object.getPos();
+        if (this.checkPos(pos, layer)) {
+            this.deleteObject(this.grid.getPos(pos, layer));
+        }
+
+        this.fixObjectPos(object);
+
+        this.grid.setPos(object.getPos(), object, layer);
+
+        this.parentObject.add(object.mesh);
+        this.objects.push(object);
+
+        this.meshIdToObject.set(object.mesh.id, object);
+    }
+
+
+    instantiateObject(object, onGrid=true) {
         if (onGrid) {
-            if (this.checkPos(pos)) {
-                this.deleteObject(this.grid.getPos(pos));
-            }
-
-            this.fixObjectPos(object);
-
-            this.grid.setPos(object.getPos(), object);
+            this.instantiateObjectOnGrid(object);
+            return;
         }
 
         this.parentObject.add(object.mesh);
@@ -135,8 +158,9 @@ class World {
 
     deleteObject(object) {
         let pos = object.getPos();
-        if (this.grid.checkIfInGrid(pos) && this.grid.getPos(pos) === object) {
-            this.grid.clearPos(pos);
+        let objectLayer = this.grid.getObjectLayer(object);
+        if (this.grid.checkIfInGrid(pos) && objectLayer && this.grid.getPos(pos, objectLayer) === object) {
+            this.grid.clearPos(pos, objectLayer);
         }
 
         const indexOf = this.objects.indexOf(object);
@@ -150,14 +174,15 @@ class World {
     }
 
     moveObjectOnGrid(object, pos) {
-        this.grid.clearPos(object.getPos());
+        let objectLayer = this.grid.getObjectLayer(object);
+        this.grid.clearPos(object.getPos(), objectLayer);
 
-        let neighbourToReplace = this.getPos(pos);
+        let neighbourToReplace = this.getPos(pos, objectLayer);
         if (neighbourToReplace != null) {
             this.deleteObject(neighbourToReplace);
         }
 
-        this.grid.setPos(pos, object);
+        this.grid.setPos(pos, object, objectLayer);
 
         object.setPos(this.grid.getGridPos(pos));
         this.fixObjectPos(object);

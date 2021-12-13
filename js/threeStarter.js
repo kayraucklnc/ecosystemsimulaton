@@ -69,7 +69,7 @@ function createTestSceneElements(scene) {
     }
 
     const pointLight = new THREE.PointLight(0xffffff, 1.05, 100);
-    pointLight.position.set(2, 9, 1);
+    pointLight.position.set(2, 10, 1);
     world.instantiateLight(pointLight);
 
     let lightSphereObject = new Objects.LightIndicator(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.lightIndicatorMaterial, pointLight);

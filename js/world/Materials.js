@@ -18,16 +18,17 @@ let squirrelMaterial = null;
 let lightIndicatorMaterial = null;
 
 function createAllMaterials() {
-    console.log(textures.terrainNormalMap);
     let planeMatUniforms = THREE.UniformsUtils.merge([
         THREE.UniformsLib["lights"],
         {
+            repeatFactor: { value: 10 },
             normalMap: { value: textures.terrainNormalMap },
             maxTerrainHeight: { value: parameters.plane.heightMultiplier },
-            // color: { value: new THREE.Color(0x1e692e) },
+            perlinMap: { value: textures.perlinNoiseMap },
         }
     ]);
     planeMatUniforms.normalMap.value = textures.terrainNormalMap;
+    planeMatUniforms.perlinMap.value = textures.perlinNoiseMap;
     planeCustomMat = new THREE.ShaderMaterial({
         uniforms: planeMatUniforms,
         vertexShader: vShader,
@@ -35,6 +36,7 @@ function createAllMaterials() {
         side: THREE.DoubleSide,
         lights: true
     });
+
     // planeCustomMat = new THREE.MeshPhongMaterial({
     //     normalMap: textures.terrainNormalMap,
     //     color: 0x3bdb43,

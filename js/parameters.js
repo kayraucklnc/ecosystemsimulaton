@@ -2,7 +2,7 @@ let parameters = {
     plane: {
         scale: 50,
         gridWidth: 80,
-        noiseScale: 0.71,
+        noiseScale: 0.38,
         persistance: 0.534,
         lacunarity: 1.5,
         smoothness: 2.8,

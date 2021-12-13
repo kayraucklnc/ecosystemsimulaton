@@ -18,19 +18,30 @@ function loadObjectMeshes(resolve) {
 }
 
 function loadTextures(resolve) {
-    let terrainNormalPromise = new Promise((resolve, reject) => {
+    let texturePromises = [];
+    texturePromises.push(new Promise((resolve, reject) => {
         const loader = new THREE.TextureLoader();
         loader.crossOrigin = "";
-        loader.load( "textures/terrain_normal_map.jpg", (texture) => {
-            texture.wrapS = THREE.RepeatWrapping;
-            texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set( 4, 4 );
+        loader.load( "textures/terrain_n_map2.png", (texture) => {
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set( 10, 10 );
             resolve(texture);
         });
-    });
+    }));
 
-    Promise.all([terrainNormalPromise]).then((texture) => {
+    texturePromises.push(new Promise((resolve, reject) => {
+        const loader = new THREE.TextureLoader();
+        loader.crossOrigin = "";
+        loader.load( "textures/perlin_noise.png", (texture) => {
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set( 10, 10 );
+            resolve(texture);
+        });
+    }));
+
+    Promise.all(texturePromises).then((texture) => {
         textures.terrainNormalMap = texture[0];
+        textures.perlinNoiseMap = texture[1];
 
         resolve();
     });

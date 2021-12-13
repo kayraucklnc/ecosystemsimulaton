@@ -44,5 +44,6 @@ let meshes = {
 }
 
 let textures = {
-    terrainNormalMap: null
+    terrainNormalMap: null,
+    perlinNoiseMap: null
 }

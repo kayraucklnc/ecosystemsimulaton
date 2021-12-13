@@ -108,6 +108,8 @@ class Terrain extends ObjectBases.WorldObjectBase {
             this.mesh.geometry.attributes.position.array[i + 2] = this.getHeight(new THREE.Vector2(x, -y));
         }
 
+        this.mesh.geometry.computeTangents();
+
         if (this.grid) {
             this.grid.createGridGeometry(parameters);
         }

@@ -120,7 +120,6 @@ class Terrain extends ObjectBases.WorldObjectBase {
     }
 
     update() {
-        console.log(this.grid.matrix);
     }
 }
 

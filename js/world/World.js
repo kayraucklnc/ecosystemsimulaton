@@ -142,6 +142,9 @@ class World {
         this.objects.push(object);
 
         this.meshIdToObject.set(object.mesh.id, object);
+
+        object._onLayer = layer;
+
         return true;
     }
 
@@ -184,6 +187,8 @@ class World {
         this.parentObject.remove(object.mesh);
 
         this.meshIdToObject.delete(object.mesh.id);
+
+        object._onLayer = null;
     }
 
     moveObjectOnGrid(object, pos) {

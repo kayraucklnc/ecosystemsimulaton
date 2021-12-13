@@ -155,6 +155,10 @@ class Grid {
     }
 
     getObjectLayer(object) {
+        if (object._onLayer) {
+            return object._onLayer;
+        }
+
         let pos = object.getPos();
 
         let objectLayer;

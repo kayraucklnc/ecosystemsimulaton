@@ -54,8 +54,8 @@ function eraserChange() {
 }
 
 function saveTemplate() {
+    console.log(world.grid.matrix);
     let toSave = {arr: [], scale: parameters.plane.scale,}
-
 
     for (let i = 0; i < world.grid.matrix.length; i++) {
         let arr1 = [];
@@ -73,10 +73,6 @@ function saveTemplate() {
 
     console.log(JSON.stringify(toSave));
     download("template.json",JSON.stringify(toSave));
-
-    //console.log(world.grid.matrix[1]);
-
-    //
 }
 
 function download(filename, text) {
@@ -97,20 +93,20 @@ async function loadTemplate() {
     let fileData = await fileHandle.getFile();
     let text = await fileData.text();
     let parsedData = JSON.parse(text);
-    console.log(parsedData);
-    /* let length = parsedData["arr"]["length"];
-     for (let i = 0; i < length; i++) {
-         for (let y = 0; y < length; y++) {
-             console.log(i);
-             console.log(parsedData["matrix"][1][i]);
-         }
-     }*/
-    console.log(parsedData.arr);
-
-    if (A == cons.name) {
-        let treeObject = new Objects.Tree(world.grid.get, new THREE.Vector3(0, 0), Materials.treeMaterial);
-        world.instantiateObject(treeObject);
-    }
 
 
-}
+
+
+
+    for (let i = 0; i < parsedData.arr.length ; i++) {
+        for (let j = 0; j < parsedData.arr[i].length ; j++) {
+            for (let k = 0; k < parsedData.arr[i][j].length; k++) {
+                if (parsedData.arr[i][j][k] != null) {
+                    let wallObject = new Objects.Wall(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.wallMaterial);
+                    world.instantiateObject(wallObject);
+                }
+            };
+        };
+    };
+
+ }

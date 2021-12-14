@@ -233,6 +233,14 @@ class World {
         this.meshIdToObject.delete(object.mesh.id);
     }
 
+    clearObjects() {
+        for (let i = this.gridParent.children.length - 1; i >=0; i--){
+            const o = this.gridParent.children[i];
+            const obj = this.getObjectOfMesh(o);
+            this.deleteObject(obj);
+        }
+    }
+
     moveObjectOnGrid(object, pos) {
         let objectLayer = this.grid.getObjectLayer(object);
         this.grid.clearPos(object.getPos(), objectLayer);
@@ -294,7 +302,7 @@ class World {
                     }
 
                     if (checkFunc(gridPos, objectAtPos)) {
-                        const largeFiller = new Objects.LargeFillerObject(gridPos, new THREE.Vector3(0, 0, 0), null);
+                        const largeFiller = new Objects.LargeFillerObject(new THREE.Vector3().add(gridPos), new THREE.Vector3(0, 0, 0), null);
                         this.instantiateObjectOnGrid(largeFiller, GridLayer.Surface);
                     }
                 }

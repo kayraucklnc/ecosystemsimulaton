@@ -1,12 +1,16 @@
-let raycaster;
+let scene, camera;
+let isSimActive = true;
+let world = null;
+let water;
 let terrainObject;
 let frameCount = 0;
-let world = null;
+
+let raycaster;
 let orbitControls = null;
 let mousePicker = null;
-let isSimActive = true;
+
 let renderer = null;
-let water;
+
 let drawMode = {
     brush: false,
     eraser: false,

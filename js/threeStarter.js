@@ -36,6 +36,11 @@ function createInitScene() {
     renderer.setSize(canvasSize.width, canvasSize.height);
     renderer.domElement.style.display = "";
     document.getElementById("midBar").appendChild(renderer.domElement);
+
+    terrainObject = new Objects.Terrain(new THREE.Vector3(0, -0.03, 0), new THREE.Vector3(0, 0), Materials.planeCustomMat);
+    world.instantiateObject(terrainObject, false);
+    world.grid.setTerrain(terrainObject);
+
     return {scene, camera};
 }
 
@@ -74,10 +79,6 @@ function createWater() {
 
 
 function createTestSceneElements(scene) {
-    let terrainObject = new Objects.Terrain(new THREE.Vector3(0, -0.03, 0), new THREE.Vector3(0, 0), Materials.planeCustomMat);
-    world.instantiateObject(terrainObject, false);
-    world.grid.setTerrain(terrainObject);
-
     let treeObject = new Objects.Tree(new THREE.Vector3(-6, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
     world.instantiateObject(treeObject);
     let humanObject = new Objects.Human(new THREE.Vector3(6, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);
@@ -116,10 +117,11 @@ function threeStarter() {
     drawthechart();
     Materials.createAllMaterials();
 
-    const {scene, camera} = createInitScene();
+    const {scene: _scene, camera: _camera} = createInitScene();
+    scene = _scene;
+    camera = _camera;
     const controls = createInitControls(camera, renderer);
-    const {terrainObject: _terrainObject} = createTestSceneElements(scene);
-    terrainObject = _terrainObject;
+    createTestSceneElements(scene);
     gui.setTerrain(terrainObject);
 
     var loopStats = new Stats();
@@ -158,6 +160,12 @@ function threeStarter() {
 
     worldLoop();
     loop();
+}
+
+document.onkeydown = function (ev) {
+    if (ev.key === "p") {
+        world.clearObjects();
+    }
 }
 
 function preload() {

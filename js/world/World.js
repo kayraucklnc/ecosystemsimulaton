@@ -233,6 +233,14 @@ class World {
         this.meshIdToObject.delete(object.mesh.id);
     }
 
+    clearObjects() {
+        for (let i = this.gridParent.children.length - 1; i >=0; i--){
+            const o = this.gridParent.children[i];
+            const obj = this.getObjectOfMesh(o);
+            this.deleteObject(obj);
+        }
+    }
+
     moveObjectOnGrid(object, pos) {
         let objectLayer = this.grid.getObjectLayer(object);
         this.grid.clearPos(object.getPos(), objectLayer);

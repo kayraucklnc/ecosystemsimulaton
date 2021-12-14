@@ -294,7 +294,7 @@ class World {
                     }
 
                     if (checkFunc(gridPos, objectAtPos)) {
-                        const largeFiller = new Objects.LargeFillerObject(gridPos, new THREE.Vector3(0, 0, 0), null);
+                        const largeFiller = new Objects.LargeFillerObject(new THREE.Vector3().add(gridPos), new THREE.Vector3(0, 0, 0), null);
                         this.instantiateObjectOnGrid(largeFiller, GridLayer.Surface);
                     }
                 }

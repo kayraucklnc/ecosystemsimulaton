@@ -127,7 +127,7 @@ class Terrain extends ObjectBases.WorldObjectBase {
         }
 
         world.fillAtAllGrid((gridPos, objectOnGrid) => {
-           return gridPos <= parameters.plane.waterHeight * parameters.plane.heightMultiplier;
+           return gridPos.y <= parameters.plane.waterHeight * parameters.plane.heightMultiplier;
         }, true);
 
         world.objects.forEach((x) => {
@@ -347,7 +347,19 @@ class Wall extends ObjectBases.WorldLargeObject {
     }
 }
 
-class FillerObject extends ObjectBases.WorldObjectBase {}
-class LargeFillerObject extends ObjectBases.WorldLargeObject {}
+class FillerObject extends ObjectBases.WorldObjectBase {
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
+        this.setPos(pos);
+        this.setRot(rotation);
+    }
+}
+class LargeFillerObject extends ObjectBases.WorldLargeObject {
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
+        this.setPos(pos);
+        this.setRot(rotation);
+    }
+}
 
 export {Sphere, LightIndicator, MouseFollower, Terrain, Box, Human, Tree, Squirrel, Wall, FillerObject, LargeFillerObject};

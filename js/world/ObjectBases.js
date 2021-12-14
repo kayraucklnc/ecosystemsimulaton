@@ -248,6 +248,8 @@ class MovableObjectBase extends LivingObjectBase {
 class WorldLargeObject extends WorldObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
+
+        this.mesh = new THREE.Object3D();
     }
 }
 

@@ -89,7 +89,7 @@ class Terrain extends ObjectBases.WorldObjectBase {
     getHeight(vec2) {
         //return perlin.get(vec2.x * parameters.plane.noiseScale, vec2.y * parameters.plane.noiseScale) * parameters.plane.heightMultiplier;
         var r = 0;
-        for (var i = 0; i <= 5; i++) {
+        for (var i = 0; i <= 3; i++) {
             var frequency = Math.pow(parameters.plane.lacunarity, i);
             var amplitude = Math.pow(parameters.plane.persistance, i);
             var noise = perlin.get(vec2.x *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness, vec2.y *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness ) ;
@@ -288,7 +288,6 @@ class Human extends ObjectBases.MovableObjectBase {
     }
 
     update() {
-        anaananan = 2545;
         if (this.target == null) {
             this.target = this.findClosestWithAStar((o) => {
                 return o instanceof Tree;

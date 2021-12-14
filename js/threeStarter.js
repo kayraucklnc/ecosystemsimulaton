@@ -22,8 +22,8 @@ function createInitScene() {
     raycaster = new THREE.Raycaster();
     mousePicker = new MousePicker(scene, camera, renderer);
 
-    camera.position.y = 3;
-    camera.position.z = 6;
+    camera.position.y = 15;
+    camera.position.z = 30;
     renderer.setSize(canvasSize.width, canvasSize.height);
     renderer.domElement.style.display = "";
     document.getElementById("midBar").appendChild(renderer.domElement);
@@ -53,20 +53,25 @@ function createTestSceneElements(scene) {
     // let squirrelObject = new Objects.Squirrel(new THREE.Vector3(6,0,0), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
     // world.instantiateObject(squirrelObject);
 
-    for (let i = 0; i < 100; i++) {
-        let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * 40, 0, (Math.random() - 0.5) * 40), new THREE.Vector3(0, 0), Materials.treeMaterial);
-        world.instantiateObject(treeObject);
-    }
+    // for (let i = 0; i < 5000; i++) {
+    //     let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * 40, 0, (Math.random() - 0.5) * 40), new THREE.Vector3(0, 0), Materials.treeMaterial);
+    //     world.instantiateObject(treeObject);
+    // }
 
-    for (let i = 0; i < 50; i++) {
-        let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5) * 40, 0, (Math.random() - 0.5) * 40), new THREE.Vector3(0, 0), Materials.humanMaterial);
-        world.instantiateObject(humanObject);
-    }
+    // for (let i = 0; i < 50; i++) {
+    //     let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5) * 40, 0, (Math.random() - 0.5) * 40), new THREE.Vector3(0, 0), Materials.humanMaterial);
+    //     world.instantiateObject(humanObject);
+    // }
+    //
+    // for (let i = 0; i < 20; i++) {
+    //     let squirrelObject = new Objects.Squirrel(new THREE.Vector3((Math.random() - 0.5) * 40, 0, (Math.random() - 0.5) * 40), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+    //     world.instantiateObject(squirrelObject);
+    // }
 
-    for (let i = 0; i < 20; i++) {
-        let squirrelObject = new Objects.Squirrel(new THREE.Vector3((Math.random() - 0.5) * 40, 0, (Math.random() - 0.5) * 40), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
-        world.instantiateObject(squirrelObject);
-    }
+    // const geometry = new THREE.SphereGeometry(15, 32, 16);
+    // const material = Materials.worldSphereMat;
+    // const sphere = new THREE.Mesh(geometry, material);
+    // scene.add(sphere);
 
     const pointLight = new THREE.PointLight(0xffffff, 1.05, 200);
     pointLight.position.set(2, 10, 1);
@@ -89,16 +94,24 @@ function threeStarter() {
     terrainObject = _terrainObject;
     gui.setTerrain(terrainObject);
 
+    var loopStats = new Stats();
+    loopStats.showPanel(0);
+    document.body.appendChild(loopStats.dom);
+
     function loop() {
+        loopStats.begin();
+
         frameCount++;
 
         raycaster.setFromCamera(mouse, camera);
+        Materials.planeCustomMat.uniforms.u_time.value += 0.01;
 
         controls.update();
 
         renderer.render(scene, camera);
 
-        setTimeout(loop, 1000 / 60);
+        window.requestAnimationFrame(loop);
+        loopStats.end();
     }
 
     function worldLoop() {
@@ -107,10 +120,11 @@ function threeStarter() {
                 world.update();
             }
         }
-
         setTimeout(worldLoop, (1000 / 60) / (Math.min(1000 / 60, simulation.timeScale)));
-    }
 
+    }
+    
+    
     worldLoop();
     loop();
 }

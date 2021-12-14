@@ -48,3 +48,5 @@ let textures = {
     snowNormalMap: null,
     perlinNoiseMap: null
 }
+
+let shaders = {}

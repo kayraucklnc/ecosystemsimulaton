@@ -116,15 +116,12 @@ function threeStarter() {
 }
 
 function preload() {
-    let loadObjectPromise = new Promise((resolve, reject) => {
-        DataLoader.loadObjectMeshes(resolve);
+    let loadDataPromise = new Promise((resolve, reject) => {
+        DataLoader.loadData(resolve);
     });
 
-    let loadTexturesPromise = new Promise((resolve, reject) => {
-        DataLoader.loadTextures(resolve);
-    });
 
-    Promise.all([loadObjectPromise, loadTexturesPromise]).then(() => {
+    Promise.all([loadDataPromise]).then(() => {
         threeStarter();
     })
 }

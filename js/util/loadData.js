@@ -17,6 +17,13 @@ function loadObjectMeshes(resolve) {
     });
 }
 
+function loadObject(resolve, path) {
+    let loader = new GLTFLoader().setPath('../../models/');
+    loader.load(path, function (e) {
+        resolve(e.scene.children[0]);
+    });
+}
+
 function loadTextures(resolve) {
     let texturePromises = [];
     texturePromises.push(new Promise((resolve, reject) => {
@@ -69,11 +76,44 @@ function loadTextures(resolve) {
     });
 }
 
-function loadObject(resolve, path) {
-    let loader = new GLTFLoader().setPath('../../models/');
-    loader.load(path, function (e) {
-        resolve(e.scene.children[0]);
-    });
+function loadShaders(resolve) {
+    let shaderFilePath = "/shaders/";
+    let fileNames = ["vertexShader.glsl", "fragmentShader.glsl", "terrainFragmentShader.glsl"];
+
+    let loadShaderPromises = [];
+    const loader = new THREE.FileLoader();
+    for (let fileName of fileNames) {
+        let path = shaderFilePath + fileName;
+        loadShaderPromises.push(new Promise((resolve, reject) => {
+            loader.load(path, function (data) {
+                shaders[fileName.split(".glsl")[0]] = data;
+                resolve();
+            })
+        }));
+    }
+
+    Promise.all(loadShaderPromises).then(() => {
+        resolve();
+    })
 }
 
-export {loadObjectMeshes, loadTextures, loadObject};
+function loadData(resolve) {
+    let loadDataPromises = [];
+    loadDataPromises.push(new Promise((resolve, reject) => {
+        loadObjectMeshes(resolve);
+    }));
+
+    loadDataPromises.push(new Promise((resolve, reject) => {
+        loadTextures(resolve);
+    }));
+
+    loadDataPromises.push(new Promise((resolve, reject) => {
+        loadShaders(resolve);
+    }));
+
+    Promise.all(loadDataPromises).then(() => {
+        resolve();
+    })
+}
+
+export {loadData};

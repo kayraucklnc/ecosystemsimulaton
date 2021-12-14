@@ -4,8 +4,11 @@ import {GridLayer} from "./Grid.js";
 import * as ObjectBases from "../world/ObjectBases.js";
 
 class World {
+    static maxLiving = 0;
+
     constructor(scene) {
         this.scene = scene;
+        // scene.fog = new THREE.FogExp2(0xFFFFFF, 0.09);
         this.objects = [];
         this.lights = [];
 
@@ -128,10 +131,19 @@ class World {
         return crossed.normalize();
     }
 
+    increaseLivingCount(o) {
+        let typeName = o.constructor.name;
+        if (datamap.has(typeName)) {
+            datamap.set(typeName, datamap.get(typeName) + 1);
+        } else {
+            datamap.set(typeName, 1);
+        }
+        World.maxLiving = Math.max(datamap.get(typeName), World.maxLiving);
+    }
+    
     instantiateObjectOnGrid(object, layer=GridLayer.Surface) {
         let pos = object.getPos();
         if (this.checkPos(pos)) {
-            this.deleteObject(this.grid.getPos(pos, layer));
             return false;
         } else {
             this.fixObjectPos(object);
@@ -149,11 +161,13 @@ class World {
         this.meshIdToObject.set(object.mesh.id, object);
 
         object._onLayer = layer;
+        this.increaseLivingCount(object);
 
         return true;
     }
+    
 
-    //Returns whether the placement was successful
+//Returns whether the placement was successful
     instantiateObject(object, onGrid=true) {
         if (onGrid) {
             return this.instantiateObjectOnGrid(object);
@@ -163,15 +177,16 @@ class World {
         this.objects.push(object);
 
         this.meshIdToObject.set(object.mesh.id, object);
+        this.increaseLivingCount(object);
         return true;
     }
 
-    getMaxLiving(){
+    getMaxLiving() {
         return Math.max(...datamap.values());
     }
 
     deleteObject(object) {
-        if(object instanceof ObjectBases.LivingObjectBase){
+        if (object instanceof ObjectBases.LivingObjectBase) {
             let typeName = object.constructor.name;
             datamap.set(typeName, datamap.get(typeName) - 1);
             ObjectBases.LivingObjectBase.maxLiving = Math.max(datamap.get(typeName), ObjectBases.LivingObjectBase.maxLiving);
@@ -231,7 +246,12 @@ class World {
 
     update() {
         this.objects.forEach((x) => {
-            x.update();
+            try {
+                x.update();
+            } catch (e) {
+                console.error("Bişey yazmadım " + e);
+            }
+
         });
     }
 }

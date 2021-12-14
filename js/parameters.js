@@ -1,6 +1,6 @@
 let parameters = {
     plane: {
-        scale: 50,
+        scale: 150,
         gridWidth: 80,
         noiseScale: 0.38,
         persistance: 0.534,
@@ -9,7 +9,7 @@ let parameters = {
         resolution: 60,
         heightMultiplier: 2.2,
         color: [0, 128, 255],
-        gridVisible: true
+        gridVisible: false
     },
     clouds: {
         thickness: 0.5,

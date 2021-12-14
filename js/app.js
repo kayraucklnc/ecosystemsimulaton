@@ -6,6 +6,7 @@ let orbitControls = null;
 let mousePicker = null;
 let isSimActive = true;
 let renderer = null;
+let water;
 let drawMode = {
     brush: false,
     eraser: false,

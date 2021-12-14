@@ -68,7 +68,7 @@ function createTestSceneElements(scene) {
         world.instantiateObject(squirrelObject);
     }
 
-    const pointLight = new THREE.PointLight(0xffffff, 1.05, 100);
+    const pointLight = new THREE.PointLight(0xffffff, 1.05, 200);
     pointLight.position.set(2, 10, 1);
     world.instantiateLight(pointLight);
 

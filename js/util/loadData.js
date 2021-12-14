@@ -24,7 +24,27 @@ function loadTextures(resolve) {
         loader.crossOrigin = "";
         loader.load( "textures/terrain_n_map2.png", (texture) => {
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set( 10, 10 );
+            let repeating = 7;
+            texture.repeat.set( repeating, repeating );
+            textures.dirtNormalMap = {
+                texture: texture,
+                repeatFactor: repeating
+            }
+            resolve(texture);
+        });
+    }));
+
+    texturePromises.push(new Promise((resolve, reject) => {
+        const loader = new THREE.TextureLoader();
+        loader.crossOrigin = "";
+        loader.load( "textures/indir.jfif", (texture) => {
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            let repeating = 10;
+            texture.repeat.set( repeating, repeating );
+            textures.snowNormalMap = {
+                texture: texture,
+                repeatFactor: repeating
+            }
             resolve(texture);
         });
     }));
@@ -34,15 +54,17 @@ function loadTextures(resolve) {
         loader.crossOrigin = "";
         loader.load( "textures/perlin_noise.png", (texture) => {
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set( 10, 10 );
+            let repeating = 10;
+            texture.repeat.set( repeating, repeating );
+            textures.perlinNoiseMap = {
+                texture: texture,
+                repeatFactor: repeating
+            }
             resolve(texture);
         });
     }));
 
     Promise.all(texturePromises).then((texture) => {
-        textures.terrainNormalMap = texture[0];
-        textures.perlinNoiseMap = texture[1];
-
         resolve();
     });
 }

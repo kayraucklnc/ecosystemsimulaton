@@ -21,14 +21,16 @@ function createAllMaterials() {
     let planeMatUniforms = THREE.UniformsUtils.merge([
         THREE.UniformsLib["lights"],
         {
-            repeatFactor: { value: 10 },
-            normalMap: { value: textures.terrainNormalMap },
+            repeatFactor: { value: textures.dirtNormalMap.repeatFactor },
+            groundNormalMap: { value: null },
+            snowNormalMap: { value: null },
+            perlinMap: { value: null },
             maxTerrainHeight: { value: parameters.plane.heightMultiplier },
-            perlinMap: { value: textures.perlinNoiseMap },
         }
     ]);
-    planeMatUniforms.normalMap.value = textures.terrainNormalMap;
-    planeMatUniforms.perlinMap.value = textures.perlinNoiseMap;
+    planeMatUniforms.groundNormalMap.value = textures.dirtNormalMap.texture;
+    planeMatUniforms.snowNormalMap.value = textures.snowNormalMap.texture;
+    planeMatUniforms.perlinMap.value = textures.perlinNoiseMap.texture;
     planeCustomMat = new THREE.ShaderMaterial({
         uniforms: planeMatUniforms,
         vertexShader: vShader,

@@ -5,12 +5,15 @@ import * as Materials from "../world/Materials.js";
 document.getElementById("saveButton").addEventListener("click", () => {
     saveTemplate()
 });
+
 document.getElementById("loadButton").addEventListener("click", () => {
     loadTemplate()
 });
+
 document.getElementById("brush").addEventListener("change", () => {
     brushChange()
 });
+
 document.getElementById("eraser").addEventListener("change", () => {
     eraserChange()
 });
@@ -55,7 +58,7 @@ function eraserChange() {
 
 function saveTemplate() {
     console.log(world.grid.matrix);
-    let toSave = {arr: [], scale: parameters.plane.scale,}
+    let toSave = {arr: [], param: parameters}
 
     for (let i = 0; i < world.grid.matrix.length; i++) {
         let arr1 = [];
@@ -94,19 +97,39 @@ async function loadTemplate() {
     let text = await fileData.text();
     let parsedData = JSON.parse(text);
 
+    world.clearObjects();
 
-
-
+    if ( parsedData.param != null ){
+        parameters = Object.assign({}, parsedData.param);
+    }
+    world.grid.terrain.changePlaneGeometry( parameters );
+    console.log(parameters);
 
     for (let i = 0; i < parsedData.arr.length ; i++) {
-        for (let j = 0; j < parsedData.arr[i].length ; j++) {
+        for (let j = 0; j < parsedData.arr[i].length; j++) {
             for (let k = 0; k < parsedData.arr[i][j].length; k++) {
                 if (parsedData.arr[i][j][k] != null) {
-                    let wallObject = new Objects.Wall(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.wallMaterial);
-                    world.instantiateObject(wallObject);
+                    switch (parsedData.arr[i][j][k]) {
+                        case "Wall":
+                            let wallObject = new Objects.Wall(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.wallMaterial);
+                            world.instantiateObject(wallObject);
+                            break;
+                        case "Human":
+                            let humanObject = new Objects.Wall(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.humanMaterial);
+                            world.instantiateObject(humanObject);
+                            break;
+                        case "Squirrel":
+                            let squirrelObject = new Objects.Wall(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+                            world.instantiateObject(squirrelObject);
+                            break;
+                        case "Tree":
+                            let treeObject = new Objects.Wall(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.treeMaterial);
+                            world.instantiateObject(treeObject);
+                            break;
+                    }
                 }
-            };
-        };
-    };
+            }
+        }
+    }
 
  }

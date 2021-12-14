@@ -136,12 +136,12 @@ class World {
         return true;
     }
 
-    getMaxLiving(){
+    getMaxLiving() {
         return Math.max(...datamap.values());
     }
-    
+
     deleteObject(object) {
-        if(object instanceof ObjectBases.LivingObjectBase){
+        if (object instanceof ObjectBases.LivingObjectBase) {
             let typeName = object.constructor.name;
             datamap.set(typeName, datamap.get(typeName) - 1);
             ObjectBases.LivingObjectBase.maxLiving = Math.max(datamap.get(typeName), ObjectBases.LivingObjectBase.maxLiving);
@@ -195,7 +195,12 @@ class World {
 
     update() {
         this.objects.forEach((x) => {
-            x.update();
+            try {
+                x.update();
+            } catch (e) {
+                console.error("Bişey yazmadım " + e);
+            }
+
         });
     }
 }

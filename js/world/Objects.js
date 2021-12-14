@@ -111,7 +111,7 @@ class Terrain extends ObjectBases.WorldObjectBase {
         }
 
         world.objects.forEach((x) => {
-            if(x instanceof Human){
+            if (x instanceof Human) {
                 world.fixObjectPos(x);
             }
         })
@@ -134,7 +134,6 @@ class Tree extends ObjectBases.LivingObjectBase {
         this.setPos(pos);
         this.setRot(rotation);
     }
-
 
 
     applyDamage(damage) {
@@ -174,7 +173,7 @@ class Squirrel extends ObjectBases.MovableObjectBase {
 
         this.selectable = true;
 
-        const sphereGeometry = new THREE.SphereGeometry(0.08).translate(0,0.04,0);
+        const sphereGeometry = new THREE.SphereGeometry(0.08).translate(0, 0.04, 0);
         this.mesh = new THREE.Mesh(sphereGeometry, material);
 
         this.setPos(pos);
@@ -263,7 +262,7 @@ class Squirrel extends ObjectBases.MovableObjectBase {
     }
 
     planting() {
-        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
+        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0, 0, 1).applyEuler(this.getRot()));
 
         const newTree = new Tree(neighbourPos, new THREE.Vector3(), treeMaterial);
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
@@ -290,8 +289,11 @@ class Human extends ObjectBases.MovableObjectBase {
     }
 
     update() {
+        anaananan = 2545;
         if (this.target == null) {
-            this.target = this.findClosestWithAStar((o) => {return o instanceof Tree;});
+            this.target = this.findClosestWithAStar((o) => {
+                return o instanceof Tree;
+            });
         }
 
         if (this.target) {
@@ -306,7 +308,7 @@ class Human extends ObjectBases.MovableObjectBase {
                 }, (e) => {
                     // this.createLines(this.path);
                     this.lookTowardsPath();
-                } ,true);
+                }, true);
         }
     }
 }
@@ -315,7 +317,7 @@ class Wall extends ObjectBases.WorldObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
 
-        const cube = new THREE.BoxGeometry(world.getCellSize(), 0.8, world.getCellSize()).translate(0,0.3,0);
+        const cube = new THREE.BoxGeometry(world.getCellSize(), 0.8, world.getCellSize()).translate(0, 0.3, 0);
         this.mesh = new THREE.Mesh(cube, material);
 
         this.setPos(pos);

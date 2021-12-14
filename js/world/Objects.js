@@ -98,7 +98,6 @@ class Terrain extends ObjectBases.WorldObjectBase {
         return r * parameters.plane.heightMultiplier;
     }
 
-
     changePlaneGeometry(parameters) {
         this.mesh.geometry = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale, parameters.plane.resolution, parameters.plane.resolution);
         const length = this.mesh.geometry.attributes.position.array.length;

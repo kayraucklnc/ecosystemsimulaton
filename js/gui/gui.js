@@ -59,6 +59,9 @@ class GUI {
         this.gridVisible.onChange(() => {
             world.grid.setGridVisible( parameters.plane.gridVisible );
         });
+        // this.color.onChange(() => {
+        //     this.terrain.changeColor( parameters );
+        // });
     }
 }
 

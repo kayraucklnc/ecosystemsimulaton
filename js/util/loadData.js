@@ -78,7 +78,7 @@ function loadTextures(resolve) {
 
 function loadShaders(resolve) {
     let shaderFilePath = "/shaders/";
-    let fileNames = ["vertexShader.glsl", "fragmentShader.glsl", "terrainFragmentShader.glsl"];
+    let fileNames = ["vertexShader.glsl", "fragmentShader.glsl", "terrainFragmentShader.glsl", "sunFragmentShader.glsl"];
 
     let loadShaderPromises = [];
     const loader = new THREE.FileLoader();

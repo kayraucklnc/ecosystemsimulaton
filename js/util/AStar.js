@@ -26,7 +26,25 @@ function getVectorHash(vec) {
 }
 
 function findPath(startingPos, targetPos) {
-    //TODO: 4tarafı kapalıysa hiç bakmasın
+    const startingGrid = world.getCellCenter(startingPos);
+    const targetGrid = world.getCellCenter(targetPos);
+
+    const neighbours = [
+        new THREE.Vector3(1, 0, 0),
+        new THREE.Vector3(-1, 0, 0),
+        new THREE.Vector3(0, 0, 1),
+        new THREE.Vector3(0, 0, -1),
+    ];
+    let enclosed = 0;
+    for (let neighbourVector of neighbours) {
+        let neighbourGrid = world.getNeighbourPos(targetGrid, neighbourVector);
+        if (!world.checkIfInGrid(neighbourGrid) || world.checkPos(neighbourGrid)) {
+            enclosed += 1;
+        }
+    }
+    if (enclosed == 4) {
+        return null;
+    }
 
     /* world.getCellCenter Gets center position of the grid in world coordinates (THREE.Vector3).
      * world.getCellSize Returns the width of the each grid.
@@ -43,8 +61,6 @@ function findPath(startingPos, targetPos) {
     });	// Nodes that haven't been visited yet.
     let openNodesSet = new Set();
     let closedNodesSet = new Set();	// Nodes that have already been visited.
-    const startingGrid = world.getCellCenter(startingPos);
-    const targetGrid = world.getCellCenter(targetPos);
 
     let gridToNode = new Map();
 
@@ -64,7 +80,7 @@ function findPath(startingPos, targetPos) {
     while (!openNodes.isEmpty()) {
         currentNode = openNodes.dequeue();
 
-        if (currentNode.position.equals(targetGrid)) {
+        if (currentNode.position.equals(targetGrid) || currentNode.distFromStart >= parameters.plane.gridWidth * world.getCellSize()) {
             break;
         }
 

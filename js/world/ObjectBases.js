@@ -96,7 +96,7 @@ class MovableObjectBase extends LivingObjectBase {
 
         this.lastClosestCheckFrame = 0;
         this.lastClosest = null;
-        this.closestCheckFrequency = 120;
+        this.closestCheckFrequency = 50;
     }
 
     cleanLines() {

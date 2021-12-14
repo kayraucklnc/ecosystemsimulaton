@@ -1,8 +1,8 @@
 import * as THREE from "../library/three.js-r135/build/three.module.js";
 
-const vShader = document.getElementById("vertexShader").text;
-const fShader = document.getElementById("fragmentShader").text;
-const terrainFShader = document.getElementById("terrainFragmentShader").text;
+let vShader;
+let fShader;
+let terrainFShader;
 
 const planeMat = new THREE.MeshPhongMaterial({
     color: 0x3bdb43,
@@ -18,6 +18,10 @@ let squirrelMaterial = null;
 let lightIndicatorMaterial = null;
 
 function createAllMaterials() {
+    vShader = shaders["vertexShader"];
+    fShader = shaders["fragmentShader"];
+    terrainFShader = shaders["terrainFragmentShader"];
+
     let planeMatUniforms = THREE.UniformsUtils.merge([
         THREE.UniformsLib["lights"],
         {
@@ -27,7 +31,7 @@ function createAllMaterials() {
             perlinMap: {value: null},
             maxTerrainHeight: {value: parameters.plane.heightMultiplier},
             fogColor: {value: new THREE.Color(0x61757d)},
-            fogDensity: {type: "f", value: 0.015},
+            fogDensity: {type: "f", value: 0.014},
             u_time: {type: "f", value: 0},
         }
     ]);

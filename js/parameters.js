@@ -2,14 +2,15 @@ let parameters = {
     plane: {
         scale: 150,
         gridWidth: 80,
-        noiseScale: 0.38,
+        noiseScale: 0.1,
         persistance: 0.534,
         lacunarity: 1.5,
         smoothness: 2.8,
-        resolution: 60,
-        heightMultiplier: 2.2,
+        resolution: 120,
+        heightMultiplier: 6,
         color: [0, 128, 255],
-        gridVisible: false
+        gridVisible: false,
+        waterHeight: -0.34
     },
     clouds: {
         thickness: 0.5,

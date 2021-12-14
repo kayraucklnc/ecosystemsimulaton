@@ -115,8 +115,23 @@ class Terrain extends ObjectBases.WorldObjectBase {
             this.grid.createGridGeometry(parameters);
         }
 
+        this.material.uniforms["maxTerrainHeight"].value = parameters.plane.heightMultiplier;
+
+        if (water) {
+            water.position.y = parameters.plane.waterHeight * parameters.plane.heightMultiplier;
+        }
+
+        if (world.grid && this.grid == null) {
+            world.grid.setTerrain(this);
+            this.grid = world.grid;
+        }
+
+        world.fillAtAllGrid((gridPos, objectOnGrid) => {
+           return gridPos <= parameters.plane.waterHeight * parameters.plane.heightMultiplier;
+        }, true);
+
         world.objects.forEach((x) => {
-            if (x instanceof Human) {
+            if (world.isObjectOnGrid(x)) {
                 world.fixObjectPos(x);
             }
         })

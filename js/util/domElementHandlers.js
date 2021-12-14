@@ -13,9 +13,11 @@ function brushChange(){
         drawMode.brush = true;
         drawMode.eraser = false;
         orbitControls.enabled = false;
+        mousePicker.isActive = false;
     }else {
         drawMode.brush = false;
         orbitControls.enabled = true;
+        mousePicker.isActive = true;
     }
 
 }
@@ -25,8 +27,10 @@ function eraserChange(){
         drawMode.eraser = true;
         drawMode.brush = false;
         orbitControls.enabled = false;
+        mousePicker.isActive = false;
     }else {
         drawMode.eraser = false;
         orbitControls.enabled = true;
+        mousePicker.isActive = true;
     }
 }

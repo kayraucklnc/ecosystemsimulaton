@@ -16,7 +16,7 @@ let mouse = {
     y: undefined,
 };
 let simulation = {
-    timeScale: 10,
+    timeScale: 20,
 };
 let chartSettings = {
     chartSize: {
@@ -41,4 +41,10 @@ let canvasSize = {
 let meshes = {
     tree: null,
     human: null,
+}
+
+let textures = {
+    dirtNormalMap: null,
+    snowNormalMap: null,
+    perlinNoiseMap: null
 }

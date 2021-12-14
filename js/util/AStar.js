@@ -30,6 +30,9 @@ function findPath(startingPos, targetPos) {
 
     /* world.getCellCenter Gets center position of the grid in world coordinates (THREE.Vector3).
      * world.getCellSize Returns the width of the each grid.
+     * world.getNeighbourPos Gets the neighbour's grid center in the given direction of the given pos.
+     * world.checkIfInGrid Checks if given vector is in world grid.
+     * world.checkPos Checks if there is any object in given position.
     */
     let openNodes = new PriorityQueue({
         compare: (n1, n2) => {

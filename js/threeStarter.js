@@ -46,8 +46,8 @@ function createInitControls(camera, renderer) {
     return orbitControls;
 }
 
-function createWaterAndAdd() {
-    let waterGeometry = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale).translate(0, 0, -0.34*parameters.plane.heightMultiplier);
+function createWater() {
+    let waterGeometry = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale).translate(0, 0, -0.34 * parameters.plane.heightMultiplier);
     water = new Water(
         waterGeometry,
         {
@@ -69,41 +69,7 @@ function createWaterAndAdd() {
     world.scene.add(water);
 }
 
-function createSkyBox() {
-    const sky = new Sky();
-    sky.scale.setScalar(10000);
-    world.scene.add(sky);
 
-    const skyUniforms = sky.material.uniforms;
-
-    skyUniforms['turbidity'].value = 10;
-    skyUniforms['rayleigh'].value = 2;
-    skyUniforms['mieCoefficient'].value = 0.005;
-    skyUniforms['mieDirectionalG'].value = 0.8;
-
-    const parameters = {
-        elevation: 8,
-        azimuth: 180
-    };
-
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-
-    function updateSun() {
-
-        const phi = THREE.MathUtils.degToRad(90 - parameters.elevation);
-        const theta = THREE.MathUtils.degToRad(parameters.azimuth);
-
-        sun.setFromSphericalCoords(1, phi, theta);
-
-        sky.material.uniforms['sunPosition'].value.copy(sun);
-        water.material.uniforms['sunDirection'].value.copy(sun).normalize();
-
-        world.scene.environment = pmremGenerator.fromScene(sky).texture;
-
-    }
-
-    updateSun();
-}
 
 function createTestSceneElements(scene) {
 
@@ -147,8 +113,7 @@ function createTestSceneElements(scene) {
     let lightSphereObject = new Objects.LightIndicator(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.lightIndicatorMaterial, pointLight);
     world.instantiateObject(lightSphereObject, false);
 
-    createWaterAndAdd();
-    createSkyBox();
+    createWater();
 
     return {terrainObject};
 }
@@ -174,7 +139,7 @@ function threeStarter() {
 
         raycaster.setFromCamera(mouse, camera);
         Materials.planeCustomMat.uniforms.u_time.value += 0.01;
-        water.material.uniforms[ 'time' ].value += 0.1 / 60.0;
+        water.material.uniforms['time'].value += 0.1 / 60.0;
 
         controls.update();
 

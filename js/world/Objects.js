@@ -89,7 +89,7 @@ class Terrain extends ObjectBases.WorldObjectBase {
     getHeight(vec2) {
         //return perlin.get(vec2.x * parameters.plane.noiseScale, vec2.y * parameters.plane.noiseScale) * parameters.plane.heightMultiplier;
         var r = 0;
-        for (var i = 0; i <= 5; i++) {
+        for (var i = 0; i <= 3; i++) {
             var frequency = Math.pow(parameters.plane.lacunarity, i);
             var amplitude = Math.pow(parameters.plane.persistance, i);
             var noise = perlin.get(vec2.x *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness, vec2.y *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness ) ;
@@ -115,8 +115,23 @@ class Terrain extends ObjectBases.WorldObjectBase {
             this.grid.createGridGeometry(parameters);
         }
 
+        this.material.uniforms["maxTerrainHeight"].value = parameters.plane.heightMultiplier;
+
+        if (water) {
+            water.position.y = parameters.plane.waterHeight * parameters.plane.heightMultiplier;
+        }
+
+        if (world.grid && this.grid == null) {
+            world.grid.setTerrain(this);
+            this.grid = world.grid;
+        }
+
+        world.fillAtAllGrid((gridPos, objectOnGrid) => {
+           return gridPos <= parameters.plane.waterHeight * parameters.plane.heightMultiplier;
+        }, true);
+
         world.objects.forEach((x) => {
-            if(x instanceof Human){
+            if (world.isObjectOnGrid(x)) {
                 world.fixObjectPos(x);
             }
         })
@@ -139,7 +154,6 @@ class Tree extends ObjectBases.LivingObjectBase {
         this.setPos(pos);
         this.setRot(rotation);
     }
-
 
 
     applyDamage(damage) {
@@ -179,7 +193,7 @@ class Squirrel extends ObjectBases.MovableObjectBase {
 
         this.selectable = true;
 
-        const sphereGeometry = new THREE.SphereGeometry(0.08).translate(0,0.04,0);
+        const sphereGeometry = new THREE.SphereGeometry(0.08).translate(0, 0.04, 0);
         this.mesh = new THREE.Mesh(sphereGeometry, material);
 
         this.setPos(pos);
@@ -262,7 +276,7 @@ class Squirrel extends ObjectBases.MovableObjectBase {
     }
 
     planting() {
-        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
+        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0, 0, 1).applyEuler(this.getRot()));
 
         const newTree = new Tree(neighbourPos, new THREE.Vector3(), treeMaterial);
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
@@ -290,7 +304,9 @@ class Human extends ObjectBases.MovableObjectBase {
 
     update() {
         if (this.target == null) {
-            this.target = this.findClosestWithAStar((o) => {return o instanceof Tree;});
+            this.target = this.findClosestWithAStar((o) => {
+                return o instanceof Tree;
+            });
         }
 
         if (this.target) {
@@ -310,7 +326,7 @@ class Human extends ObjectBases.MovableObjectBase {
                     }
 
                     this.lookTowardsPath();
-                } ,true);
+                }, true);
         }
     }
 }
@@ -319,7 +335,7 @@ class Wall extends ObjectBases.WorldLargeObject {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
 
-        const cube = new THREE.BoxGeometry(world.getCellSize(), 0.8, world.getCellSize()).translate(0,0.3,0);
+        const cube = new THREE.BoxGeometry(world.getCellSize(), 0.8, world.getCellSize()).translate(0, 0.3, 0);
         this.mesh = new THREE.Mesh(cube, material);
 
         this.setPos(pos);

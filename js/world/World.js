@@ -4,17 +4,26 @@ import {GridLayer} from "./Grid.js";
 import * as ObjectBases from "../world/ObjectBases.js";
 
 class World {
-    constructor(scene) {
+    static maxLiving = 0;
+
+    constructor(scene, grid) {
         this.scene = scene;
+        // scene.fog = new THREE.FogExp2(0xFFFFFF, 0.09);
         this.objects = [];
         this.lights = [];
 
-        this.grid = null;
+        this.grid = grid;
 
         this.meshIdToObject = new Map();
 
         this.parentObject = new THREE.Object3D();
         this.scene.add(this.parentObject);
+
+        this.generalParent = new THREE.Object3D();
+        this.parentObject.add(this.generalParent);
+
+        this.gridParent = new THREE.Object3D();
+        this.parentObject.add(this.gridParent);
     }
 
     getRandomColor() {
@@ -32,7 +41,7 @@ class World {
 
     createLine(from, to, height = 0, color = "#ffffff") {
         const points = [];
-        let inHeight = world.getNormalVector(from).multiplyScalar(height);
+        // let inHeight = world.getNormalVector(from).multiplyScalar(height);
         //TODO: Should height be from normal vec?
         // points.push(new THREE.Vector3().addVectors(inHeight, from));
         // points.push(new THREE.Vector3().addVectors(inHeight, to));
@@ -47,11 +56,15 @@ class World {
     }
 
     getObjects() {
-        return this.parentObject.children;
+        return this.gridParent.children;
     }
 
     getObjectOfMesh(mesh) {
         return this.meshIdToObject.get(mesh.id);
+    }
+
+    isObjectOnGrid(object) {
+        return object._onLayer != null;
     }
 
 
@@ -128,50 +141,63 @@ class World {
         return crossed.normalize();
     }
 
+    increaseLivingCount(o) {
+        let typeName = o.constructor.name;
+        if (datamap.has(typeName)) {
+            datamap.set(typeName, datamap.get(typeName) + 1);
+        } else {
+            datamap.set(typeName, 1);
+        }
+        World.maxLiving = Math.max(datamap.get(typeName), World.maxLiving);
+    }
+    
     instantiateObjectOnGrid(object, layer=GridLayer.Surface) {
         let pos = object.getPos();
         if (this.checkPos(pos)) {
-            this.deleteObject(this.grid.getPos(pos, layer));
             return false;
         } else {
             this.fixObjectPos(object);
             if (object instanceof ObjectBases.WorldLargeObject && (layer === GridLayer.Surface || layer === GridLayer.Ground)) {
+                object._onLayer = [GridLayer.Surface, GridLayer.Ground];
                 this.grid.setPos(object.getPos(), object, GridLayer.Surface);
                 this.grid.setPos(object.getPos(), object, GridLayer.Ground);
             } else {
+                object._onLayer = layer;
                 this.grid.setPos(object.getPos(), object, layer);
             }
         }
 
-        this.parentObject.add(object.mesh);
+        this.gridParent.add(object.mesh);
         this.objects.push(object);
 
         this.meshIdToObject.set(object.mesh.id, object);
 
-        object._onLayer = layer;
+        this.increaseLivingCount(object);
 
         return true;
     }
+    
 
-    //Returns whether the placement was successful
+//Returns whether the placement was successful
     instantiateObject(object, onGrid=true) {
         if (onGrid) {
             return this.instantiateObjectOnGrid(object);
         }
 
-        this.parentObject.add(object.mesh);
+        this.generalParent.add(object.mesh);
         this.objects.push(object);
 
         this.meshIdToObject.set(object.mesh.id, object);
+        this.increaseLivingCount(object);
         return true;
     }
 
-    getMaxLiving(){
+    getMaxLiving() {
         return Math.max(...datamap.values());
     }
 
     deleteObject(object) {
-        if(object instanceof ObjectBases.LivingObjectBase){
+        if (object instanceof ObjectBases.LivingObjectBase) {
             let typeName = object.constructor.name;
             datamap.set(typeName, datamap.get(typeName) - 1);
             ObjectBases.LivingObjectBase.maxLiving = Math.max(datamap.get(typeName), ObjectBases.LivingObjectBase.maxLiving);
@@ -179,8 +205,16 @@ class World {
 
         let pos = object.getPos();
         let objectLayer = this.grid.getObjectLayer(object);
-        if (this.grid.checkIfInGrid(pos) && objectLayer && this.grid.getPos(pos, objectLayer) === object) {
-            this.grid.clearPos(pos, objectLayer);
+        if (this.grid.checkIfInGrid(pos) && objectLayer) {
+            let deleteOnLayers = [];
+            if (objectLayer instanceof Array) {
+                deleteOnLayers = objectLayer;
+            } else {
+                deleteOnLayers.push(objectLayer);
+            }
+            for (let layer of deleteOnLayers) {
+                this.grid.clearPos(pos, layer);
+            }
         }
 
         const indexOf = this.objects.indexOf(object);
@@ -189,11 +223,14 @@ class World {
 
         }
 
-        this.parentObject.remove(object.mesh);
+        if (this.isObjectOnGrid(object)) {
+            this.gridParent.remove(object.mesh);
+            object._onLayer = null;
+        } else {
+            this.generalParent.remove(object.mesh);
+        }
 
         this.meshIdToObject.delete(object.mesh.id);
-
-        object._onLayer = null;
     }
 
     moveObjectOnGrid(object, pos) {
@@ -231,8 +268,38 @@ class World {
 
     update() {
         this.objects.forEach((x) => {
-            x.update();
+            try {
+                x.update();
+            } catch (e) {
+                console.error(e);
+            }
+
         });
+    }
+
+    // checkFunc: Gets grid position and object on grid as arguments.
+    fillAtAllGrid(checkFunc, resetOld=false) {
+        for (let layer = 1; layer <= 2; layer++) {
+            for (let i = 0; i < this.grid.widthInGrid; i++) {
+                for (let j = 0; j < this.grid.widthInGrid; j++) {
+                    let gridPos = this.grid.getIndexPos(i, j);
+                    let objectAtPos = this.getPos(gridPos, layer);
+
+                    if (resetOld && objectAtPos instanceof Objects.LargeFillerObject) {
+                        if (this.getObjectOfMesh(objectAtPos.mesh)) {
+                            this.deleteObject(objectAtPos);
+                        } else {
+                            this.grid.clearPos(gridPos, layer);
+                        }
+                    }
+
+                    if (checkFunc(gridPos, objectAtPos)) {
+                        const largeFiller = new Objects.LargeFillerObject(gridPos, new THREE.Vector3(0, 0, 0), null);
+                        this.instantiateObjectOnGrid(largeFiller, GridLayer.Surface);
+                    }
+                }
+            }
+        }
     }
 }
 

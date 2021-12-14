@@ -19,7 +19,7 @@ void main() {
         vec3 distanceVec = vPosition - pointLights[l].position;
         vec3 lightDirection = normalize(distanceVec);
         float attuanation = 0.0;
-        if(float(pointLights[l].distance) >= length(distanceVec)){
+        if (float(pointLights[l].distance) >= length(distanceVec)){
             attuanation = pow((1.0 - (length(distanceVec) / float(pointLights[l].distance))), 2.0);
         }
 

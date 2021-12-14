@@ -1,4 +1,3 @@
-// import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
 import * as THREE from "../library/three.js-r135/build/three.module.js";
 
 Object.assign(THREE.PlaneBufferGeometry.prototype, {
@@ -37,14 +36,11 @@ const GridLayer = {
 
 class Grid {
     // Gets the scene, terrain object and width grid count for the new grid.
-    constructor(scene, terrain, widthInGrid) {
-        world.grid = this;
-
+    constructor(scene, widthInGrid) {
         this.gridVisible = parameters.plane.gridVisible;
 
         this.scene = scene;
-        this.terrain = terrain;
-        terrain.grid = this;
+        this.terrain = null;
         this.widthInGrid = widthInGrid;
 
         this.mesh = null;
@@ -66,7 +62,11 @@ class Grid {
 
             this.matrix.push(subMatrix);
         }
+    }
 
+    setTerrain(terrain) {
+        this.terrain = terrain;
+        terrain.grid = this;
         this.createGridGeometry(parameters);
     }
 
@@ -119,6 +119,10 @@ class Grid {
     // Gets a Three.Vector3 and returns the Vector3 that points the center of grid.
     getGridPos(pos) {
         let {i, j} = this.getGridIndex(pos);
+        return this.getIndexPos(i, j);
+    }
+
+    getIndexPos(i, j) {
         let x = this.minPoint.x + i * this.cellSize + this.cellSize/2;
         let z = this.minPoint.y + j * this.cellSize + this.cellSize/2;
         let result = new THREE.Vector3(x, this.terrain.getHeight(new THREE.Vector2(x, z)), z);
@@ -172,7 +176,6 @@ class Grid {
 
         return objectLayer;
     }
-
 
     // Gets a Three.Vector3 and returns if included in grid.
     checkIfInGrid(pos) {

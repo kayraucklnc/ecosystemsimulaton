@@ -189,10 +189,7 @@
         vec3 terrainColor;
         float height = float(worldPosition.y) / float(maxTerrainHeight);
         float heightWithRand = height - length(texture2D(perlinMap, vUv * 10.0).xyz) / 25.0;
-        if (height < -0.34) { // Water
-            terrainColor = vec3(0.00000000000, 0.18431372549, 0.65490196078);
-            terrainType = 0;
-        } else if (heightWithRand < -0.32) { // Beach
+        if (heightWithRand < -0.32) { // Beach
             terrainColor = vec3(0.72156862745, 0.66274509804, 0.47450980392);
             terrainType = 1;
         } else if (heightWithRand < 0.35) { // Ground

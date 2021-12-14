@@ -1,5 +1,8 @@
 import * as THREE from "../../ecosystemsimulaton/js/library/three.js-r135/build/three.module.js";
 import {OrbitControls} from "../../ecosystemsimulaton/js/library/three.js-r135/examples/jsm/controls/OrbitControls.js";
+import {Water} from '../../ecosystemsimulaton/js/library/three.js-r135/examples/jsm/objects/Water.js';
+import {Sky} from '../../ecosystemsimulaton/js/library/three.js-r135/examples/jsm/objects/Sky.js';
+
 
 import {World} from "../../ecosystemsimulaton/js/world/World.js";
 import * as Objects from "../../ecosystemsimulaton/js/world/Objects.js";
@@ -8,7 +11,11 @@ import {MousePicker} from "../../ecosystemsimulaton/js/mouse/mouse_picking.js";
 import * as Materials from "../../ecosystemsimulaton/js/world/Materials.js";
 import * as DataLoader from "../../ecosystemsimulaton/js/util/loadData.js";
 
+let sun;
+
 function createInitScene() {
+    sun = new THREE.Vector3();
+
     const scene = new THREE.Scene();
     world = new World(scene);
 
@@ -33,13 +40,73 @@ function createInitScene() {
 function createInitControls(camera, renderer) {
     orbitControls = new OrbitControls(camera, renderer.domElement);
     orbitControls.target.set(0, 0, 0);
-    // controls.maxPolarAngle = Math.PI / 3;
+    orbitControls.maxPolarAngle = Math.PI / 2;
     orbitControls.enableDamping = true;
     orbitControls.dampingFactor = 0.1;
     return orbitControls;
 }
 
+function createWaterAndAdd() {
+    let waterGeometry = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale).translate(0, 0, -0.34*parameters.plane.heightMultiplier);
+    water = new Water(
+        waterGeometry,
+        {
+            textureWidth: 512,
+            textureHeight: 512,
+            waterNormals: new THREE.TextureLoader().load('textures/waternormals.jpg', function (texture) {
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            }),
+            sunDirection: new THREE.Vector3(),
+            sunColor: 0xffffff,
+            waterColor: 0x44d4eb,
+            distortionScale: 5.0,
+            fog: world.scene.fog !== undefined
+        }
+    );
+    // water.material.uniforms.size = 500.0;
+    water.rotation.x = -Math.PI / 2;
+
+    world.scene.add(water);
+}
+
+function createSkyBox() {
+    const sky = new Sky();
+    sky.scale.setScalar(10000);
+    world.scene.add(sky);
+
+    const skyUniforms = sky.material.uniforms;
+
+    skyUniforms['turbidity'].value = 10;
+    skyUniforms['rayleigh'].value = 2;
+    skyUniforms['mieCoefficient'].value = 0.005;
+    skyUniforms['mieDirectionalG'].value = 0.8;
+
+    const parameters = {
+        elevation: 8,
+        azimuth: 180
+    };
+
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+
+    function updateSun() {
+
+        const phi = THREE.MathUtils.degToRad(90 - parameters.elevation);
+        const theta = THREE.MathUtils.degToRad(parameters.azimuth);
+
+        sun.setFromSphericalCoords(1, phi, theta);
+
+        sky.material.uniforms['sunPosition'].value.copy(sun);
+        water.material.uniforms['sunDirection'].value.copy(sun).normalize();
+
+        world.scene.environment = pmremGenerator.fromScene(sky).texture;
+
+    }
+
+    updateSun();
+}
+
 function createTestSceneElements(scene) {
+
 
     let terrainObject = new Objects.Terrain(new THREE.Vector3(0, -0.03, 0), new THREE.Vector3(0, 0), Materials.planeCustomMat);
     world.instantiateObject(terrainObject, false);
@@ -80,6 +147,8 @@ function createTestSceneElements(scene) {
     let lightSphereObject = new Objects.LightIndicator(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.lightIndicatorMaterial, pointLight);
     world.instantiateObject(lightSphereObject, false);
 
+    createWaterAndAdd();
+    createSkyBox();
 
     return {terrainObject};
 }
@@ -105,6 +174,7 @@ function threeStarter() {
 
         raycaster.setFromCamera(mouse, camera);
         Materials.planeCustomMat.uniforms.u_time.value += 0.01;
+        water.material.uniforms[ 'time' ].value += 0.1 / 60.0;
 
         controls.update();
 
@@ -123,8 +193,8 @@ function threeStarter() {
         setTimeout(worldLoop, (1000 / 60) / (Math.min(1000 / 60, simulation.timeScale)));
 
     }
-    
-    
+
+
     worldLoop();
     loop();
 }

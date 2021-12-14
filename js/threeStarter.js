@@ -6,7 +6,7 @@ import * as Objects from "../../ecosystemsimulaton/js/world/Objects.js";
 import * as Grid from "../../ecosystemsimulaton/js/world/Grid.js";
 import {MousePicker} from "../../ecosystemsimulaton/js/mouse/mouse_picking.js";
 import * as Materials from "../../ecosystemsimulaton/js/world/Materials.js";
-import {loadObject} from "../../ecosystemsimulaton/js/util/loadGLTF.js";
+import * as DataLoader from "../../ecosystemsimulaton/js/util/loadData.js";
 
 function createInitScene() {
     const scene = new THREE.Scene();
@@ -41,42 +41,35 @@ function createInitControls(camera, renderer) {
 
 function createTestSceneElements(scene) {
 
-    let terrainObject = new Objects.Terrain(new THREE.Vector3(0, -0.03, 0), new THREE.Vector3(0, 0), Materials.planeMat);
+    let terrainObject = new Objects.Terrain(new THREE.Vector3(0, -0.03, 0), new THREE.Vector3(0, 0), Materials.planeCustomMat);
     world.instantiateObject(terrainObject, false);
 
     let grid = new Grid.Grid(scene, terrainObject, parameters.plane.gridWidth);
 
-    // let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.treeMaterial);
+    // let treeObject = new Objects.Tree(new THREE.Vector3(-6, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
     // world.instantiateObject(treeObject);
-    // let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.humanMaterial);
+    // let humanObject = new Objects.Human(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);
     // world.instantiateObject(humanObject);
-    // let squirrelObject = new Objects.Squirrel(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
-    // world.instantiateObject(squirrelObject);
-    //
-    let treeObject = new Objects.Tree(new THREE.Vector3(6, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
-    world.instantiateObject(treeObject);
-    let humanObject = new Objects.Human(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);
-    world.instantiateObject(humanObject);
-    // let squirrelObject = new Objects.Squirrel(new THREE.Vector3(6, 0, 0), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+    // let squirrelObject = new Objects.Squirrel(new THREE.Vector3(6,0,0), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
     // world.instantiateObject(squirrelObject);
 
-    // for (let i = 0; i < 200; i++) {
-    //     let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.treeMaterial);
-    //     world.instantiateObject(treeObject);
-    // }
-    //
-    // for (let i = 0; i < 50; i++) {
-    //     let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.humanMaterial);
-    //     world.instantiateObject(humanObject);
-    // }
-    //
-    // for (let i = 0; i < 20; i++) {
-    //     let squirrelObject = new Objects.Squirrel(new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
-    //     world.instantiateObject(squirrelObject);
-    // }
+    for (let i = 0; i < 100; i++) {
+        let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * 40, 0, (Math.random() - 0.5) * 40), new THREE.Vector3(0, 0), Materials.treeMaterial);
+        world.instantiateObject(treeObject);
+    }
 
-    const pointLight = new THREE.PointLight(0xffffff, 1, 50);
-    pointLight.position.set(2, 7, 1);
+    for (let i = 0; i < 50; i++) {
+        let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5) * 40, 0, (Math.random() - 0.5) * 40), new THREE.Vector3(0, 0), Materials.humanMaterial);
+        world.instantiateObject(humanObject);
+    }
+
+    for (let i = 0; i < 20; i++) {
+        let squirrelObject = new Objects.Squirrel(new THREE.Vector3((Math.random() - 0.5) * 40, 0, (Math.random() - 0.5) * 40), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+        world.instantiateObject(squirrelObject);
+    }
+
+    const pointLight = new THREE.PointLight(0xffffff, 1.05, 200);
+    pointLight.position.set(2, 10, 1);
     world.instantiateLight(pointLight);
 
     let lightSphereObject = new Objects.LightIndicator(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.lightIndicatorMaterial, pointLight);
@@ -88,6 +81,8 @@ function createTestSceneElements(scene) {
 
 function threeStarter() {
     drawthechart();
+    Materials.createAllMaterials();
+
     const {scene, camera} = createInitScene();
     const controls = createInitControls(camera, renderer);
     const {terrainObject: _terrainObject} = createTestSceneElements(scene);
@@ -96,42 +91,39 @@ function threeStarter() {
 
     function loop() {
         frameCount++;
+
         raycaster.setFromCamera(mouse, camera);
 
         controls.update();
 
         renderer.render(scene, camera);
+
         setTimeout(loop, 1000 / 60);
     }
 
     function worldLoop() {
         if (isSimActive) {
-
-            for (let i = 0; i < simulation.timeScale / 16.6; i++) {
+            for (let i = 0; i < simulation.timeScale / (1000 / 60); i++) {
                 world.update();
             }
         }
-        setTimeout(worldLoop, (1000 / 60) / simulation.timeScale);
+
+        setTimeout(worldLoop, (1000 / 60) / (Math.min(1000 / 60, simulation.timeScale)));
     }
 
     worldLoop();
     loop();
 }
 
-
 function preload() {
-    let treePromise = new Promise((resolve, reject) => {
-        loadObject(resolve, "tree.glb");
-    });
-    let humanPromise = new Promise((resolve, reject) => {
-        loadObject(resolve, "human.glb");
+    let loadDataPromise = new Promise((resolve, reject) => {
+        DataLoader.loadData(resolve);
     });
 
-    Promise.all([treePromise, humanPromise]).then((mesh) => {
-        meshes.tree = mesh[0];
-        meshes.human = mesh[1];
+
+    Promise.all([loadDataPromise]).then(() => {
         threeStarter();
-    });
+    })
 }
 
 window.onload = preload();

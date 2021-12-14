@@ -108,6 +108,9 @@ class Terrain extends ObjectBases.WorldObjectBase {
             this.mesh.geometry.attributes.position.array[i + 2] = this.getHeight(new THREE.Vector2(x, -y));
         }
 
+        this.mesh.geometry.computeVertexNormals();
+        this.mesh.geometry.computeTangents();
+
         if (this.grid) {
             this.grid.createGridGeometry(parameters);
         }
@@ -239,25 +242,19 @@ class Squirrel extends ObjectBases.MovableObjectBase {
             return;
         }
 
-        this.movement += this.speed;
-        const nextPos = this.path[0];
-        if (this.movement >= 1) {
-            if (!world.checkPos(nextPos)) {
-                world.moveObjectOnGrid(this, nextPos);
-                this.movement = 0.0;
-            } else {
+        this.executePath(
+            () => {
+                this.targetPos = null;
+                this.switchState(this.squirrelStates.Planting);
+            },
+            () => {
                 this.path = AStar.findPath(this.getPos(), this.targetPos);
                 if (!this.path || this.path.length == 1) {
                     this.targetPos = null;
                     return;
                 }
-            }
-        }
-
-        if (this.checkIfTargetReached(this.targetPos)) {
-            this.targetPos = null;
-            this.switchState(this.squirrelStates.Planting);
-        }
+            }, null, false
+        )
     }
 
     running() {
@@ -269,7 +266,7 @@ class Squirrel extends ObjectBases.MovableObjectBase {
 
         const newTree = new Tree(neighbourPos, new THREE.Vector3(), treeMaterial);
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
-            world.instantiateObject(newTree);
+            world.instantiateObjectOnGrid(newTree);
         }
 
         this.switchState(this.squirrelStates.Idle);
@@ -299,21 +296,26 @@ class Human extends ObjectBases.MovableObjectBase {
         if (this.target) {
             this.executePath(
                 () => {
-                    if (this.target.applyDamage(2)) {
+                    if (this.target.applyDamage(1)) {
                         this.target = null;
                     }
                 },
                 () => {
                     this.target = null;
                 }, (e) => {
-                    this.createLines(this.path);
+                    if (parameters.simulation.showPaths) {
+                        this.createLines(this.path);
+                    } else {
+                        this.cleanLines();
+                    }
+
                     this.lookTowardsPath();
                 } ,true);
         }
     }
 }
 
-class Wall extends ObjectBases.WorldObjectBase {
+class Wall extends ObjectBases.WorldLargeObject {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
 
@@ -329,4 +331,7 @@ class Wall extends ObjectBases.WorldObjectBase {
     }
 }
 
-export {Sphere, LightIndicator, MouseFollower, Terrain, Box, Human, Tree, Squirrel, Wall};
+class FillerObject extends ObjectBases.WorldObjectBase {}
+class LargeFillerObject extends ObjectBases.WorldLargeObject {}
+
+export {Sphere, LightIndicator, MouseFollower, Terrain, Box, Human, Tree, Squirrel, Wall, FillerObject, LargeFillerObject};

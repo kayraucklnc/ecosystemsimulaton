@@ -1,4 +1,3 @@
-// import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
 import * as THREE from "../library/three.js-r135/build/three.module.js";
 import * as AStar from "../util/AStar.js";
 
@@ -58,24 +57,36 @@ class WorldObjectBase {
 }
 
 class LivingObjectBase extends WorldObjectBase {
+    static maxLiving = 0;
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = null;
+        this.hasDied = false;
+
+        let typeName = this.constructor.name;
+        if (datamap.has(typeName)) {
+            datamap.set(typeName, datamap.get(typeName) + 1);
+        } else {
+            datamap.set(typeName, 1);
+        }
+        LivingObjectBase.maxLiving = Math.max(datamap.get(typeName), LivingObjectBase.maxLiving);
     }
 
     //Returns if object is dead after damage.
     applyDamage(damage) {
         this.health -= damage;
-        if (this.health <= 0) {
+        if (this.health != null && this.health <= 0) {
             this.die();
             return true;
         }
-
         return false;
     };
 
     die() {
-        world.deleteObject(this);
+        if (!this.hasDied) {
+            world.deleteObject(this);
+            this.hasDied = true;
+        }
     }
 }
 
@@ -92,24 +103,34 @@ class MovableObjectBase extends LivingObjectBase {
         this.movement = 0.0;
     }
 
-    createLines(path) {
+    cleanLines() {
         this.pathLines.forEach((pL) => {
             world.scene.remove(pL);
         });
         this.pathLines = [];
+    }
 
-        let line = world.createLine(this.getPos(), path[0], this.pathHeight, this.pathColor);
-        this.pathLines.push(line);
-        world.scene.add(line);
+    createLines(path) {
+        this.cleanLines();
 
-        for (let i = 0; i < path.length - 1; i++) {
-            let line = world.createLine(path[i], path[i + 1], this.pathHeight, this.pathColor);
+        if (path != null && path.length > 0) {
+            // let line = world.createLine(this.getPos(), path[path.length - 1], this.pathHeight, this.pathColor);
+            // this.pathLines.push(line);
+            // world.scene.add(line);
+
+            let line = world.createLine(this.getPos(), path[0], this.pathHeight, this.pathColor);
             this.pathLines.push(line);
             world.scene.add(line);
+
+            for (let i = 0; i < path.length - 1; i++) {
+                let line = world.createLine(path[i], path[i + 1], this.pathHeight, this.pathColor);
+                this.pathLines.push(line);
+                world.scene.add(line);
+            }
         }
     }
 
-    myAngleTo(u, v, normal){
+    myAngleTo(u, v, normal) {
         let angle = Math.acos(new THREE.Vector3().copy(u).normalize().dot(new THREE.Vector3().copy(v).normalize()));
         let cross = new THREE.Vector3().crossVectors(u, v);
         if (new THREE.Vector3().copy(normal).normalize().dot(new THREE.Vector3().copy(cross).normalize()) < 0) { // Or > 0
@@ -117,7 +138,7 @@ class MovableObjectBase extends LivingObjectBase {
         }
         return angle;
     }
-    
+
     lookTowardsPath() {
         //Align its look around itself
         let projMovement = new THREE.Vector3().subVectors(this.getPos(), this.lastPos).projectOnPlane(world.getNormalVector(this.getPos())).normalize().multiplyScalar(world.getCellSize() / 2);
@@ -129,7 +150,7 @@ class MovableObjectBase extends LivingObjectBase {
         let angleInRad = this.myAngleTo(projZAxis, projMovement, world.getNormalVector(this.getPos()));
         this.mesh.rotateY(angleInRad);
     }
-    
+
 
     attack(target) {
     }
@@ -194,7 +215,7 @@ class MovableObjectBase extends LivingObjectBase {
         let targetPos = null;
         let reachCheck = null;
         if (hasTargetOnDest) {
-            targetPos = this.path[this.path.length - 1]
+            targetPos = this.path.length > 0 ? this.path[this.path.length - 1]: this.getPos();
             reachCheck = this.checkIfNextToTarget(targetPos);
         } else {
             // targetPos = this.getPos();
@@ -213,7 +234,9 @@ class MovableObjectBase extends LivingObjectBase {
                 this.movement = 0.0;
                 world.moveObjectOnGrid(this, movementVector);
                 this.path.splice(0, 1);
-                onMove();
+                if (onMove) {
+                    onMove();
+                }
 
             } else {
                 onStuck();
@@ -222,4 +245,10 @@ class MovableObjectBase extends LivingObjectBase {
     }
 }
 
-export {WorldObjectBase, LivingObjectBase, MovableObjectBase};
+class WorldLargeObject extends WorldObjectBase {
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
+    }
+}
+
+export {WorldObjectBase, LivingObjectBase, MovableObjectBase, WorldLargeObject};

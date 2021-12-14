@@ -10,12 +10,13 @@ let drawMode = {
     brush: false,
     eraser: false,
 };
+let datamap = new Map();
 let mouse = {
     x: undefined,
     y: undefined,
 };
 let simulation = {
-    timeScale: 10,
+    timeScale: 20,
 };
 let chartSettings = {
     chartSize: {
@@ -41,3 +42,11 @@ let meshes = {
     tree: null,
     human: null,
 }
+
+let textures = {
+    dirtNormalMap: null,
+    snowNormalMap: null,
+    perlinNoiseMap: null
+}
+
+let shaders = {}

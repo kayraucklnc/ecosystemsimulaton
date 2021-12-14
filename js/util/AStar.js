@@ -22,12 +22,17 @@ function recreatePQueue(pQueue) {
 }
 
 function getVectorHash(vec) {
-    return vec.x +","+ vec.y + "," + vec.z;
+    return vec.x + "," + vec.y + "," + vec.z;
 }
 
 function findPath(startingPos, targetPos) {
+    //TODO: 4tarafı kapalıysa hiç bakmasın
+
     /* world.getCellCenter Gets center position of the grid in world coordinates (THREE.Vector3).
      * world.getCellSize Returns the width of the each grid.
+     * world.getNeighbourPos Gets the neighbour's grid center in the given direction of the given pos.
+     * world.checkIfInGrid Checks if given vector is in world grid.
+     * world.checkPos Checks if there is any object in given position.
     */
     let openNodes = new PriorityQueue({
         compare: (n1, n2) => {
@@ -56,7 +61,7 @@ function findPath(startingPos, targetPos) {
 
     //Keep getting best node until the destination point is reached.
     let currentNode = null;
-    while(!openNodes.isEmpty()) {
+    while (!openNodes.isEmpty()) {
         currentNode = openNodes.dequeue();
 
         if (currentNode.position.equals(targetGrid)) {
@@ -79,7 +84,7 @@ function findPath(startingPos, targetPos) {
 
         for (let neighbourVector of neighbourVectors) {
             let neighbourGrid = world.getNeighbourPos(currentNode.position, neighbourVector);
-            if(!world.checkIfInGrid(neighbourGrid) || (!neighbourGrid.equals(targetGrid)) && world.checkPos(neighbourGrid)) {
+            if (!world.checkIfInGrid(neighbourGrid) || (!neighbourGrid.equals(targetGrid)) && world.checkPos(neighbourGrid)) {
                 continue;
             }
 
@@ -92,7 +97,7 @@ function findPath(startingPos, targetPos) {
                 gridToNode.set(getVectorHash(neighbourGrid), neighbourNode);
             }
 
-            if(closedNodesSet.has(neighbourNode)) {
+            if (closedNodesSet.has(neighbourNode)) {
                 continue;
             }
 

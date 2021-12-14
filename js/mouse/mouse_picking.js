@@ -46,8 +46,6 @@ function createDragControls(mousePicker, objects) {
 
 function mouse_up(event) {
     if (event.button == 0) {
-        // console.log("mouse_up");
-
         const intersects = raycaster.intersectObjects(world.parentObject.children);
         let intersect = null;
         if (intersects.length) {
@@ -66,7 +64,8 @@ function mouse_up(event) {
         }
 
         if (mousePicker.isActive && mousePicker.stage == PickingStage.FREE && intersect && intersect.object != mousePicker.axesHelper) {
-            if (!world.getObjectOfMesh(intersect.object).selectable) {
+            let objectOfMesh = world.getObjectOfMesh(intersect.object);
+            if (!objectOfMesh || !objectOfMesh.selectable) {
                 return;
             }
 

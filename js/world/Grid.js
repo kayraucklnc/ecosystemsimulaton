@@ -28,15 +28,25 @@ Object.assign(THREE.PlaneBufferGeometry.prototype, {
     }
 });
 
+const GridLayer = {
+    Underground: 0,
+    Ground: 1,
+    Surface: 2,
+    InAir: 3
+}
+
 class Grid {
     // Gets the scene, terrain object and width grid count for the new grid.
     constructor(scene, terrain, widthInGrid) {
         world.grid = this;
 
+        this.gridVisible = parameters.plane.gridVisible;
+
         this.scene = scene;
         this.terrain = terrain;
         terrain.grid = this;
         this.widthInGrid = widthInGrid;
+
         this.mesh = null;
 
         this.minPoint = null
@@ -44,18 +54,30 @@ class Grid {
         this.cellSize = null;
 
         this.matrix = [];
-        for (let i = 0; i < this.widthInGrid; i++) {
-            let matrixRow = [];
-            for (let j = 0; j < this.widthInGrid; j++) {
-                matrixRow.push(null);
+        for (let k = 0; k < 4; k++) {
+            let subMatrix = [];
+            for (let i = 0; i < this.widthInGrid; i++) {
+                let matrixRow = [];
+                for (let j = 0; j < this.widthInGrid; j++) {
+                    matrixRow.push(null);
+                }
+                subMatrix.push(matrixRow);
             }
-            this.matrix.push(matrixRow);
+
+            this.matrix.push(subMatrix);
         }
 
         this.createGridGeometry(parameters);
     }
 
-    createGridGeometry(parameters) {
+    setGridVisible(toSet) {
+        if (toSet != this.gridVisible) {
+            this.gridVisible = toSet;
+            this.createGridGeometry();
+        }
+    }
+
+    createGridGeometry() {
         if (this.mesh) {
             this.scene.remove(this.mesh);
         }
@@ -65,24 +87,27 @@ class Grid {
         this.minPoint = new THREE.Vector3().copy(box.min);
         this.maxPoint = new THREE.Vector3().copy(box.max);
         this.cellSize = (box.max.x - box.min.x) / this.widthInGrid;
-        this.mesh = new THREE.LineSegments(
-            new THREE.PlaneBufferGeometry( (box.max.x - box.min.x), (box.max.y - box.min.y), this.widthInGrid, this.widthInGrid ).toGrid(),
-            // TODO ÖZEL MATERIAL
-            new THREE.LineBasicMaterial( {
-                color: 0x636363
-            } )
-        );
 
-        const vertexArray = this.mesh.geometry.attributes.position.array;
-        const length = vertexArray.length;
-        for (let i = 0; i < length; i += 3) {
-            let x = vertexArray[i];
-            let y = vertexArray[i+1];
-            vertexArray[i+2] = this.terrain.getHeight(new THREE.Vector2(x, -y));
+        if (this.gridVisible) {
+            this.mesh = new THREE.LineSegments(
+                new THREE.PlaneBufferGeometry( (box.max.x - box.min.x), (box.max.y - box.min.y), this.widthInGrid, this.widthInGrid ).toGrid(),
+                // TODO ÖZEL MATERIAL
+                new THREE.LineBasicMaterial( {
+                    color: 0x636363
+                } )
+            );
+
+            const vertexArray = this.mesh.geometry.attributes.position.array;
+            const length = vertexArray.length;
+            for (let i = 0; i < length; i += 3) {
+                let x = vertexArray[i];
+                let y = vertexArray[i+1];
+                vertexArray[i+2] = this.terrain.getHeight(new THREE.Vector2(x, -y));
+            }
+
+            this.mesh.rotation.x = this.mesh.rotation.x - Math.PI / 2;
+            this.scene.add(this.mesh);
         }
-
-        this.mesh.rotation.x = this.mesh.rotation.x - Math.PI / 2;
-        this.scene.add(this.mesh);
     }
 
     getGridIndex(pos) {
@@ -106,28 +131,48 @@ class Grid {
     }
 
     // Gets a Three.Vector3 and returns the object there.
-    getPos(pos) {
+    getPos(pos, layer=GridLayer.Surface) {
         let {i, j} = this.getGridIndex(pos);
-        return this.matrix[i][j];
+        return this.matrix[layer][i][j];
     }
 
 
     // Gets a Three.Vector3 and Object. Puts the object into the appropriate position.
-    setPos(pos, object) {
+    setPos(pos, object, layer=GridLayer.Surface) {
         let {i, j} = this.getGridIndex(pos);
-        this.matrix[i][j] = object;
+        this.matrix[layer][i][j] = object;
     }
 
-    clearPos(pos) {
-        this.setPos(pos, null);
+    clearPos(pos, layer=GridLayer.Surface) {
+        this.setPos(pos, null, layer);
     }
 
 
     // Gets a Three.Vector3 and returns if there is an object there.
-    checkGrid(pos) {
-        let result = this.getPos(pos);
+    checkGrid(pos, layer=GridLayer.Surface) {
+        let result = this.getPos(pos, layer);
         return result != null;
     }
+
+    getObjectLayer(object) {
+        if (object._onLayer) {
+            return object._onLayer;
+        }
+
+        let pos = object.getPos();
+
+        let objectLayer;
+        for (let layerName in GridLayer) {
+            let layer = GridLayer[layerName];
+            if (this.getPos(pos, layer) === object) {
+                objectLayer = layer;
+                break;
+            }
+        }
+
+        return objectLayer;
+    }
+
 
     // Gets a Three.Vector3 and returns if included in grid.
     checkIfInGrid(pos) {
@@ -141,4 +186,4 @@ class Grid {
     }
 }
 
-export {Grid};
+export {Grid, GridLayer};

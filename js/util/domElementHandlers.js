@@ -1,21 +1,4 @@
-import * as Objects from "../world/Objects.js";
-import * as THREE from "../library/three.js-r135/build/three.module.js";
-import * as Materials from "../world/Materials.js";
-
-document.getElementById("saveButton").addEventListener("click", () => {
-    saveTemplate()
-});
-document.getElementById("loadButton").addEventListener("click", () => {
-    loadTemplate()
-});
-document.getElementById("brush").addEventListener("change", () => {
-    brushChange()
-});
-document.getElementById("eraser").addEventListener("change", () => {
-    eraserChange()
-});
-
-function simulationToggle() {
+function simulationToggle(){
     document.getElementById("stop-sim-button").innerText = isSimActive ? "Start Simulation" : "Pause Simulation";
     isSimActive = !isSimActive;
 }
@@ -30,9 +13,11 @@ function brushChange() {
         drawMode.brush = true;
         drawMode.eraser = false;
         orbitControls.enabled = false;
-    } else {
+        mousePicker.isActive = false;
+    }else {
         drawMode.brush = false;
         orbitControls.enabled = true;
+        mousePicker.isActive = true;
     }
 
 }
@@ -43,9 +28,11 @@ function eraserChange() {
         drawMode.eraser = true;
         drawMode.brush = false;
         orbitControls.enabled = false;
-    } else {
+        mousePicker.isActive = false;
+    }else {
         drawMode.eraser = false;
         orbitControls.enabled = true;
+        mousePicker.isActive = true;
     }
 }
 

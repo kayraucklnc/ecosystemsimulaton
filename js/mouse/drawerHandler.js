@@ -41,6 +41,7 @@ class DrawerHandler {
         }
 
     }
+
 }
 
 let drawHandler = new DrawerHandler();

@@ -17,7 +17,7 @@
 <script src="/js/app.js"></script>
 <script type="module" src="/js/threeStarter.js"></script>
 <script src="js/util/perlinNoise.js"></script>
-<script src="js/util/domElementHandlers.js"></script>
+<script type= "module" src="js/util/domElementHandlers.js"></script>
 <script src="js/util/chartDrawer.js"></script>
 <script src="js/util/AStar.js" type="module"></script>
 <script src="js/parameters.js"></script>
@@ -100,8 +100,8 @@
 
     <div style="background-color: black; width: 320px; margin-top: 200px" id="rightBar">
         <div style="text-align: center; margin: 15px">
-            <input onchange="brushChange()" type="checkbox" id="brush"><label style="color: white" for="brush">Brush</label>
-            <input onchange="eraserChange()" type="checkbox" id="eraser"><label style="color: white" for="eraser">Eraser</label>
+            <input type="checkbox" id="brush"><label style="color: white" for="brush">Brush</label>
+            <input type="checkbox" id="eraser"><label style="color: white" for="eraser">Eraser</label>
         </div>
         <select name="brushElements" id="brushElements" class="list-choice" style="width: 100%">
             <option value="human">Human</option>
@@ -109,6 +109,11 @@
             <option value="squirrel">Squirrel</option>
             <option value="tree">Tree</option>
         </select>
+
+        <button id='saveButton' class="btn" style="font-size: 14pt"><i class="fa fa-download"></i> Save Template</button>
+        <input id='fileid' type='file' hidden/>
+        <input id='loadButton' type='button' value='Load Template'  style="font-size : 19px" />
+
     </div>
 </div>
 </body>

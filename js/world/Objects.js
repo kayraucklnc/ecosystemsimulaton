@@ -315,7 +315,7 @@ class Human extends ObjectBases.MovableObjectBase {
     }
 }
 
-class Wall extends ObjectBases.WorldObjectBase {
+class Wall extends ObjectBases.WorldLargeObject {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
 
@@ -331,4 +331,7 @@ class Wall extends ObjectBases.WorldObjectBase {
     }
 }
 
-export {Sphere, LightIndicator, MouseFollower, Terrain, Box, Human, Tree, Squirrel, Wall};
+class FillerObject extends ObjectBases.WorldObjectBase {}
+class LargeFillerObject extends ObjectBases.WorldLargeObject {}
+
+export {Sphere, LightIndicator, MouseFollower, Terrain, Box, Human, Tree, Squirrel, Wall, FillerObject, LargeFillerObject};

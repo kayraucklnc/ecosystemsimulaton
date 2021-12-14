@@ -135,7 +135,12 @@ class World {
             return false;
         } else {
             this.fixObjectPos(object);
-            this.grid.setPos(object.getPos(), object, layer);
+            if (object instanceof ObjectBases.WorldLargeObject && (layer === GridLayer.Surface || layer === GridLayer.Ground)) {
+                this.grid.setPos(object.getPos(), object, GridLayer.Surface);
+                this.grid.setPos(object.getPos(), object, GridLayer.Ground);
+            } else {
+                this.grid.setPos(object.getPos(), object, layer);
+            }
         }
 
         this.parentObject.add(object.mesh);

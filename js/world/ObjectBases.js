@@ -245,4 +245,10 @@ class MovableObjectBase extends LivingObjectBase {
     }
 }
 
-export {WorldObjectBase, LivingObjectBase, MovableObjectBase};
+class WorldLargeObject extends WorldObjectBase {
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
+    }
+}
+
+export {WorldObjectBase, LivingObjectBase, MovableObjectBase, WorldLargeObject};

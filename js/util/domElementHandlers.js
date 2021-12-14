@@ -1,3 +1,20 @@
+import * as Objects from "../world/Objects.js";
+import * as THREE from "../library/three.js-r135/build/three.module.js";
+import * as Materials from "../world/Materials.js";
+
+document.getElementById("saveButton").addEventListener("click", () => {
+    saveTemplate()
+});
+document.getElementById("loadButton").addEventListener("click", () => {
+    loadTemplate()
+});
+document.getElementById("brush").addEventListener("change", () => {
+    brushChange()
+});
+document.getElementById("eraser").addEventListener("change", () => {
+    eraserChange()
+});
+
 function simulationToggle(){
     document.getElementById("stop-sim-button").innerText = isSimActive ? "Start Simulation" : "Pause Simulation";
     isSimActive = !isSimActive;
@@ -41,16 +58,21 @@ function saveTemplate() {
 
 
     for (let i = 0; i < world.grid.matrix.length; i++) {
-        for (let y = 0; y < world.grid.matrix[i].length; y++) {
-            if (world.grid.matrix[i][y] == null) {
-                toSave.arr.push(null);
-            } else {
-                toSave.arr.push(world.grid.matrix[i][y].constructor.name);
-            }
-        }
+        let arr1 = [];
+        for (let j = 0; j < world.grid.matrix[i].length; j++) {
+            let arr2 = [];
+            for (let k = 0; k < world.grid.matrix[i][j].length; k++) {
+                if (world.grid.matrix[i][j][k] == null) {
+                    arr2.push(null);
+                } else {
+                    arr2.push(world.grid.matrix[i][j][k].constructor.name);
+                }
+            } arr1.push(arr2);
+        } toSave.arr.push(arr1);
     }
+
     console.log(JSON.stringify(toSave));
-    //  download("template.json",JSON.stringify({ matrix: world.grid.matrix }));
+    download("template.json",JSON.stringify(toSave));
 
     //console.log(world.grid.matrix[1]);
 
@@ -75,13 +97,19 @@ async function loadTemplate() {
     let fileData = await fileHandle.getFile();
     let text = await fileData.text();
     let parsedData = JSON.parse(text);
+    console.log(parsedData);
+    /* let length = parsedData["arr"]["length"];
+     for (let i = 0; i < length; i++) {
+         for (let y = 0; y < length; y++) {
+             console.log(i);
+             console.log(parsedData["matrix"][1][i]);
+         }
+     }*/
+    console.log(parsedData.arr);
 
-    let length = parsedData["matrix"]["length"];
-    for (let i = 0; i < length; i++) {
-        for (let y = 0; y < length; y++) {
-            console.log(i);
-            console.log(parsedData["matrix"][1][i]);
-        }
+    if (A == cons.name) {
+        let treeObject = new Objects.Tree(world.grid.get, new THREE.Vector3(0, 0), Materials.treeMaterial);
+        world.instantiateObject(treeObject);
     }
 
 

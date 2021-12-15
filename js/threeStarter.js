@@ -108,10 +108,12 @@ function createTestSceneElements(scene) {
         world.instantiateObject(humanObject);
     }
 
+/*
     for (let i = 0; i < 50; i++) {
         let squirrelObject = new Objects.Squirrel(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
         world.instantiateObject(squirrelObject);
     }
+*/
 
     for (let i = 0; i < 20; i++) {
         let pigObject = new Objects.Pig(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.squirrelMaterial);

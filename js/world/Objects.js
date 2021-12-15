@@ -149,6 +149,8 @@ class Tree extends ObjectBases.LivingObjectBase {
 
         this.selectable = true;
 
+        this.spanPos = null;
+
         this.mesh = meshes.tree.clone();
 
         this.setPos(pos);
@@ -162,9 +164,27 @@ class Tree extends ObjectBases.LivingObjectBase {
     }
 
     update() {
+        this.ticker += 1;
+        let i = Math.random();
+        if (this.ticker == 120) {
+            if (i >= 0.88) {
+                this.spread();
+            }
+            this.ticker = 0;
+        }
         if (this.health <= 0) {
             this.die();
         }
+    }
+
+    spread() {
+        const randomPoint = new THREE.Vector3((Math.random() - 0.5) * 10, 0, (Math.random() - 0.5) * 10).add(this.getPos());
+        if (world.grid.checkIfInGrid(randomPoint) && !world.checkPos(randomPoint)) {
+            this.spawnPos = world.getCellCenter(randomPoint);
+            const newTree = new Tree(this.spawnPos, new THREE.Vector3(), Materials.treeMaterial);
+            world.instantiateObject(newTree);
+        }
+
     }
 
     die() {
@@ -193,9 +213,9 @@ class Grass extends ObjectBases.LivingObjectBase {
 
     update() {
         this.ticker += 1;
-
-        if (this.ticker == 5000) {
-            if (Math.random() >= 0.4) {
+        let i = Math.random();
+        if (this.ticker == 100) {
+            if (i > 0.9) {
                 this.spread();
             }
             this.ticker = 0;
@@ -253,8 +273,8 @@ class Fox extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 150;
-        this.speed = 0.15;
-        this.hunger = 50;
+        this.speed = 0.05;
+        this.hunger = 40;
         this.selectable = true;
 
         this.gender = 0;
@@ -281,7 +301,7 @@ class Fox extends ObjectBases.MovableObjectBase {
     }
 
     update() {
-        this.hunger += 0.1;
+        this.hunger += 0.2;
         switch (this.state) {
             case this.foxStates.Idle:
                 this.idle();
@@ -326,7 +346,7 @@ class Fox extends ObjectBases.MovableObjectBase {
             () => {
                 if (this.target !== null) {
                     if (this.target.applyDamage(50)) {
-                        this.hunger -= 35;
+                        this.hunger -= 20;
                         if (this.hunger < 0) {
                             this.hunger = 0
                         }
@@ -352,6 +372,9 @@ class Fox extends ObjectBases.MovableObjectBase {
         }
         else if (this.hunger < 15) {
             this.state = this.foxStates.Mating;
+        }
+        else {
+            this.state = this.foxStates.Idle;
         }
     }
     mate() {
@@ -393,7 +416,7 @@ class Rabbit extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 50;
-        this.speed = 0.2;
+        this.speed = 0.04;
         this.hunger = 50;
         this.selectable = true;
         this.gender = 0;
@@ -417,7 +440,7 @@ class Rabbit extends ObjectBases.MovableObjectBase {
     }
 
     update() {
-        this.hunger += 0.1;
+        this.hunger += 0.25;
         if (this.hunger >= 100) {
             this.hunger = 100;
             this.health -= 5;
@@ -511,7 +534,7 @@ class Pig extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 200;
-        this.speed = 0.1;
+        this.speed = 0.03;
         this.hunger = 50;
         this.selectable = true;
         this.mode = 0;
@@ -555,7 +578,7 @@ class Pig extends ObjectBases.MovableObjectBase {
         if (this.mode == 0 && this.target) {
             this.executePath(
                 () => {
-                    if (this.target.applyDamage(5)) {
+                    if (this.target.applyDamage(15)) {
                         this.hunger -= 10;
                         if (this.hunger < 0) {this.hunger = 0};
                         this.target = null;
@@ -597,7 +620,7 @@ class Pig extends ObjectBases.MovableObjectBase {
                 true
             );
         }
-        this.hunger += 0.05;
+        this.hunger += 0.2;
 
         if (this.hunger >= 100) {
             this.hunger = 100;
@@ -620,7 +643,7 @@ class Wolf extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 250;
-        this.speed = 0.2;
+        this.speed = 0.04;
         this.hunger = 50;
         this.selectable = true;
 
@@ -648,7 +671,7 @@ class Wolf extends ObjectBases.MovableObjectBase {
     }
 
     update() {
-        this.hunger += 0.2;
+        this.hunger += 0.06;
         switch (this.state) {
             case this.wolfStates.Idle:
                 this.idle();
@@ -693,7 +716,7 @@ class Wolf extends ObjectBases.MovableObjectBase {
             () => {
                 if (this.target !== null) {
                     if (this.target.applyDamage(50)) {
-                        this.hunger -= 40;
+                        this.hunger -= 20;
                         if (this.hunger < 0) {
                             this.hunger = 0
                         }

@@ -173,14 +173,17 @@ class Grass extends ObjectBases.LivingObjectBase {
     }
 
     applyDamage(damage) {
-        super.applyDamage(damage);
+        return super.applyDamage(damage);
     }
 
     update() {
         this.ticker += 1;
 
-        if (this.ticker % 600 == 0) {
-            this.spread();
+        if (this.ticker == 5000) {
+            if (Math.random() >= 0.4) {
+                this.spread();
+            }
+            this.ticker = 0;
         }
 
         if (this.health <= 0) {
@@ -199,9 +202,9 @@ class Grass extends ObjectBases.LivingObjectBase {
 
     }
 
-    die() {
+    /*die() {
         super.die();
-    }
+    }*/
 }
 
 class Wheat extends ObjectBases.LivingObjectBase {
@@ -216,9 +219,9 @@ class Wheat extends ObjectBases.LivingObjectBase {
         this.setRot(rotation);
     }
 
-//    applyDamage(damage) {
-//        super.applyDamage(damage);
-//    }
+   applyDamage(damage) {
+       return super.applyDamage(damage);
+   }
 
     update() {
         if (this.health <= 0) {
@@ -263,7 +266,7 @@ class Fox extends ObjectBases.MovableObjectBase {
     }
 
     update() {
-        this.hunger += 1;
+        this.hunger += 0.1;
         switch (this.state) {
             case this.foxStates.Idle:
                 this.idle();
@@ -303,31 +306,32 @@ class Fox extends ObjectBases.MovableObjectBase {
     }
     hunt() {
         this.idleCount = 0;
-        let closestRabbit = null;
-        let closestRabbitDist = Infinity;
-        let currentPos = this.getPos();
-        world.objects.forEach(
-            function (value, index) {
-                let dist = (new THREE.Vector3()).subVectors(value.getPos(), currentPos).lengthSq();
-                if (value instanceof Rabbit && (closestRabbit == null || dist < closestRabbitDist)) {
-                    closestRabbit = value;
-                    closestRabbitDist = dist;
+        this.target = this.findClosestWithAStar((value) => {return value instanceof Rabbit});
+        this.executePath(
+            () => {
+                if (this.target !== null) {
+                    if (this.target.applyDamage(50)) {
+                        this.hunger -= 35;
+                        if (this.hunger < 0) {
+                            this.hunger = 0
+                        }
+                        this.target = null;
+                    }
                 }
-            }
-        )
-        this.target = closestRabbit;
-        if (this.target != null && this.checkIfNextToTarget(this.target.getPos())) {
-            this.target.applyDamage(10);
-            if (this.hunger >= 0) this.hunger -= 15;
-        } else if (this.target != null) {
-            let movementVector = this.getMovementVectorToTarget(this.target.getPos());
-            if (this.movement < 1) {
-                this.movement += this.speed;
-            } else if (!world.checkNeighbour(this.getPos(), movementVector)) {
-                this.movement = 0.0;
-                world.moveObjectOnGridInDirection(this, movementVector);
-            }
-        }
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                } else {
+                    this.cleanLines();
+                }
+            },
+            true
+        );
         if (this.hunger > 40) {
             this.state = this.foxStates.Hunting;
         }
@@ -337,33 +341,29 @@ class Fox extends ObjectBases.MovableObjectBase {
     }
     mate() {
         this.idleCount = 0;
-        let closestFox = null;
-        let closestFoxDist = Infinity;
-        let currentPos = this.getPos();
         const thisGender = this.gender;
-        world.objects.forEach(
-            function (value, index) {
-                let dist = (new THREE.Vector3()).subVectors(value.getPos(), currentPos).lengthSq();
-                if (value instanceof Fox && (closestFox == null || dist < closestFoxDist) && value.gender !== thisGender) {
-                    closestFox = value;
-                    closestFoxDist = dist;
+        this.target = this.findClosestWithAStar((value) => {return value instanceof Fox && thisGender !== value.gender});
+        this.executePath(
+            () => {
+                if (this.target !== null) {
+                    this.spawn();
+                    this.target.hunger += 35;
                 }
-            }
-        )
-        this.target = closestFox;
-        if (this.target != null && this.checkIfNextToTarget(this.target.getPos())) {
-            this.spawn();
-            this.target.hunger += 35;
-        } else if (this.target != null) {
-            let movementVector = this.getMovementVectorToTarget(this.target.getPos());
-
-            if (this.movement < 1) {
-                this.movement += this.speed;
-            } else if (!world.checkNeighbour(this.getPos(), movementVector)) {
-                this.movement = 0.0;
-                world.moveObjectOnGridInDirection(this, movementVector);
-            }
-        }
+                this.target = null;
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                } else {
+                    this.cleanLines();
+                }
+            },
+            true
+        );
         if (this.hunger >= 40) {
             this.state = this.foxStates.Hunting;
         }
@@ -402,7 +402,7 @@ class Rabbit extends ObjectBases.MovableObjectBase {
     }
 
     update() {
-        this.hunger += 1;
+        this.hunger += 0.1;
         if (this.hunger >= 100) {
             this.hunger = 100;
             this.health -= 5;
@@ -419,9 +419,7 @@ class Rabbit extends ObjectBases.MovableObjectBase {
                 break;
         }
     }
-    die() {
-        super.die();
-    }
+
     spawn() {
         const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
 
@@ -432,80 +430,57 @@ class Rabbit extends ObjectBases.MovableObjectBase {
         }
     }
     mate() {
-        let closestRabbit = null;
-        let closestRabbitDist = Infinity;
-        let currentPos = this.getPos();
         const thisGender = this.gender;
-        world.objects.forEach(
-            function (value, index) {
-                let dist = (new THREE.Vector3()).subVectors(value.getPos(), currentPos).lengthSq();
-                if (value instanceof Rabbit && (closestRabbit == null || dist < closestRabbitDist) && value.gender !== thisGender) {
-                    closestRabbit = value;
-                    closestRabbitDist = dist;
+        this.target = this.findClosestWithAStar((value) => {return value instanceof Rabbit && thisGender !== value.gender});
+        this.executePath(
+            () => {
+                if (this.target !== null) {
+                    this.spawn();
+                    this.target.hunger += 35;
                 }
-            }
-        )
-        this.target = closestRabbit;
-        if (this.target != null && this.checkIfNextToTarget(this.target.getPos())) {
-            this.spawn();
-            this.target.hunger += 35;
-        } else if (this.target != null) {
-            let movementVector = this.getMovementVectorToTarget(this.target.getPos());
+                this.target = null;
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                } else {
+                    this.cleanLines();
+                }
+            },
+            true
+        );
 
-            if (this.movement < 1) {
-                this.movement += this.speed;
-            } else if (!world.checkNeighbour(this.getPos(), movementVector)) {
-                this.movement = 0.0;
-                world.moveObjectOnGridInDirection(this, movementVector);
-            }
-        }
-        if (this.hunger >= 40) {
-            this.state = this.rabbitStates.Grazing;
-        }
-        else {
-            this.state = this.rabbitStates.Mating;
-        }
     }
     graze() {
-        let closestGrass, closestWheat = null;
-        let closestGrassDist, closestWheatDist = Infinity;
-        let currentPos = this.getPos();
-        world.objects.forEach(
-            function (value, index) {
-                let dist = (new THREE.Vector3()).subVectors(value.getPos(), currentPos).lengthSq();
-                if (value instanceof Grass && (closestGrass == null || dist < closestGrassDist)) {
-                    closestGrass = value;
-                    closestGrassDist = dist;
+        this.target = this.findClosestWithAStar((value) => {return value instanceof Wheat || value instanceof Grass});
+        this.executePath(
+            () => {
+                if (this.target.applyDamage(1)) {
+                    this.hunger -= 15;
+                    if (this.hunger < 0) {
+                        this.hunger = 0
+                    }
+                    ;
+                    this.target = null;
                 }
-            }
-        )
-        world.objects.forEach(
-            function (value, index) {
-                let dist = (new THREE.Vector3()).subVectors(value.getPos(), currentPos).lengthSq();
-                if (value instanceof Wheat && (closestWheat == null || dist < closestWheatDist)) {
-                    closestWheat = value;
-                    closestWheatDist = dist;
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                } else {
+                    this.cleanLines();
                 }
-            }
-        )
-        if (closestGrassDist < closestWheatDist) {
-            this.target = closestGrass;
-        }
-        else if (closestWheatDist <= closestGrassDist) {
-            this.target = closestWheat;
-        }
-        if (this.target != null && this.checkIfNextToTarget(this.target.getPos())) {
-            this.target.applyDamage(5);
-            if (this.hunger > 0) this.hunger -= 15;
-        } else if (this.target != null) {
-            let movementVector = this.getMovementVectorToTarget(this.target.getPos());
-            if (this.movement < 1) {
-                this.movement += this.speed;
-            } else if (!world.checkNeighbour(this.getPos(), movementVector)) {
-                this.movement = 0.0;
-                world.moveObjectOnGridInDirection(this, movementVector);
-            }
-        }
+            },
+            true
+        );
         if (this.hunger > 15) {
             this.state = this.rabbitStates.Grazing;
         }
@@ -524,6 +499,7 @@ class Pig extends ObjectBases.MovableObjectBase {
         this.selectable = true;
         this.mode = 0;
         this.stateTick = 0;
+        this.target = null;
 
         this.gender = 0;
         if (Math.random() < 0.5) {
@@ -546,81 +522,72 @@ class Pig extends ObjectBases.MovableObjectBase {
             this.die();
         }
         //will go for the closest grass if hungry, else it'll try to find a mate
-        let closestGrass = null;
-        let closestGrassDist = Infinity;
-        let closestPig = null;
-        let closestPigDist = Infinity;
-        let currentPos = this.getPos();
         let satiated = false;
         if (this.hunger <= 15) {satiated = true;};
         if (this.hunger >= 40) {satiated = false};
-        if (this.hunger > 15 && !satiated) {
-            world.objects.forEach(
-                function (value, index) {
-                    let dist = (new THREE.Vector3()).subVectors(value.getPos(), currentPos).lengthSq();
-                    if (value instanceof Grass && (closestGrass == null || dist < closestGrassDist)) {
-                        closestGrass = value;
-                        closestGrassDist = dist;
-                    }
-                }
-            )
-            this.target = closestGrass;
+        if (this.hunger > 20 && !satiated && this.target == null) {
+            this.target = this.findClosestWithAStar((value) => {return value instanceof Grass});
             this.mode = 0;
         }
-        else if (this.hunger < 20 && satiated) {
+        else if (this.hunger < 20 && satiated && this.target == null) {
             const tmpGnd = this.gender;
-            world.objects.forEach(
-                function (value, index) {
-                    let dist = (new THREE.Vector3()).subVectors(value.getPos(), currentPos).lengthSq();
-                    if (value instanceof Pig && (closestPig == null || dist < closestPigDist) && value.gender !== tmpGnd) {
-                        closestPig = value;
-                        closestPigDist = dist;
-                    }
-                }
-            )
-            this.target = closestPig;
+            this.target = this.findClosestWithAStar((value) => {return value instanceof Pig && value.gender !== tmpGnd});
             this.mode = 1;
         }
 
-        if (this.mode == 0) {
-            if (this.target != null && this.checkIfNextToTarget(this.target.getPos())) {
-                this.target.applyDamage(5);
-                if (this.hunger > 0) this.hunger -= 5;
-            } else if (this.target != null) {
-                let movementVector = this.getMovementVectorToTarget(this.target.getPos());
-
-                if (this.movement < 1) {
-                    this.movement += this.speed;
-                } else if (!world.checkNeighbour(this.getPos(), movementVector)) {
-                    this.movement = 0.0;
-                    world.moveObjectOnGridInDirection(this, movementVector);
-                }
-            }
+        if (this.mode == 0 && this.target) {
+            this.executePath(
+                () => {
+                    if (this.target.applyDamage(5)) {
+                        this.hunger -= 10;
+                        if (this.hunger < 0) {this.hunger = 0};
+                        this.target = null;
+                    }
+                },
+                () => {
+                    this.target = null;
+                },
+                () => {
+                    this.lookTowardsPath();
+                    if (parameters.simulation.showPaths) {
+                        this.createLines(this.path);
+                    } else {
+                        this.cleanLines();
+                    }
+                },
+                true
+            );
         } else if (this.mode == 1) {
-            if (this.target != null && this.checkIfNextToTarget(this.target.getPos())) {
-                this.spawn();
-                this.target.hunger += 35;
-            } else if (this.target != null) {
-                let movementVector = this.getMovementVectorToTarget(this.target.getPos());
-
-                if (this.movement < 1) {
-                    this.movement += this.speed;
-                } else if (!world.checkNeighbour(this.getPos(), movementVector)) {
-                    this.movement = 0.0;
-                    world.moveObjectOnGridInDirection(this, movementVector);
-                }
-            }
+            this.executePath(
+                () => {
+                    if (this.target !== null) {
+                        this.spawn();
+                        this.target.hunger += 35;
+                    }
+                    this.target = null;
+                },
+                () => {
+                    this.target = null;
+                },
+                () => {
+                    this.lookTowardsPath();
+                    if (parameters.simulation.showPaths) {
+                        this.createLines(this.path);
+                    } else {
+                        this.cleanLines();
+                    }
+                },
+                true
+            );
         }
-        this.hunger += 1;
+        this.hunger += 0.05;
 
         if (this.hunger >= 100) {
             this.hunger = 100;
             this.health -= 1;
         }
     }
-    die() {
-        super.die();
-    }
+
     spawn() {
         const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
 
@@ -664,7 +631,7 @@ class Wolf extends ObjectBases.MovableObjectBase {
     }
 
     update() {
-        this.hunger += 1;
+        this.hunger += 0.2;
         switch (this.state) {
             case this.wolfStates.Idle:
                 this.idle();
@@ -704,31 +671,32 @@ class Wolf extends ObjectBases.MovableObjectBase {
     }
     hunt() {
         this.idleCount = 0;
-        let closestPig = null;
-        let closestPigDist = Infinity;
-        let currentPos = this.getPos();
-        world.objects.forEach(
-            function (value, index) {
-                let dist = (new THREE.Vector3()).subVectors(value.getPos(), currentPos).lengthSq();
-                if (value instanceof Pig && (closestPig == null || dist < closestPigDist)) {
-                    closestPig = value;
-                    closestPigDist = dist;
+        this.target = this.findClosestWithAStar((value) => {return value instanceof Pig});
+        this.executePath(
+            () => {
+                if (this.target !== null) {
+                    if (this.target.applyDamage(50)) {
+                        this.hunger -= 40;
+                        if (this.hunger < 0) {
+                            this.hunger = 0
+                        }
+                        this.target = null;
+                    }
                 }
-            }
-        )
-        this.target = closestPig;
-        if (this.target != null && this.checkIfNextToTarget(this.target.getPos())) {
-            this.target.applyDamage(10);
-            if (this.hunger >= 0) this.hunger -= 15;
-        } else if (this.target != null) {
-            let movementVector = this.getMovementVectorToTarget(this.target.getPos());
-            if (this.movement < 1) {
-                this.movement += this.speed;
-            } else if (!world.checkNeighbour(this.getPos(), movementVector)) {
-                this.movement = 0.0;
-                world.moveObjectOnGridInDirection(this, movementVector);
-            }
-        }
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                } else {
+                    this.cleanLines();
+                }
+            },
+            true
+        );
         if (this.hunger > 40) {
             this.state = this.wolfStates.Hunting;
         }
@@ -738,33 +706,29 @@ class Wolf extends ObjectBases.MovableObjectBase {
     }
     mate() {
         this.idleCount = 0;
-        let closestWolf = null;
-        let closestWolfDist = Infinity;
-        let currentPos = this.getPos();
         const thisGender = this.gender;
-        world.objects.forEach(
-            function (value, index) {
-                let dist = (new THREE.Vector3()).subVectors(value.getPos(), currentPos).lengthSq();
-                if (value instanceof Wolf && (closestWolf == null || dist < closestWolfDist) && value.gender !== thisGender) {
-                    closestWolf = value;
-                    closestWolfDist = dist;
+        this.target = this.findClosestWithAStar((value) => {return value instanceof Wolf && thisGender !== value.gender});
+        this.executePath(
+            () => {
+                if (this.target !== null) {
+                    this.spawn();
+                    this.target.hunger += 35;
                 }
-            }
-        )
-        this.target = closestWolf;
-        if (this.target != null && this.checkIfNextToTarget(this.target.getPos())) {
-            this.spawn();
-            this.target.hunger += 35;
-        } else if (this.target != null) {
-            let movementVector = this.getMovementVectorToTarget(this.target.getPos());
-
-            if (this.movement < 1) {
-                this.movement += this.speed;
-            } else if (!world.checkNeighbour(this.getPos(), movementVector)) {
-                this.movement = 0.0;
-                world.moveObjectOnGridInDirection(this, movementVector);
-            }
-        }
+                this.target = null;
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                } else {
+                    this.cleanLines();
+                }
+            },
+            true
+        );
         if (this.hunger >= 40) {
             this.state = this.wolfStates.Hunting;
         }

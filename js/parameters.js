@@ -17,6 +17,6 @@ let parameters = {
         count: 1.3,
     },
     simulation: {
-        showPaths: false
+        showPaths: true
     }
 };

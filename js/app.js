@@ -16,7 +16,7 @@ let mouse = {
     y: undefined,
 };
 let simulation = {
-    timeScale: 20,
+    timeScale: 1,
 };
 let chartSettings = {
     chartSize: {

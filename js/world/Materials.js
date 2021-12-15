@@ -33,7 +33,7 @@ function createAllMaterials() {
     //     lights: true,
     // });
     planeCustomMat = new THREE.MeshPhongMaterial({
-        normalMap: textures.terrainNormalMap,
+        //normalMap: textures.terrainNormalMap,
         color: 0x3bdb43,
         side: THREE.DoubleSide,
         flatShading: THREE.FlatShading,

@@ -44,23 +44,6 @@ function loadObjectMeshes(resolve) {
     });
 }
 
-function loadTextures(resolve) {
-    let terrainNormalPromise = new Promise((resolve, reject) => {
-        const texture = new THREE.TextureLoader().load( "textures/terrain_normal_map.jpg", (tex) => {
-            resolve(tex);
-        });
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set( 4, 4 );
-    });
-
-    Promise.all([terrainNormalPromise]).then((texture) => {
-        textures.terrainNormalMap = texture[0];
-
-        resolve();
-    });
-}
-
 function loadObject(resolve, path) {
     let loader = new GLTFLoader().setPath('../../models/');
     loader.load(path, function (e) {
@@ -68,4 +51,96 @@ function loadObject(resolve, path) {
     });
 }
 
-export {loadObjectMeshes, loadTextures, loadObject};
+function loadTextures(resolve) {
+    let texturePromises = [];
+    texturePromises.push(new Promise((resolve, reject) => {
+        const loader = new THREE.TextureLoader();
+        loader.crossOrigin = "";
+        loader.load( "textures/terrain_n_map2.png", (texture) => {
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            let repeating = 7;
+            texture.repeat.set( repeating, repeating );
+            textures.dirtNormalMap = {
+                texture: texture,
+                repeatFactor: repeating
+            }
+            resolve(texture);
+        });
+    }));
+
+    texturePromises.push(new Promise((resolve, reject) => {
+        const loader = new THREE.TextureLoader();
+        loader.crossOrigin = "";
+        loader.load( "textures/indir.jfif", (texture) => {
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            let repeating = 10;
+            texture.repeat.set( repeating, repeating );
+            textures.snowNormalMap = {
+                texture: texture,
+                repeatFactor: repeating
+            }
+            resolve(texture);
+        });
+    }));
+
+    texturePromises.push(new Promise((resolve, reject) => {
+        const loader = new THREE.TextureLoader();
+        loader.crossOrigin = "";
+        loader.load( "textures/perlin_noise.png", (texture) => {
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            let repeating = 10;
+            texture.repeat.set( repeating, repeating );
+            textures.perlinNoiseMap = {
+                texture: texture,
+                repeatFactor: repeating
+            }
+            resolve(texture);
+        });
+    }));
+
+    Promise.all(texturePromises).then((texture) => {
+        resolve();
+    });
+}
+
+function loadShaders(resolve) {
+    let shaderFilePath = "/shaders/";
+    let fileNames = ["vertexShader.glsl", "fragmentShader.glsl", "terrainFragmentShader.glsl", "sunFragmentShader.glsl"];
+
+    let loadShaderPromises = [];
+    const loader = new THREE.FileLoader();
+    for (let fileName of fileNames) {
+        let path = shaderFilePath + fileName;
+        loadShaderPromises.push(new Promise((resolve, reject) => {
+            loader.load(path, function (data) {
+                shaders[fileName.split(".glsl")[0]] = data;
+                resolve();
+            })
+        }));
+    }
+
+    Promise.all(loadShaderPromises).then(() => {
+        resolve();
+    })
+}
+
+function loadData(resolve) {
+    let loadDataPromises = [];
+    loadDataPromises.push(new Promise((resolve, reject) => {
+        loadObjectMeshes(resolve);
+    }));
+
+    loadDataPromises.push(new Promise((resolve, reject) => {
+        loadTextures(resolve);
+    }));
+
+    loadDataPromises.push(new Promise((resolve, reject) => {
+        loadShaders(resolve);
+    }));
+
+    Promise.all(loadDataPromises).then(() => {
+        resolve();
+    })
+}
+
+export {loadData};

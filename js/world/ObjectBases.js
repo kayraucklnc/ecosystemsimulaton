@@ -55,19 +55,10 @@ class WorldObjectBase {
 }
 
 class LivingObjectBase extends WorldObjectBase {
-    static maxLiving = 0;
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = null;
         this.hasDied = false;
-
-        let typeName = this.constructor.name;
-        if (datamap.has(typeName)) {
-            datamap.set(typeName, datamap.get(typeName) + 1);
-        } else {
-            datamap.set(typeName, 1);
-        }
-        LivingObjectBase.maxLiving = Math.max(datamap.get(typeName), LivingObjectBase.maxLiving);
     }
 
     //Returns if object is dead after damage.
@@ -93,12 +84,17 @@ class MovableObjectBase extends LivingObjectBase {
         super(pos, rotation, material);
         this.speed = null;
 
+
         this.path = [];
         this.pathLines = [];
         this.pathColor = world.getRandomColor();
         this.pathHeight = world.randomFloatFromInterval(world.getCellSize() / 4, world.getCellSize());
         this.lastPos = pos;
         this.movement = 0.0;
+
+        this.lastClosestCheckFrame = 0;
+        this.lastClosest = null;
+        this.closestCheckFrequency = 50;
     }
 
     cleanLines() {
@@ -185,6 +181,9 @@ class MovableObjectBase extends LivingObjectBase {
     }
 
     findClosestWithAStar(checkFunc) {
+        if (frameCount - this.lastClosestCheckFrame < this.closestCheckFrequency) {
+            return this.lastClosest;
+        }
         let cloneObjects = [...world.objects];
         let thisPos = this.getPos();
         cloneObjects = cloneObjects.filter(checkFunc);
@@ -198,7 +197,8 @@ class MovableObjectBase extends LivingObjectBase {
                 break;
             }
         }
-
+        this.lastClosest = closest;
+        this.lastClosestCheckFrame = frameCount;
         return closest;
     }
 
@@ -213,7 +213,7 @@ class MovableObjectBase extends LivingObjectBase {
         let targetPos = null;
         let reachCheck = null;
         if (hasTargetOnDest) {
-            targetPos = this.path.length > 0 ? this.path[this.path.length - 1]: this.getPos();
+            targetPos = this.path.length > 0 ? this.path[this.path.length - 1] : this.getPos();
             reachCheck = this.checkIfNextToTarget(targetPos);
         } else {
             // targetPos = this.getPos();
@@ -265,4 +265,12 @@ class MovableObjectBase extends LivingObjectBase {
     }
 }
 
-export {WorldObjectBase, LivingObjectBase, MovableObjectBase};
+class WorldLargeObject extends WorldObjectBase {
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
+
+        this.mesh = new THREE.Object3D();
+    }
+}
+
+export {WorldObjectBase, LivingObjectBase, MovableObjectBase, WorldLargeObject};

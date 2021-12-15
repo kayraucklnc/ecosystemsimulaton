@@ -43,6 +43,7 @@ function drawthechart() {
         data.addColumn('number', 'Rabbit');
         data.addColumn('number', 'Fox');
         updateData();
+        updateOptions();
         // Set chart options
         
 
@@ -53,7 +54,6 @@ function drawthechart() {
 
         setInterval(() => {
             if (isSimActive) {
-                updateOptions();
                 updateData();
                 chart.draw(data, options);
             }

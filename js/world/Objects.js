@@ -69,7 +69,6 @@ class MouseFollower extends Sphere {
             this.setPos(intersects[0].point);
         }
     }
-
 }
 
 class Terrain extends ObjectBases.WorldObjectBase {
@@ -90,7 +89,7 @@ class Terrain extends ObjectBases.WorldObjectBase {
     getHeight(vec2) {
         //return perlin.get(vec2.x * parameters.plane.noiseScale, vec2.y * parameters.plane.noiseScale) * parameters.plane.heightMultiplier;
         var r = 0;
-        for (var i = 0; i <= 5; i++) {
+        for (var i = 0; i <= 3; i++) {
             var frequency = Math.pow(parameters.plane.lacunarity, i);
             var amplitude = Math.pow(parameters.plane.persistance, i);
             var noise = perlin.get(vec2.x *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness, vec2.y *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness ) ;
@@ -98,7 +97,6 @@ class Terrain extends ObjectBases.WorldObjectBase {
         }
         return r * parameters.plane.heightMultiplier;
     }
-
 
     changePlaneGeometry(parameters) {
         this.mesh.geometry = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale, parameters.plane.resolution, parameters.plane.resolution);
@@ -109,12 +107,30 @@ class Terrain extends ObjectBases.WorldObjectBase {
             this.mesh.geometry.attributes.position.array[i + 2] = this.getHeight(new THREE.Vector2(x, -y));
         }
 
+        this.mesh.geometry.computeVertexNormals();
+        this.mesh.geometry.computeTangents();
+
         if (this.grid) {
             this.grid.createGridGeometry(parameters);
         }
 
+        this.material.uniforms["maxTerrainHeight"].value = parameters.plane.heightMultiplier;
+
+        if (water) {
+            water.position.y = parameters.plane.waterHeight * parameters.plane.heightMultiplier;
+        }
+
+        if (world.grid && this.grid == null) {
+            world.grid.setTerrain(this);
+            this.grid = world.grid;
+        }
+
+        world.fillAtAllGrid((gridPos, objectOnGrid) => {
+           return gridPos.y <= parameters.plane.waterHeight * parameters.plane.heightMultiplier;
+        }, true);
+
         world.objects.forEach((x) => {
-            if(x instanceof Human){
+            if (world.isObjectOnGrid(x)) {
                 world.fixObjectPos(x);
             }
         })
@@ -138,7 +154,6 @@ class Tree extends ObjectBases.LivingObjectBase {
         this.setPos(pos);
         this.setRot(rotation);
     }
-
 
 
     applyDamage(damage) {
@@ -751,7 +766,7 @@ class Squirrel extends ObjectBases.MovableObjectBase {
 
         this.selectable = true;
 
-        const sphereGeometry = new THREE.SphereGeometry(0.08).translate(0,0.04,0);
+        const sphereGeometry = new THREE.SphereGeometry(0.08).translate(0, 0.04, 0);
         this.mesh = new THREE.Mesh(sphereGeometry, material);
 
         this.setPos(pos);
@@ -834,17 +849,16 @@ class Squirrel extends ObjectBases.MovableObjectBase {
     }
 
     planting() {
-        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
+        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0, 0, 1).applyEuler(this.getRot()));
 
         const newTree = new Tree(neighbourPos, new THREE.Vector3(), Materials.treeMaterial);
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
-            world.instantiateObject(newTree);
+            world.instantiateObjectOnGrid(newTree);
         }
 
         this.switchState(this.squirrelStates.Idle);
     }
 }
-
 
 class Human extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
@@ -863,7 +877,9 @@ class Human extends ObjectBases.MovableObjectBase {
 
     update() {
         if (this.target == null) {
-            this.target = this.findClosestWithAStar((o) => {return o instanceof Tree;});
+            this.target = this.findClosestWithAStar((o) => {
+                return o instanceof Tree;
+            });
         }
 
         if (this.target) {
@@ -883,16 +899,16 @@ class Human extends ObjectBases.MovableObjectBase {
                     }
 
                     this.lookTowardsPath();
-                } ,true);
+                }, true);
         }
     }
 }
 
-class Wall extends ObjectBases.WorldObjectBase {
+class Wall extends ObjectBases.WorldLargeObject {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
 
-        const cube = new THREE.BoxGeometry(world.getCellSize(), 0.8, world.getCellSize()).translate(0,0.3,0);
+        const cube = new THREE.BoxGeometry(world.getCellSize(), 0.8, world.getCellSize()).translate(0, 0.3, 0);
         this.mesh = new THREE.Mesh(cube, material);
 
         this.setPos(pos);
@@ -903,7 +919,6 @@ class Wall extends ObjectBases.WorldObjectBase {
     update() {
     }
 }
-
 class House extends ObjectBases.WorldObjectBase {
     //TODO: implement house class, each one costs a certain amount of wood (taken from stockpile or from human inventory), humans need houses to survive
     //a house will be placed in a random location within a 5x5 "reserved" area of the grid, the rest of the area will be used for wheat farms
@@ -914,4 +929,20 @@ class Stockpile extends ObjectBases.WorldObjectBase {
     //making houses and farms be built around or close to the stockpile might be a good idea
 }
 
-export {Sphere, LightIndicator, MouseFollower, Terrain, Box, Human, Tree, Grass, Wheat, Fox, Rabbit, Pig, Wolf, Squirrel, Wall};
+class FillerObject extends ObjectBases.WorldObjectBase {
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
+        this.setPos(pos);
+        this.setRot(rotation);
+    }
+}
+class LargeFillerObject extends ObjectBases.WorldLargeObject {
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
+        this.setPos(pos);
+        this.setRot(rotation);
+    }
+}
+
+
+export {Sphere, LightIndicator, MouseFollower, Terrain, Box, Human, Tree, Grass, Wheat, Fox, Rabbit, Pig, Wolf, Squirrel, Wall, FillerObject, LargeFillerObject};

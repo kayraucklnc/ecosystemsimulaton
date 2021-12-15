@@ -1,8 +1,9 @@
 import * as THREE from "../library/three.js-r135/build/three.module.js";
 
-const vShader = document.getElementById("vertexShader").text;
-const fShader = document.getElementById("fragmentShader").text;
-const terrainFShader = document.getElementById("terrainFragmentShader").text;
+let vShader;
+let fShader;
+let terrainFShader;
+let sunFShader;
 
 const planeMat = new THREE.MeshPhongMaterial({
     color: 0x3bdb43,
@@ -18,26 +19,42 @@ let squirrelMaterial = null;
 let lightIndicatorMaterial = null;
 
 function createAllMaterials() {
-    // planeCustomMat = new THREE.ShaderMaterial({
-    //     uniforms: THREE.UniformsUtils.merge([
-    //         THREE.UniformsLib["lights"],
-    //         {
-    //             normal_map: { value: textures.terrainNormalMap },
-    //             maxTerrainHeight: { value: parameters.plane.heightMultiplier },
-    //             color: { value: new THREE.Color(0x1e692e) },
-    //         },
-    //     ]),
-    //     vertexShader: vShader,
-    //     fragmentShader: terrainFShader,
-    //     side: THREE.DoubleSide,
-    //     lights: true,
-    // });
-    planeCustomMat = new THREE.MeshPhongMaterial({
-        //normalMap: textures.terrainNormalMap,
-        color: 0x3bdb43,
+    vShader = shaders["vertexShader"];
+    fShader = shaders["fragmentShader"];
+    terrainFShader = shaders["terrainFragmentShader"];
+    sunFShader = shaders["sunFragmentShader"];
+
+    let planeMatUniforms = THREE.UniformsUtils.merge([
+        THREE.UniformsLib["lights"],
+        {
+            repeatFactor: {value: textures.dirtNormalMap.repeatFactor},
+            groundNormalMap: {value: null},
+            snowNormalMap: {value: null},
+            perlinMap: {value: null},
+            maxTerrainHeight: {value: parameters.plane.heightMultiplier},
+            fogColor: {value: new THREE.Color(0x61757d)},
+            fogDensity: {type: "f", value: 0.014},
+            u_time: {type: "f", value: 0},
+        }
+    ]);
+    planeMatUniforms.groundNormalMap.value = textures.dirtNormalMap.texture;
+    planeMatUniforms.snowNormalMap.value = textures.snowNormalMap.texture;
+    planeMatUniforms.perlinMap.value = textures.perlinNoiseMap.texture;
+    planeCustomMat = new THREE.ShaderMaterial({
+        uniforms: planeMatUniforms,
+        vertexShader: vShader,
+        fragmentShader: terrainFShader,
         side: THREE.DoubleSide,
-        flatShading: THREE.FlatShading,
+        lights: true,
+        fog: true,
     });
+
+    // planeCustomMat = new THREE.MeshPhongMaterial({
+    //     normalMap: textures.terrainNormalMap,
+    //     color: 0x3bdb43,
+    //     side: THREE.DoubleSide,
+    //     flatShading: THREE.FlatShading,
+    // });
 
     treeMaterial = new THREE.ShaderMaterial({
         uniforms: THREE.UniformsUtils.merge([
@@ -99,10 +116,19 @@ function createAllMaterials() {
             },
         ]),
         vertexShader: vShader,
-        fragmentShader: fShader,
+        fragmentShader: sunFShader,
         side: THREE.DoubleSide,
         lights: true,
     });
 }
 
-export {createAllMaterials, lightIndicatorMaterial, squirrelMaterial, humanMaterial, treeMaterial, planeMat, planeCustomMat, wallMaterial};
+export {
+    createAllMaterials,
+    lightIndicatorMaterial,
+    squirrelMaterial,
+    humanMaterial,
+    treeMaterial,
+    planeMat,
+    planeCustomMat,
+    wallMaterial,
+};

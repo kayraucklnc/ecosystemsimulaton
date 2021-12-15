@@ -1,4 +1,3 @@
-// import * as THREE from "https://unpkg.com/three@0.126.1/build/three.module.js";
 import * as THREE from "../library/three.js-r135/build/three.module.js";
 
 Object.assign(THREE.PlaneBufferGeometry.prototype, {
@@ -28,16 +27,20 @@ Object.assign(THREE.PlaneBufferGeometry.prototype, {
     }
 });
 
+const GridLayer = {
+    Underground: 0,
+    Ground: 1,
+    Surface: 2,
+    InAir: 3
+}
+
 class Grid {
     // Gets the scene, terrain object and width grid count for the new grid.
-    constructor(scene, terrain, widthInGrid) {
-        world.grid = this;
-
+    constructor(scene, widthInGrid) {
         this.gridVisible = parameters.plane.gridVisible;
 
         this.scene = scene;
-        this.terrain = terrain;
-        terrain.grid = this;
+        this.terrain = null;
         this.widthInGrid = widthInGrid;
 
         this.mesh = null;
@@ -47,14 +50,23 @@ class Grid {
         this.cellSize = null;
 
         this.matrix = [];
-        for (let i = 0; i < this.widthInGrid; i++) {
-            let matrixRow = [];
-            for (let j = 0; j < this.widthInGrid; j++) {
-                matrixRow.push(null);
+        for (let k = 0; k < 4; k++) {
+            let subMatrix = [];
+            for (let i = 0; i < this.widthInGrid; i++) {
+                let matrixRow = [];
+                for (let j = 0; j < this.widthInGrid; j++) {
+                    matrixRow.push(null);
+                }
+                subMatrix.push(matrixRow);
             }
-            this.matrix.push(matrixRow);
-        }
 
+            this.matrix.push(subMatrix);
+        }
+    }
+
+    setTerrain(terrain) {
+        this.terrain = terrain;
+        terrain.grid = this;
         this.createGridGeometry(parameters);
     }
 
@@ -107,6 +119,10 @@ class Grid {
     // Gets a Three.Vector3 and returns the Vector3 that points the center of grid.
     getGridPos(pos) {
         let {i, j} = this.getGridIndex(pos);
+        return this.getIndexPos(i, j);
+    }
+
+    getIndexPos(i, j) {
         let x = this.minPoint.x + i * this.cellSize + this.cellSize/2;
         let z = this.minPoint.y + j * this.cellSize + this.cellSize/2;
         let result = new THREE.Vector3(x, this.terrain.getHeight(new THREE.Vector2(x, z)), z);
@@ -119,27 +135,46 @@ class Grid {
     }
 
     // Gets a Three.Vector3 and returns the object there.
-    getPos(pos) {
+    getPos(pos, layer=GridLayer.Surface) {
         let {i, j} = this.getGridIndex(pos);
-        return this.matrix[i][j];
+        return this.matrix[layer][i][j];
     }
 
 
     // Gets a Three.Vector3 and Object. Puts the object into the appropriate position.
-    setPos(pos, object) {
+    setPos(pos, object, layer=GridLayer.Surface) {
         let {i, j} = this.getGridIndex(pos);
-        this.matrix[i][j] = object;
+        this.matrix[layer][i][j] = object;
     }
 
-    clearPos(pos) {
-        this.setPos(pos, null);
+    clearPos(pos, layer=GridLayer.Surface) {
+        this.setPos(pos, null, layer);
     }
 
 
     // Gets a Three.Vector3 and returns if there is an object there.
-    checkGrid(pos) {
-        let result = this.getPos(pos);
+    checkGrid(pos, layer=GridLayer.Surface) {
+        let result = this.getPos(pos, layer);
         return result != null;
+    }
+
+    getObjectLayer(object) {
+        if (object._onLayer) {
+            return object._onLayer;
+        }
+
+        let pos = object.getPos();
+
+        let objectLayer;
+        for (let layerName in GridLayer) {
+            let layer = GridLayer[layerName];
+            if (this.getPos(pos, layer) === object) {
+                objectLayer = layer;
+                break;
+            }
+        }
+
+        return objectLayer;
     }
 
     // Gets a Three.Vector3 and returns if included in grid.
@@ -154,4 +189,4 @@ class Grid {
     }
 }
 
-export {Grid};
+export {Grid, GridLayer};

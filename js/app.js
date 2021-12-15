@@ -1,11 +1,16 @@
-let raycaster;
+let scene, camera;
+let isSimActive = true;
+let world = null;
+let water;
 let terrainObject;
 let frameCount = 0;
-let world = null;
+
+let raycaster;
 let orbitControls = null;
 let mousePicker = null;
-let isSimActive = true;
+
 let renderer = null;
+
 let drawMode = {
     brush: false,
     eraser: false,
@@ -16,7 +21,7 @@ let mouse = {
     y: undefined,
 };
 let simulation = {
-    timeScale: 1,
+    timeScale: 20,
 };
 let chartSettings = {
     chartSize: {
@@ -51,5 +56,9 @@ let meshes = {
 }
 
 let textures = {
-    terrainNormalMap: null
+    dirtNormalMap: null,
+    snowNormalMap: null,
+    perlinNoiseMap: null
 }
+
+let shaders = {}

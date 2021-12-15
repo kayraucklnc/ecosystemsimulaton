@@ -743,6 +743,9 @@ class Wolf extends ObjectBases.MovableObjectBase {
         else if (this.hunger < 15) {
             this.state = this.wolfStates.Mating;
         }
+        else {
+            this.state = this.wolfStates.Idle;
+        }
     }
     mate() {
         this.idleCount = 0;

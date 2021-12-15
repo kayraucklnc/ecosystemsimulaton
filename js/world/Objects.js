@@ -474,13 +474,15 @@ class Rabbit extends ObjectBases.MovableObjectBase {
         this.target = this.findClosestWithAStar((value) => {return value instanceof Wheat || value instanceof Grass});
         this.executePath(
             () => {
-                if (this.target.applyDamage(1)) {
-                    this.hunger -= 15;
-                    if (this.hunger < 0) {
-                        this.hunger = 0
+                if (this.target !== null) {
+                    if (this.target.applyDamage(1)) {
+                        this.hunger -= 15;
+                        if (this.hunger < 0) {
+                            this.hunger = 0
+                        }
+                        ;
+                        this.target = null;
                     }
-                    ;
-                    this.target = null;
                 }
             },
             () => {

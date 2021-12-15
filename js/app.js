@@ -52,7 +52,9 @@ let meshes = {
     wolf: null,
     rabbit: null,
     fox: null,
-    eagle: null
+    eagle: null,
+    stockpile: null,
+    house: null
 }
 
 let textures = {

@@ -23,10 +23,12 @@
 [ Safa ] A* / İçine 0 1 le dolu matrix alacak. Girişten çıkışa 0lardan ilerleyen yolu output verecek.
 [ Safa ] Terrainin rengi yüksekliğine göre değişmeli.
 [ Safa ] Shaderlar glsl dosyalarından alınmalı.
+[ Yiğit ] Objelerin modellerini bulup düzeltme.
+
 
 --- OnGoing ---
-[ Yiğit ] Objelerin modellerini bulup düzeltme.
 [ Yiğit ] diğer classları implement ediyo.
+[ Yiğit ] Obje shaderlarını ve emissionları düzeltme
 [ Safa ] Her obje farklı classta.
 [ Safa ] Mouse Picking should be disabled when brush is enabled.
 [ İrem ] Terrain Generation daha detaylı olmalı. (Şu videodaki gibi: https://www.youtube.com/watch?v=wbpMiKiSKm8&list=PLFt_AvWsXl0eBW2EiBtl_sxmDtSgZBxB3&index=1).

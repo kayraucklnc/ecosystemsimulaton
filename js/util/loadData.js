@@ -29,8 +29,14 @@ function loadObjectMeshes(resolve) {
     let eaglePromise = new Promise((resolve, reject) => {
         loadObject(resolve, "eagle.glb");
     });
+    let stockpilePromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "stockpile.glb");
+    });
+    let housePromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "house.glb")
+    })
 
-    Promise.all([treePromise, humanPromise, grassPromise, wheatPromise, pigPromise, wolfPromise, rabbitPromise, foxPromise, eaglePromise]).then((mesh) => {
+    Promise.all([treePromise, humanPromise, grassPromise, wheatPromise, pigPromise, wolfPromise, rabbitPromise, foxPromise, eaglePromise, stockpilePromise, housePromise]).then((mesh) => {
         meshes.tree = mesh[0];
         meshes.human = mesh[1];
         meshes.grass = mesh[2];
@@ -40,6 +46,8 @@ function loadObjectMeshes(resolve) {
         meshes.rabbit = mesh[6];
         meshes.fox = mesh[7];
         meshes.eagle = mesh[8];
+        meshes.stockpile = mesh[9];
+        meshes.house = mesh[10];
         resolve();
     });
 }

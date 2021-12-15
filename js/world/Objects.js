@@ -149,7 +149,7 @@ class Tree extends ObjectBases.LivingObjectBase {
 
         this.selectable = true;
 
-        this.spanPos = null;
+        this.spawnPos = null;
 
         this.mesh = meshes.tree.clone();
 

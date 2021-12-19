@@ -4,7 +4,8 @@ import {GridLayer} from "./Grid.js";
 import * as ObjectBases from "../world/ObjectBases.js";
 
 class World {
-    static maxLiving = 0;
+    static maxLivingType = null;
+    static maxLiving = 10;
 
     constructor(scene, grid) {
         this.scene = scene;
@@ -148,7 +149,12 @@ class World {
         } else {
             datamap.set(typeName, 1);
         }
-        World.maxLiving = Math.max(datamap.get(typeName), World.maxLiving);
+
+        let currentLiving = datamap.get(typeName);
+        if (currentLiving > World.maxLiving) {
+            World.maxLivingType = typeName;
+            World.maxLiving = currentLiving;
+        }
     }
     
     instantiateObjectOnGrid(object, layer=GridLayer.Surface) {
@@ -172,7 +178,9 @@ class World {
 
         this.meshIdToObject.set(object.mesh.id, object);
 
-        this.increaseLivingCount(object);
+        if (object instanceof ObjectBases.LivingObjectBase) {
+            this.increaseLivingCount(object);
+        }
 
         return true;
     }
@@ -188,19 +196,35 @@ class World {
         this.objects.push(object);
 
         this.meshIdToObject.set(object.mesh.id, object);
-        this.increaseLivingCount(object);
+        if (object instanceof ObjectBases.LivingObjectBase) {
+            this.increaseLivingCount(object);
+        }
         return true;
     }
 
     getMaxLiving() {
-        return Math.max(...datamap.values());
+        return World.maxLiving;
     }
 
     deleteObject(object) {
         if (object instanceof ObjectBases.LivingObjectBase) {
             let typeName = object.constructor.name;
             datamap.set(typeName, datamap.get(typeName) - 1);
-            ObjectBases.LivingObjectBase.maxLiving = Math.max(datamap.get(typeName), ObjectBases.LivingObjectBase.maxLiving);
+            if (World.maxLivingType === typeName) {
+                let newMaxType = null;
+                let newMax = -1;
+                for (let currentKey of datamap.entries()) {
+                    let currentValue = datamap.get(currentKey);
+                    if(currentValue > newMax) {
+                        newMax = currentValue;
+                        newMaxType = currentKey;
+                    }
+                }
+
+                World.maxLivingType = newMaxType;
+                World.maxLiving = newMax;
+            }
+
         }
 
         let pos = object.getPos();

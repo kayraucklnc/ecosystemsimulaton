@@ -79,27 +79,27 @@ function createWater() {
 
 
 function createTestSceneElements(scene) {
-    let treeObject = new Objects.Tree(new THREE.Vector3(-6, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
-    world.instantiateObject(treeObject);
-    let humanObject = new Objects.Human(new THREE.Vector3(6, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);
-    world.instantiateObject(humanObject);
+    // let treeObject = new Objects.Tree(new THREE.Vector3(-35, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
+    // world.instantiateObject(treeObject);
+    // let humanObject = new Objects.Human(new THREE.Vector3(35, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);
+    // world.instantiateObject(humanObject);
     // let squirrelObject = new Objects.Squirrel(new THREE.Vector3(6,0,0), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
     // world.instantiateObject(squirrelObject);
 
-    // for (let i = 0; i < 100; i++) {
-    //     let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.treeMaterial);
-    //     world.instantiateObject(treeObject);
-    // }
-    //
-    // for (let i = 0; i < 50; i++) {
-    //     let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.humanMaterial);
-    //     world.instantiateObject(humanObject);
-    // }
-    //
-    // for (let i = 0; i < 20; i++) {
-    //     let squirrelObject = new Objects.Squirrel(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
-    //     world.instantiateObject(squirrelObject);
-    // }
+    for (let i = 0; i < 100; i++) {
+        let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.treeMaterial);
+        world.instantiateObject(treeObject);
+    }
+
+    for (let i = 0; i < 200; i++) {
+        let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.humanMaterial);
+        world.instantiateObject(humanObject);
+    }
+
+    for (let i = 0; i < 50; i++) {
+        let squirrelObject = new Objects.Squirrel(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+        world.instantiateObject(squirrelObject);
+    }
 
     const pointLight = new THREE.PointLight(0xffffff, 1.05, 400);
     pointLight.position.set(12, 25, 9);
@@ -134,10 +134,6 @@ function threeStarter() {
         frameCount++;
 
         raycaster.setFromCamera(mouse, camera);
-        Materials.planeCustomMat.uniforms.u_time.value += 0.01;
-        if (water) {
-            water.material.uniforms['time'].value += 0.1 / 60.0;
-        }
 
         controls.update();
 
@@ -149,12 +145,19 @@ function threeStarter() {
 
     function worldLoop() {
         if (isSimActive) {
-            for (let i = 0; i < simulation.timeScale / (1000 / 60); i++) {
+            let timeBoostAmount = simulation.timeScale / (1000 / 60)
+            for (let i = 0; i < timeBoostAmount; i++) {
                 world.update();
             }
-        }
-        setTimeout(worldLoop, (1000 / 60) / (Math.min(1000 / 60, simulation.timeScale)));
 
+            Materials.planeCustomMat.uniforms.u_time.value += 0.01 * timeBoostAmount;
+            if (water) {
+                water.material.uniforms['time'].value += (0.1 / 60.0) * timeBoostAmount;
+            }
+        }
+
+        window.requestAnimationFrame(worldLoop);
+        // setTimeout(worldLoop, (1000 / 60) / (Math.min(1000 / 60, simulation.timeScale)));
     }
 
 

@@ -3,6 +3,7 @@ import * as THREE from "../library/three.js-r135/build/three.module.js";
 let vShader;
 let fShader;
 let terrainFShader;
+let sunFShader;
 
 const planeMat = new THREE.MeshPhongMaterial({
     color: 0x3bdb43,
@@ -21,6 +22,7 @@ function createAllMaterials() {
     vShader = shaders["vertexShader"];
     fShader = shaders["fragmentShader"];
     terrainFShader = shaders["terrainFragmentShader"];
+    sunFShader = shaders["sunFragmentShader"];
 
     let planeMatUniforms = THREE.UniformsUtils.merge([
         THREE.UniformsLib["lights"],
@@ -114,7 +116,7 @@ function createAllMaterials() {
             },
         ]),
         vertexShader: vShader,
-        fragmentShader: fShader,
+        fragmentShader: sunFShader,
         side: THREE.DoubleSide,
         lights: true,
     });

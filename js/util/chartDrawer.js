@@ -23,7 +23,6 @@ function drawthechart() {
                 viewWindowMode: 'explicit',
                 viewWindow: {
                     //Adjust the max value in the graph by changing here, can multiply/divide/getMax
-                    max: world.getMaxLiving(),
                     min: 0
                 }
             },
@@ -38,6 +37,7 @@ function drawthechart() {
         data.addColumn('number', 'Squirrel');
         data.addColumn('number', 'Tree');
         updateData();
+        updateOptions();
         // Set chart options
         
 
@@ -48,7 +48,6 @@ function drawthechart() {
 
         setInterval(() => {
             if (isSimActive) {
-                updateOptions();
                 updateData();
                 chart.draw(data, options);
             }

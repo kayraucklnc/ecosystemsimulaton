@@ -40,6 +40,30 @@ class World {
         return (Math.random() * (max - min) + min);
     }
 
+    getPure2DMatrix() {
+        let matrix2d = [];
+        for (let i = 0; i < world.grid.matrix[2].length; i++) {
+            let temp = [];
+            for (let j = 0; j < world.grid.matrix[2][i].length; j++) {
+                if (world.grid.matrix[2][i][j] != null) {
+                    temp.push(world.grid.matrix[2][i][j].constructor.name);
+                } else {
+                    temp.push(null);
+                }
+            }
+            matrix2d.push(temp)
+        }
+        return matrix2d;
+    }
+
+    getPathFromPure2DMatrix(array) {
+        let path = [];
+        for (let i = 0; i < array.length; i++) {
+            path.push(world.grid.getIndexPos(array[i].i, array[i].j));
+        }
+        return path;
+    }
+
     createLine(from, to, height = 0, color = "#ffffff") {
         const points = [];
         // let inHeight = world.getNormalVector(from).multiplyScalar(height);
@@ -68,7 +92,6 @@ class World {
         return object._onLayer != null;
     }
 
-
     getCellSize() {
         return this.grid.cellSize;
     }
@@ -77,11 +100,11 @@ class World {
         return this.grid.getGridPos(pos);
     }
 
-    checkPos(pos, layer=GridLayer.Surface) {
+    checkPos(pos, layer = GridLayer.Surface) {
         return this.grid.checkGrid(pos, layer);
     }
 
-    getPos(pos, layer=GridLayer.Surface) {
+    getPos(pos, layer = GridLayer.Surface) {
         return this.grid.getPos(pos, layer);
     }
 
@@ -89,16 +112,15 @@ class World {
         return this.grid.getGridInDirection(pos, direction);
     }
 
-    checkNeighbour(pos, direction, layer=GridLayer.Surface) {
+    checkNeighbour(pos, direction, layer = GridLayer.Surface) {
         let neighbourPos = this.getNeighbourPos(pos, direction);
         return this.grid.checkGrid(neighbourPos, layer);
     }
 
-    getNeighbour(pos, direction, layer=GridLayer.Surface) {
+    getNeighbour(pos, direction, layer = GridLayer.Surface) {
         let neighbourPos = this.getNeighbourPos(pos, direction);
         return this.grid.getPos(neighbourPos, layer);
     }
-
 
     fixObjectPos(object) {
         let gridCenter = this.grid.getGridPos(object.getPos());
@@ -112,7 +134,7 @@ class World {
 
         const objectLayer = this.grid.getObjectLayer(object);
 
-        switch(objectLayer) {
+        switch (objectLayer) {
             case 0:
                 object.setPos(newPos.add(new THREE.Vector3(0, -2, 0)));
                 break;
@@ -121,7 +143,6 @@ class World {
                 break;
         }
     }
-
 
     checkIfInGrid(pos) {
         return this.grid.checkIfInGrid(pos);
@@ -156,8 +177,8 @@ class World {
             World.maxLiving = currentLiving;
         }
     }
-    
-    instantiateObjectOnGrid(object, layer=GridLayer.Surface) {
+
+    instantiateObjectOnGrid(object, layer = GridLayer.Surface) {
         let pos = object.getPos();
         if (this.checkPos(pos)) {
             return false;
@@ -184,10 +205,9 @@ class World {
 
         return true;
     }
-    
 
-//Returns whether the placement was successful
-    instantiateObject(object, onGrid=true) {
+    //Returns whether the placement was successful
+    instantiateObject(object, onGrid = true) {
         if (onGrid) {
             return this.instantiateObjectOnGrid(object);
         }
@@ -215,7 +235,7 @@ class World {
                 let newMax = -1;
                 for (let currentKey of datamap.entries()) {
                     let currentValue = datamap.get(currentKey);
-                    if(currentValue > newMax) {
+                    if (currentValue > newMax) {
                         newMax = currentValue;
                         newMaxType = currentKey;
                     }
@@ -258,7 +278,7 @@ class World {
     }
 
     clearObjects() {
-        for (let i = this.gridParent.children.length - 1; i >=0; i--){
+        for (let i = this.gridParent.children.length - 1; i >= 0; i--) {
             const o = this.gridParent.children[i];
             const obj = this.getObjectOfMesh(o);
             this.deleteObject(obj);
@@ -283,7 +303,6 @@ class World {
     moveObjectOnGridInDirection(object, direction) {
         this.moveObjectOnGrid(object, this.getNeighbourPos(object.getPos(), direction));
     }
-
 
     instantiateLight(light) {
         this.scene.add(light);
@@ -310,7 +329,7 @@ class World {
     }
 
     // checkFunc: Gets grid position and object on grid as arguments.
-    fillAtAllGrid(checkFunc, resetOld=false) {
+    fillAtAllGrid(checkFunc, resetOld = false) {
         for (let layer = 1; layer <= 2; layer++) {
             for (let i = 0; i < this.grid.widthInGrid; i++) {
                 for (let j = 0; j < this.grid.widthInGrid; j++) {

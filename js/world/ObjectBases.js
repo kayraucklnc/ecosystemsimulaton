@@ -1,5 +1,4 @@
 import * as THREE from "../library/three.js-r135/build/three.module.js";
-import * as AStar from "../util/AStar.js";
 
 class WorldObjectBase {
     constructor(pos, rotation, material) {
@@ -85,6 +84,8 @@ class MovableObjectBase extends LivingObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.speed = null;
+        this.findingPathParallel = false;
+        this.workers = [];
 
 
         this.path = [];
@@ -147,7 +148,6 @@ class MovableObjectBase extends LivingObjectBase {
         this.mesh.rotateY(angleInRad);
     }
 
-
     attack(target) {
     }
 
@@ -182,26 +182,64 @@ class MovableObjectBase extends LivingObjectBase {
         return movementVector;
     }
 
-    findClosestWithAStar(checkFunc) {
+    clearWorkers() {
+        this.workers.forEach((w) => {
+            console.log("terminated");
+            w.terminate();
+        });
+        this.workers = [];
+    }
+
+    findClosestWithAStar(checkFunc, onFind, onFail) {
+        let that = this;
         if (frameCount - this.lastClosestCheckFrame < this.closestCheckFrequency) {
             return this.lastClosest;
         }
+
+        this.findingPathParallel = true;
         let cloneObjects = [...world.objects];
         let thisPos = this.getPos();
         cloneObjects = cloneObjects.filter(checkFunc);
         cloneObjects.sort((a, b) => (a.getPos().distanceToSquared(thisPos) > b.getPos().distanceToSquared(thisPos)) ? 1 : -1);
 
         let closest = null;
-        for (let i = 0; i < cloneObjects.length; i++) {
-            closest = cloneObjects[i];
-            this.path = AStar.findPath(this.getPos(), closest.getPos());
-            if (this.path != null) {
-                break;
-            }
+        let closestPos = null;
+
+
+        function pathFounded(onFind, data) {
+            onFind(data);
+            that.clearWorkers();
         }
+
+
+        function pathFailed(onFail) {
+            // onFail();
+            // this.clearWorkers();
+        }
+
+        for (let i = 0; i < Math.min(15, cloneObjects.length); i++) {
+            closest = cloneObjects[i]
+            closestPos = closest.getPos();
+
+            let worker = new Worker("./js/util/AStar.js", {type: "module"});
+            console.log("Creted worker");
+            worker.onmessage = function (oEvent) {
+                if (oEvent.data == null) {
+                    // this.pathFailed(onFail);
+                } else {
+                    pathFounded(onFind, oEvent.data);
+                }
+            };
+            this.workers.push(worker);
+            worker.postMessage({
+                thisPos: world.grid.getGridIndex(thisPos),
+                closestPos: world.grid.getGridIndex(closestPos),
+                matrix: world.getPure2DMatrix()
+            });
+        }
+
         this.lastClosest = closest;
         this.lastClosestCheckFrame = frameCount;
-        return closest;
     }
 
     // onReach and onStuck are functions. Needs targetPos to be assigned.

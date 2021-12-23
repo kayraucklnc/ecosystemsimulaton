@@ -92,7 +92,7 @@ class Terrain extends ObjectBases.WorldObjectBase {
         for (var i = 0; i <= 3; i++) {
             var frequency = Math.pow(parameters.plane.lacunarity, i);
             var amplitude = Math.pow(parameters.plane.persistance, i);
-            var noise = perlin.get(vec2.x *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness, vec2.y *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness ) ;
+            var noise = perlin.get(vec2.x * parameters.plane.noiseScale * frequency / parameters.plane.smoothness, vec2.y * parameters.plane.noiseScale * frequency / parameters.plane.smoothness);
             r += noise * amplitude;
         }
         return r * parameters.plane.heightMultiplier;
@@ -126,7 +126,7 @@ class Terrain extends ObjectBases.WorldObjectBase {
         }
 
         world.fillAtAllGrid((gridPos, objectOnGrid) => {
-           return gridPos.y <= parameters.plane.waterHeight * parameters.plane.heightMultiplier;
+            return gridPos.y <= parameters.plane.waterHeight * parameters.plane.heightMultiplier;
         }, true);
 
         world.objects.forEach((x) => {
@@ -139,7 +139,6 @@ class Terrain extends ObjectBases.WorldObjectBase {
     update() {
     }
 }
-
 
 class Tree extends ObjectBases.LivingObjectBase {
     constructor(pos, rotation, material) {
@@ -302,9 +301,17 @@ class Human extends ObjectBases.MovableObjectBase {
     }
 
     update() {
-        if (this.target == null) {
-            this.target = this.findClosestWithAStar((o) => {
+        if (this.target == null && !this.findingPathParallel) {
+            this.findClosestWithAStar((o) => {
                 return o instanceof Tree;
+            }, (e) => {
+                console.log("FOUND");
+                console.log(e);
+                this.findingPathParallel = false;
+                this.path = world.getPathFromPure2DMatrix(e);
+                this.target = world.grid.getPos(this.path[this.path.length - 1]);
+            }, (e) => {
+                console.log("FAIL");
             });
         }
 
@@ -353,6 +360,7 @@ class FillerObject extends ObjectBases.WorldObjectBase {
         this.setRot(rotation);
     }
 }
+
 class LargeFillerObject extends ObjectBases.WorldLargeObject {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
@@ -361,4 +369,16 @@ class LargeFillerObject extends ObjectBases.WorldLargeObject {
     }
 }
 
-export {Sphere, LightIndicator, MouseFollower, Terrain, Box, Human, Tree, Squirrel, Wall, FillerObject, LargeFillerObject};
+export {
+    Sphere,
+    LightIndicator,
+    MouseFollower,
+    Terrain,
+    Box,
+    Human,
+    Tree,
+    Squirrel,
+    Wall,
+    FillerObject,
+    LargeFillerObject
+};

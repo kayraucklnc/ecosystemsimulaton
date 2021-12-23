@@ -3,10 +3,7 @@ import {PriorityQueue} from "../library/datastructures-js/priority-queue/priorit
 
 onmessage = function (oEvent) {
     let matrix = oEvent.data.matrix;
-
-    let startingGrid = oEvent.data.thisPos;
-    let targetGrid = oEvent.data.closestPos;
-
+    let closestArr = oEvent.data.closestArr;
 
     class Node {
         constructor() {
@@ -52,7 +49,10 @@ onmessage = function (oEvent) {
         return {i: targetGrid.i + neighbourVector.i, j: targetGrid.j + neighbourVector.j};
     }
 
-    function findPath() {
+    function findPath(_startingGrid, _closestArr) {
+        let startingGrid = _startingGrid;
+        let targetGrid = _closestArr;
+
         const neighbours = [
             {i: 1, j: 0},
             {i: -1, j: 0},
@@ -187,6 +187,18 @@ onmessage = function (oEvent) {
         return path;
     }
 
-    let path = findPath(oEvent.data.thisPos, oEvent.data.closestPos);
-    postMessage(path);
+
+    let closest = null;
+    let closestPos = null;
+
+    for (let i = 0; i < Math.min(15, closestArr.length); i++) {
+        closest = closestArr[i];
+
+        let path = findPath(oEvent.data.thisPos, closestArr[i]);
+        if (path != null) {
+            postMessage(path);
+            break;
+        }
+
+    }
 };

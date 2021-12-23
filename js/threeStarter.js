@@ -90,7 +90,7 @@ function createTestSceneElements(scene) {
         world.instantiateObject(treeObject);
     }
 
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < 5; i++) {
         let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.humanMaterial);
         world.instantiateObject(humanObject);
     }

@@ -84,9 +84,9 @@ class MovableObjectBase extends LivingObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.speed = null;
-        this.findingPathParallel = false;
-        this.workers = [];
 
+        this.findingPathParallel = false;
+        this.worker = new Worker("./js/util/AStar.js", {type: "module"});
 
         this.path = [];
         this.pathLines = [];
@@ -182,64 +182,42 @@ class MovableObjectBase extends LivingObjectBase {
         return movementVector;
     }
 
-    clearWorkers() {
-        this.workers.forEach((w) => {
-            console.log("terminated");
-            w.terminate();
-        });
-        this.workers = [];
-    }
-
     findClosestWithAStar(checkFunc, onFind, onFail) {
-        let that = this;
-        if (frameCount - this.lastClosestCheckFrame < this.closestCheckFrequency) {
-            return this.lastClosest;
-        }
-
-        this.findingPathParallel = true;
-        let cloneObjects = [...world.objects];
-        let thisPos = this.getPos();
-        cloneObjects = cloneObjects.filter(checkFunc);
-        cloneObjects.sort((a, b) => (a.getPos().distanceToSquared(thisPos) > b.getPos().distanceToSquared(thisPos)) ? 1 : -1);
-
-        let closest = null;
-        let closestPos = null;
-
-
-        function pathFounded(onFind, data) {
-            onFind(data);
-            that.clearWorkers();
-        }
-
-
-        function pathFailed(onFail) {
-            // onFail();
-            // this.clearWorkers();
-        }
-
-        for (let i = 0; i < Math.min(15, cloneObjects.length); i++) {
-            closest = cloneObjects[i]
-            closestPos = closest.getPos();
-
-            let worker = new Worker("./js/util/AStar.js", {type: "module"});
-            console.log("Creted worker");
-            worker.onmessage = function (oEvent) {
+        if (!this.findingPathParallel) {
+            let that = this;
+            this.worker.onmessage = function (oEvent) {
                 if (oEvent.data == null) {
-                    // this.pathFailed(onFail);
+                    onFail();
                 } else {
-                    pathFounded(onFind, oEvent.data);
+                    let iidx = oEvent.data[oEvent.data.length - 1].i;
+                    let jidx = oEvent.data[oEvent.data.length - 1].j;
+                    this.lastClosest = world.getPos(world.grid.getIndexPos(iidx, jidx));
+                    this.lastClosestCheckFrame = frameCount;
+                    onFind(oEvent.data);
                 }
+                that.findingPathParallel = false;
             };
-            this.workers.push(worker);
-            worker.postMessage({
+
+            if (frameCount - this.lastClosestCheckFrame < this.closestCheckFrequency) {
+                return this.lastClosest;
+            }
+
+            this.findingPathParallel = true;
+            let cloneObjects = [...world.objects];
+            let thisPos = this.getPos();
+            cloneObjects = cloneObjects.filter(checkFunc);
+            cloneObjects.sort((a, b) => (a.getPos().distanceToSquared(thisPos) > b.getPos().distanceToSquared(thisPos)) ? 1 : -1);
+            let toGoIdxs = [];
+            for (let i = 0; i < cloneObjects.length; i++) {
+                toGoIdxs.push(world.grid.getGridIndex(cloneObjects[i].getPos()));
+            }
+
+            this.worker.postMessage({
                 thisPos: world.grid.getGridIndex(thisPos),
-                closestPos: world.grid.getGridIndex(closestPos),
+                closestArr: toGoIdxs,
                 matrix: world.getPure2DMatrix()
             });
         }
-
-        this.lastClosest = closest;
-        this.lastClosestCheckFrame = frameCount;
     }
 
     // onReach and onStuck are functions. Needs targetPos to be assigned.

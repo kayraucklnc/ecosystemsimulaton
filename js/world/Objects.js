@@ -301,12 +301,11 @@ class Human extends ObjectBases.MovableObjectBase {
     }
 
     update() {
-        if (this.target == null && !this.findingPathParallel) {
+        if (this.target == null) {
             this.findClosestWithAStar((o) => {
                 return o instanceof Tree;
             }, (e) => {
                 console.log("FOUND");
-                console.log(e);
                 this.findingPathParallel = false;
                 this.path = world.getPathFromPure2DMatrix(e);
                 this.target = world.grid.getPos(this.path[this.path.length - 1]);

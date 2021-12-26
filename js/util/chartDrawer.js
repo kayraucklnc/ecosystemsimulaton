@@ -23,7 +23,6 @@ function drawthechart() {
                 viewWindowMode: 'explicit',
                 viewWindow: {
                     //Adjust the max value in the graph by changing here, can multiply/divide/getMax
-                    max: world.getMaxLiving()*1.2,
                     min: 0
                 }
             },

@@ -14,6 +14,7 @@ class WorldObjectBase {
     getPos() {
         return this.mesh.position;
     }
+
     setPos(vec3) {
         if (this.mesh != null) {
             this.mesh.position.x = vec3.x;
@@ -25,6 +26,7 @@ class WorldObjectBase {
     getRot() {
         return this.mesh.rotation;
     }
+
     setRot(vec3) {
         if (this.mesh != null) {
             this.mesh.rotation.x = vec3.x;
@@ -180,7 +182,20 @@ class MovableObjectBase extends LivingObjectBase {
         return movementVector;
     }
 
-    findClosestWithAStar(checkFunc, onFind, onFail) {
+    findClosestWithAStar(checkFunc) {
+        return this.findClosestWithAStarCustom(
+            checkFunc,
+            (e) => {
+                console.log("FOUND");
+                this.path = world.getPathFromPure2DMatrix(e);
+                this.target = world.grid.getPos(this.path[this.path.length - 1]);
+            },
+            (e) => {
+                console.log("FAIL");
+            });
+    }
+
+    findClosestWithAStarCustom(checkFunc, onFind, onFail) {
         if (!this.findingPathParallel) {
             let that = this;
             this.worker.onmessage = function (oEvent) {
@@ -191,6 +206,7 @@ class MovableObjectBase extends LivingObjectBase {
                     let jidx = oEvent.data[oEvent.data.length - 1].j;
                     this.lastClosest = world.getPos(world.grid.getIndexPos(iidx, jidx));
                     this.lastClosestCheckFrame = frameCount;
+
                     onFind(oEvent.data);
                 }
                 that.findingPathParallel = false;
@@ -257,6 +273,7 @@ class MovableObjectBase extends LivingObjectBase {
             }
         }
     }
+
     getMovementVectorToTarget(targetPos) {
         let movementVector = new THREE.Vector3().subVectors(targetPos, this.getPos());
         let x = Math.abs(movementVector.x);

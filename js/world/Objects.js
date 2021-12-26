@@ -341,7 +341,9 @@ class Fox extends ObjectBases.MovableObjectBase {
     }
     hunt() {
         this.idleCount = 0;
-        this.target = this.findClosestWithAStar((value) => {return value instanceof Rabbit});
+        if (this.target == null) {
+            this.target = this.findClosestWithAStar((value) => {return value instanceof Rabbit});
+        }
         this.executePath(
             () => {
                 if (this.target !== null) {
@@ -380,7 +382,11 @@ class Fox extends ObjectBases.MovableObjectBase {
     mate() {
         this.idleCount = 0;
         const thisGender = this.gender;
-        this.target = this.findClosestWithAStar((value) => {return value instanceof Fox && thisGender !== value.gender});
+        if (this.target == null) {
+            this.target = this.findClosestWithAStar((value) => {
+                return value instanceof Fox && thisGender !== value.gender
+            });
+        }
         this.executePath(
             () => {
                 if (this.target !== null) {
@@ -469,7 +475,11 @@ class Rabbit extends ObjectBases.MovableObjectBase {
     }
     mate() {
         const thisGender = this.gender;
-        this.target = this.findClosestWithAStar((value) => {return value instanceof Rabbit && thisGender !== value.gender});
+        if (this.target == null) {
+            this.target = this.findClosestWithAStar((value) => {
+                return value instanceof Rabbit && thisGender !== value.gender
+            });
+        }
         this.executePath(
             () => {
                 if (this.target !== null) {
@@ -494,7 +504,11 @@ class Rabbit extends ObjectBases.MovableObjectBase {
 
     }
     graze() {
-        this.target = this.findClosestWithAStar((value) => {return value instanceof Wheat || value instanceof Grass});
+        if (this.target == null) {
+            this.target = this.findClosestWithAStar((value) => {
+                return value instanceof Wheat || value instanceof Grass
+            });
+        }
         this.executePath(
             () => {
                 if (this.target !== null) {
@@ -711,7 +725,11 @@ class Wolf extends ObjectBases.MovableObjectBase {
     }
     hunt() {
         this.idleCount = 0;
-        this.target = this.findClosestWithAStar((value) => {return value instanceof Pig});
+        if (this.target == null) {
+            this.target = this.findClosestWithAStar((value) => {
+                return value instanceof Pig
+            });
+        }
         this.executePath(
             () => {
                 if (this.target !== null) {
@@ -750,7 +768,11 @@ class Wolf extends ObjectBases.MovableObjectBase {
     mate() {
         this.idleCount = 0;
         const thisGender = this.gender;
-        this.target = this.findClosestWithAStar((value) => {return value instanceof Wolf && thisGender !== value.gender});
+        if (this.target == null) {
+            this.target = this.findClosestWithAStar((value) => {
+                return value instanceof Wolf && thisGender !== value.gender
+            });
+        }
         this.executePath(
             () => {
                 if (this.target !== null) {
@@ -907,13 +929,6 @@ class Human extends ObjectBases.MovableObjectBase {
         if (this.target == null) {
             this.findClosestWithAStar((o) => {
                 return o instanceof Tree;
-            }, (e) => {
-                console.log("FOUND");
-                this.findingPathParallel = false;
-                this.path = world.getPathFromPure2DMatrix(e);
-                this.target = world.grid.getPos(this.path[this.path.length - 1]);
-            }, (e) => {
-                console.log("FAIL");
             });
         }
 

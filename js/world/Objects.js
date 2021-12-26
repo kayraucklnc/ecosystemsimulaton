@@ -1,6 +1,6 @@
 import * as THREE from "../library/three.js-r135/build/three.module.js";
 import * as ObjectBases from "./ObjectBases.js";
-import {treeMaterial} from "./Materials.js";
+import * as Materials from "./Materials.js";
 import * as AStar from "../util/AStar.js";
 
 class Box extends ObjectBases.MovableObjectBase {
@@ -92,7 +92,7 @@ class Terrain extends ObjectBases.WorldObjectBase {
         for (var i = 0; i <= 3; i++) {
             var frequency = Math.pow(parameters.plane.lacunarity, i);
             var amplitude = Math.pow(parameters.plane.persistance, i);
-            var noise = perlin.get(vec2.x * parameters.plane.noiseScale * frequency / parameters.plane.smoothness, vec2.y * parameters.plane.noiseScale * frequency / parameters.plane.smoothness);
+            var noise = perlin.get(vec2.x *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness, vec2.y *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness ) ;
             r += noise * amplitude;
         }
         return r * parameters.plane.heightMultiplier;
@@ -126,7 +126,7 @@ class Terrain extends ObjectBases.WorldObjectBase {
         }
 
         world.fillAtAllGrid((gridPos, objectOnGrid) => {
-            return gridPos.y <= parameters.plane.waterHeight * parameters.plane.heightMultiplier;
+           return gridPos.y <= parameters.plane.waterHeight * parameters.plane.heightMultiplier;
         }, true);
 
         world.objects.forEach((x) => {
@@ -140,12 +140,16 @@ class Terrain extends ObjectBases.WorldObjectBase {
     }
 }
 
+
 class Tree extends ObjectBases.LivingObjectBase {
+    //TODO: implement self-spreading instead of squirrels
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
 
         this.selectable = true;
+
+        this.spawnPos = null;
 
         this.mesh = meshes.tree.clone();
 
@@ -160,6 +164,104 @@ class Tree extends ObjectBases.LivingObjectBase {
     }
 
     update() {
+        this.ticker += 1;
+        let i = Math.random();
+        if (this.ticker == 120) {
+            if (i >= 0.88) {
+                this.spread();
+            }
+            this.ticker = 0;
+        }
+        if (this.health <= 0) {
+            this.die();
+        }
+    }
+
+    spread() {
+        const randomPoint = new THREE.Vector3((Math.random() - 0.5) * 10, 0, (Math.random() - 0.5) * 10).add(this.getPos());
+        if (world.grid.checkIfInGrid(randomPoint) && !world.checkPos(randomPoint)) {
+            this.spawnPos = world.getCellCenter(randomPoint);
+            const newTree = new Tree(this.spawnPos, new THREE.Vector3(), Materials.treeMaterial);
+            world.instantiateObject(newTree);
+        }
+
+    }
+
+    die() {
+        super.die();
+    }
+}
+
+class Grass extends ObjectBases.LivingObjectBase {
+    //TODO: make grass passable, adjust spread values, fix error with grass spawning (spawnpos is null) that happens for some reason
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
+        this.health = 50;
+        this.selectable = true;
+        this.spawnPos = null;
+        this.mesh = meshes.grass.clone();
+
+        this.ticker = 0;
+
+        this.setPos(pos);
+        this.setRot(rotation);
+    }
+
+    applyDamage(damage) {
+        return super.applyDamage(damage);
+    }
+
+    update() {
+        this.ticker += 1;
+        let i = Math.random();
+        if (this.ticker == 100) {
+            if (i > 0.9) {
+                this.spread();
+            }
+            this.ticker = 0;
+        }
+
+        if (this.health <= 0) {
+            this.die();
+        }
+    }
+
+    spread() {
+        const randomPoint = new THREE.Vector3((Math.random() - 0.5) * 10, 0, (Math.random() - 0.5) * 10).add(this.getPos());
+        if (world.grid.checkIfInGrid(randomPoint) && !world.checkPos(randomPoint)) {
+            this.spawnPos = world.getCellCenter(randomPoint);
+            const newGrass = new Grass(this.spawnPos, new THREE.Vector3(), Materials.treeMaterial);
+            world.instantiateObject(newGrass);
+
+        }
+
+    }
+
+    /*die() {
+        super.die();
+    }*/
+}
+
+class Wheat extends ObjectBases.LivingObjectBase {
+    //TODO: make wheat passable, harvestable with changing model if possible
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
+        this.health = 50;
+        this.selectable =true;
+        this.mesh = meshes.wheat.clone();
+
+        this.setPos(pos);
+        this.setRot(rotation);
+    }
+
+   applyDamage(damage) {
+       return super.applyDamage(damage);
+   }
+
+    update() {
+        if (this.health <= 0) {
+            this.die();
+        }
     }
 
     die() {
@@ -170,17 +272,518 @@ class Tree extends ObjectBases.LivingObjectBase {
 class Fox extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
-        this.health = 100;
-        this.speed = 0.04;
-
+        this.health = 150;
+        this.speed = 0.05;
+        this.hunger = 40;
         this.selectable = true;
+
+        this.gender = 0;
+        if (Math.random() < 0.5) {
+            this.gender = 0;
+        }
+        else {
+            this.gender = 1;
+        }
+
+        this.foxStates = {
+            Idle: 0,
+            Hunting: 1,
+            Mating: 2
+        }
+
+        this.mesh = meshes.fox.clone();
+        this.setPos(pos);
+        this.setRot(rotation);
+        this.movement = 0.0
+
+        this.state = this.foxStates.Idle;
+        this.idleCount = 0;
     }
 
     update() {
-        if (this.checkIfTargetReached()) {
-            this.target = null;
+        this.hunger += 0.2;
+        switch (this.state) {
+            case this.foxStates.Idle:
+                this.idle();
+                break;
+            case this.foxStates.Hunting:
+                this.hunt();
+                break;
+            case this.foxStates.Mating:
+                this.mate();
+                break;
+        }
+        if (this.hunger >= 100) {
+            this.hunger = 100;
+            this.health -= 5;
+        }
+        if (this.health <= 0) {
+            this.die();
         }
     }
+    die() {
+        super.die();
+    }
+    spawn() {
+        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
+
+        const newFox = new Fox(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
+        if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
+            world.instantiateObject(newFox);
+            this.hunger += 40;
+        }
+    }
+    idle() {
+        this.idleCount += 1;
+        if (this.idleCount >= 10) {
+            this.state = this.foxStates.Hunting;
+        }
+    }
+    hunt() {
+        this.idleCount = 0;
+        this.target = this.findClosestWithAStar((value) => {return value instanceof Rabbit});
+        this.executePath(
+            () => {
+                if (this.target !== null) {
+                    if (this.target.applyDamage(50)) {
+                        this.hunger -= 20;
+                        if (this.hunger < 0) {
+                            this.hunger = 0
+                        }
+                        this.target = null;
+                    }
+                }
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                } else {
+                    this.cleanLines();
+                }
+            },
+            true
+        );
+        if (this.hunger > 40) {
+            this.state = this.foxStates.Hunting;
+        }
+        else if (this.hunger < 15) {
+            this.state = this.foxStates.Mating;
+        }
+        else {
+            this.state = this.foxStates.Idle;
+        }
+    }
+    mate() {
+        this.idleCount = 0;
+        const thisGender = this.gender;
+        this.target = this.findClosestWithAStar((value) => {return value instanceof Fox && thisGender !== value.gender});
+        this.executePath(
+            () => {
+                if (this.target !== null) {
+                    this.spawn();
+                    this.target.hunger += 35;
+                }
+                this.target = null;
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                } else {
+                    this.cleanLines();
+                }
+            },
+            true
+        );
+        if (this.hunger >= 40) {
+            this.state = this.foxStates.Hunting;
+        }
+        else {
+            this.state = this.foxStates.Idle;
+        }
+    }
+
+}
+
+class Rabbit extends ObjectBases.MovableObjectBase {
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
+        this.health = 50;
+        this.speed = 0.04;
+        this.hunger = 50;
+        this.selectable = true;
+        this.gender = 0;
+        if (Math.random() < 0.5) {
+            this.gender = 0;
+        }
+        else {
+            this.gender = 1;
+        }
+        this.rabbitStates = {
+            Grazing: 0,
+            Mating: 1
+        }
+
+        this.mesh = meshes.rabbit.clone();
+        this.setPos(pos);
+        this.setRot(rotation);
+        this.movement = 0.0;
+
+        this.state = this.rabbitStates.Grazing;
+    }
+
+    update() {
+        this.hunger += 0.25;
+        if (this.hunger >= 100) {
+            this.hunger = 100;
+            this.health -= 5;
+        }
+        if (this.health <= 0) {
+            this.die();
+        }
+        switch (this.state) {
+            case this.rabbitStates.Mating:
+                this.mate();
+                break;
+            case this.rabbitStates.Grazing:
+                this.graze();
+                break;
+        }
+    }
+
+    spawn() {
+        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
+
+        const newRabbit = new Rabbit(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
+        if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
+            world.instantiateObject(newRabbit);
+            this.hunger += 30;
+        }
+    }
+    mate() {
+        const thisGender = this.gender;
+        this.target = this.findClosestWithAStar((value) => {return value instanceof Rabbit && thisGender !== value.gender});
+        this.executePath(
+            () => {
+                if (this.target !== null) {
+                    this.spawn();
+                    this.target.hunger += 35;
+                }
+                this.target = null;
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                } else {
+                    this.cleanLines();
+                }
+            },
+            true
+        );
+
+    }
+    graze() {
+        this.target = this.findClosestWithAStar((value) => {return value instanceof Wheat || value instanceof Grass});
+        this.executePath(
+            () => {
+                if (this.target !== null) {
+                    if (this.target.applyDamage(1)) {
+                        this.hunger -= 15;
+                        if (this.hunger < 0) {
+                            this.hunger = 0
+                        }
+                        ;
+                        this.target = null;
+                    }
+                }
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                } else {
+                    this.cleanLines();
+                }
+            },
+            true
+        );
+        if (this.hunger > 15) {
+            this.state = this.rabbitStates.Grazing;
+        }
+        else {
+            this.state = this.rabbitStates.Mating;
+        }
+    }
+}
+
+class Pig extends ObjectBases.MovableObjectBase {
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
+        this.health = 200;
+        this.speed = 0.03;
+        this.hunger = 50;
+        this.selectable = true;
+        this.mode = 0;
+        this.stateTick = 0;
+        this.target = null;
+
+        this.gender = 0;
+        if (Math.random() < 0.5) {
+            this.gender = 0;
+        }
+        else {
+            this.gender = 1;
+        }
+
+
+        this.mesh = meshes.pig.clone();
+        this.setPos(pos);
+        this.setRot(rotation);
+        this.movement = 0.0
+    }
+
+    update() {
+        this.stateTick += 1;
+        if (this.health <= 0) {
+            this.die();
+        }
+        //will go for the closest grass if hungry, else it'll try to find a mate
+        let satiated = false;
+        if (this.hunger <= 15) {satiated = true;};
+        if (this.hunger >= 40) {satiated = false};
+        if (this.hunger > 20 && !satiated && this.target == null) {
+            this.target = this.findClosestWithAStar((value) => {return value instanceof Grass});
+            this.mode = 0;
+        }
+        else if (this.hunger < 20 && satiated && this.target == null) {
+            const tmpGnd = this.gender;
+            this.target = this.findClosestWithAStar((value) => {return value instanceof Pig && value.gender !== tmpGnd});
+            this.mode = 1;
+        }
+
+        if (this.mode == 0 && this.target) {
+            this.executePath(
+                () => {
+                    if (this.target.applyDamage(15)) {
+                        this.hunger -= 10;
+                        if (this.hunger < 0) {this.hunger = 0};
+                        this.target = null;
+                    }
+                },
+                () => {
+                    this.target = null;
+                },
+                () => {
+                    this.lookTowardsPath();
+                    if (parameters.simulation.showPaths) {
+                        this.createLines(this.path);
+                    } else {
+                        this.cleanLines();
+                    }
+                },
+                true
+            );
+        } else if (this.mode == 1) {
+            this.executePath(
+                () => {
+                    if (this.target !== null) {
+                        this.spawn();
+                        this.target.hunger += 35;
+                    }
+                    this.target = null;
+                },
+                () => {
+                    this.target = null;
+                },
+                () => {
+                    this.lookTowardsPath();
+                    if (parameters.simulation.showPaths) {
+                        this.createLines(this.path);
+                    } else {
+                        this.cleanLines();
+                    }
+                },
+                true
+            );
+        }
+        this.hunger += 0.2;
+
+        if (this.hunger >= 100) {
+            this.hunger = 100;
+            this.health -= 1;
+        }
+    }
+
+    spawn() {
+        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
+
+        const newPig = new Pig(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
+        if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
+            world.instantiateObject(newPig);
+            this.hunger += 40;
+        }
+    }
+}
+
+class Wolf extends ObjectBases.MovableObjectBase {
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
+        this.health = 250;
+        this.speed = 0.04;
+        this.hunger = 50;
+        this.selectable = true;
+
+        this.gender = 0;
+        if (Math.random() < 0.5) {
+            this.gender = 0;
+        }
+        else {
+            this.gender = 1;
+        }
+
+        this.wolfStates = {
+            Idle: 0,
+            Hunting: 1,
+            Mating: 2
+        }
+
+        this.mesh = meshes.wolf.clone();
+        this.setPos(pos);
+        this.setRot(rotation);
+        this.movement = 0.0
+
+        this.state = this.wolfStates.Idle;
+        this.idleCount = 0;
+    }
+
+    update() {
+        this.hunger += 0.06;
+        switch (this.state) {
+            case this.wolfStates.Idle:
+                this.idle();
+                break;
+            case this.wolfStates.Hunting:
+                this.hunt();
+                break;
+            case this.wolfStates.Mating:
+                this.mate();
+                break;
+        }
+        if (this.hunger >= 100) {
+            this.hunger = 100;
+            this.health -= 5;
+        }
+        if (this.health <= 0) {
+            this.die();
+        }
+    }
+    die() {
+        super.die();
+    }
+    spawn() {
+        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
+
+        const newWolf = new Wolf(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
+        if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
+            world.instantiateObject(newWolf);
+            this.hunger += 40;
+        }
+    }
+    idle() {
+        this.idleCount += 1;
+        if (this.idleCount >= 10) {
+            this.state = this.wolfStates.Hunting;
+        }
+    }
+    hunt() {
+        this.idleCount = 0;
+        this.target = this.findClosestWithAStar((value) => {return value instanceof Pig});
+        this.executePath(
+            () => {
+                if (this.target !== null) {
+                    if (this.target.applyDamage(50)) {
+                        this.hunger -= 20;
+                        if (this.hunger < 0) {
+                            this.hunger = 0
+                        }
+                        this.target = null;
+                    }
+                }
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                } else {
+                    this.cleanLines();
+                }
+            },
+            true
+        );
+        if (this.hunger > 40) {
+            this.state = this.wolfStates.Hunting;
+        }
+        else if (this.hunger < 15) {
+            this.state = this.wolfStates.Mating;
+        }
+        else {
+            this.state = this.wolfStates.Idle;
+        }
+    }
+    mate() {
+        this.idleCount = 0;
+        const thisGender = this.gender;
+        this.target = this.findClosestWithAStar((value) => {return value instanceof Wolf && thisGender !== value.gender});
+        this.executePath(
+            () => {
+                if (this.target !== null) {
+                    this.spawn();
+                    this.target.hunger += 35;
+                }
+                this.target = null;
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                } else {
+                    this.cleanLines();
+                }
+            },
+            true
+        );
+        if (this.hunger >= 40) {
+            this.state = this.wolfStates.Hunting;
+        }
+        else {
+            this.state = this.wolfStates.Idle;
+        }
+    }
+
+}
+
+class Eagle {
+//TODO: Implement eagle class, spawns from and rests on trees, dies without rest, hunts rabbits
 }
 
 class Squirrel extends ObjectBases.MovableObjectBase {
@@ -276,7 +879,7 @@ class Squirrel extends ObjectBases.MovableObjectBase {
     planting() {
         const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0, 0, 1).applyEuler(this.getRot()));
 
-        const newTree = new Tree(neighbourPos, new THREE.Vector3(), treeMaterial);
+        const newTree = new Tree(neighbourPos, new THREE.Vector3(), Materials.treeMaterial);
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
             world.instantiateObjectOnGrid(newTree);
         }
@@ -351,6 +954,15 @@ class Wall extends ObjectBases.WorldLargeObject {
     update() {
     }
 }
+class House extends ObjectBases.WorldObjectBase {
+    //TODO: implement house class, each one costs a certain amount of wood (taken from stockpile or from human inventory), humans need houses to survive
+    //a house will be placed in a random location within a 5x5 "reserved" area of the grid, the rest of the area will be used for wheat farms
+}
+
+class Stockpile extends ObjectBases.WorldObjectBase {
+    //TODO: implement stockpile, where all resources harvested by humans go to and are used from for buildings and other stuff maybe
+    //making houses and farms be built around or close to the stockpile might be a good idea
+}
 
 class FillerObject extends ObjectBases.WorldObjectBase {
     constructor(pos, rotation, material) {
@@ -368,16 +980,5 @@ class LargeFillerObject extends ObjectBases.WorldLargeObject {
     }
 }
 
-export {
-    Sphere,
-    LightIndicator,
-    MouseFollower,
-    Terrain,
-    Box,
-    Human,
-    Tree,
-    Squirrel,
-    Wall,
-    FillerObject,
-    LargeFillerObject
-};
+
+export {Sphere, LightIndicator, MouseFollower, Terrain, Box, Human, Tree, Grass, Wheat, Fox, Rabbit, Pig, Wolf, Squirrel, Wall, FillerObject, LargeFillerObject};

@@ -14,7 +14,6 @@ class WorldObjectBase {
     getPos() {
         return this.mesh.position;
     }
-
     setPos(vec3) {
         if (this.mesh != null) {
             this.mesh.position.x = vec3.x;
@@ -26,7 +25,6 @@ class WorldObjectBase {
     getRot() {
         return this.mesh.rotation;
     }
-
     setRot(vec3) {
         if (this.mesh != null) {
             this.mesh.rotation.x = vec3.x;
@@ -258,6 +256,28 @@ class MovableObjectBase extends LivingObjectBase {
                 onStuck();
             }
         }
+    }
+    getMovementVectorToTarget(targetPos) {
+        let movementVector = new THREE.Vector3().subVectors(targetPos, this.getPos());
+        let x = Math.abs(movementVector.x);
+        let z = Math.abs(movementVector.z);
+        if (x > z) {
+            movementVector.x *= 2.0;
+            movementVector.z /= 2.0;
+        } else if (x < z) {
+            movementVector.x /= 2.0;
+            movementVector.z *= 2.0;
+        } else {
+            if (Math.random() > 0.5) {
+                movementVector.x *= 2.0;
+                movementVector.z /= 2.0;
+            } else {
+                movementVector.x /= 2.0;
+                movementVector.z *= 2.0;
+            }
+        }
+        movementVector = movementVector.normalize().multiplyScalar(this.speed);
+        return movementVector;
     }
 }
 

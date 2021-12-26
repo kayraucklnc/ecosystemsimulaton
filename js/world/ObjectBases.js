@@ -1,4 +1,5 @@
 import * as THREE from "../library/three.js-r135/build/three.module.js";
+import {GridLayer} from "./Grid.js";
 
 class WorldObjectBase {
     constructor(pos, rotation, material) {
@@ -60,12 +61,16 @@ class LivingObjectBase extends WorldObjectBase {
         super(pos, rotation, material);
         this.health = null;
         this.hasDied = false;
+
+        this.hungerIncreasePerFrame = 0.25;
+        this.hungerToStarve = 100;
+        this.hungerDamage = 1;
     }
 
     //Returns if object is dead after damage.
     applyDamage(damage) {
         this.health -= damage;
-        if (this.health != null && this.health <= 0) {
+        if (this.health <= 0) {
             this.die();
             return true;
         }
@@ -76,6 +81,17 @@ class LivingObjectBase extends WorldObjectBase {
         if (!this.hasDied) {
             world.deleteObject(this);
             this.hasDied = true;
+        }
+    }
+
+    update() {
+        super.update();
+        if (this.hunger != null) {
+            this.hunger += this.hungerIncreasePerFrame;
+            if (this.hunger >= this.hungerToStarve) {
+                this.hunger = this.hungerToStarve;
+                this.applyDamage(this.hungerDamage);
+            }
         }
     }
 }
@@ -182,7 +198,7 @@ class MovableObjectBase extends LivingObjectBase {
         return movementVector;
     }
 
-    findClosestWithAStar(checkFunc) {
+    findClosestWithAStar(checkFunc, layer=GridLayer.Surface) {
         return this.findClosestWithAStarCustom(
             checkFunc,
             (e) => {
@@ -192,10 +208,10 @@ class MovableObjectBase extends LivingObjectBase {
             },
             (e) => {
                 console.log("FAIL");
-            });
+            }, layer);
     }
 
-    findClosestWithAStarCustom(checkFunc, onFind, onFail) {
+    findClosestWithAStarCustom(checkFunc, onFind, onFail, layer=GridLayer.Surface) {
         if (!this.findingPathParallel) {
             let that = this;
             this.worker.onmessage = function (oEvent) {
@@ -229,12 +245,12 @@ class MovableObjectBase extends LivingObjectBase {
             this.worker.postMessage({
                 thisPos: world.grid.getGridIndex(thisPos),
                 closestArr: toGoIdxs,
-                matrix: world.getPure2DMatrix()
+                matrix: world.getPure2DMatrix(layer)
             });
         }
     }
 
-    // onReach and onStuck are functions. Needs targetPos to be assigned.
+    // onReach and onStuck are functions. Needs path to be assigned.
     executePath(onReach, onStuck, onMove = () => {
     }, hasTargetOnDest = false) {
         if (this.path == null) {
@@ -243,7 +259,7 @@ class MovableObjectBase extends LivingObjectBase {
         }
 
         let targetPos = null;
-        let reachCheck = null;
+        let reachCheck;
         if (hasTargetOnDest) {
             targetPos = this.path.length > 0 ? this.path[this.path.length - 1] : this.getPos();
             reachCheck = this.checkIfNextToTarget(targetPos);
@@ -295,6 +311,10 @@ class MovableObjectBase extends LivingObjectBase {
         }
         movementVector = movementVector.normalize().multiplyScalar(this.speed);
         return movementVector;
+    }
+
+    update() {
+        super.update();
     }
 }
 

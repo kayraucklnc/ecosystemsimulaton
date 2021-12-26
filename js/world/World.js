@@ -40,9 +40,9 @@ class World {
         return (Math.random() * (max - min) + min);
     }
 
-    getPure2DMatrix() {
+    getPure2DMatrix(layer=GridLayer.Surface) {
         let matrix2d = [];
-        for (let i = 0; i < world.grid.matrix[2].length; i++) {
+        for (let i = 0; i < world.grid.matrix[layer].length; i++) {
             let temp = [];
             for (let j = 0; j < world.grid.matrix[2][i].length; j++) {
                 if (world.grid.matrix[2][i][j] != null) {
@@ -189,6 +189,9 @@ class World {
                 this.grid.setPos(object.getPos(), object, GridLayer.Surface);
                 this.grid.setPos(object.getPos(), object, GridLayer.Ground);
             } else {
+                if (object._onLayer != null && layer === GridLayer.Surface) {
+                    layer = object._onLayer;
+                }
                 object._onLayer = layer;
                 this.grid.setPos(object.getPos(), object, layer);
             }

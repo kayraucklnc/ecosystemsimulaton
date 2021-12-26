@@ -442,7 +442,7 @@ class Rabbit extends ObjectBases.MovableObjectBase {
         this.hungerToDie = 100;
         this.hungerDamage = 1;
 
-        this.hunger = 0;
+        this.hunger = 50;
         this.selectable = true;
         this.gender = 0;
         if (Math.random() < 0.5) {
@@ -459,6 +459,8 @@ class Rabbit extends ObjectBases.MovableObjectBase {
         this.mesh = meshes.rabbit.clone();
         this.setPos(pos);
         this.setRot(rotation);
+
+        this.mesh.scale.set(5 * world.getCellSize(), 5 * world.getCellSize(), 5 * world.getCellSize());
         this.movement = 0.0;
 
         this.state = this.rabbitStates.Grazing;
@@ -467,11 +469,6 @@ class Rabbit extends ObjectBases.MovableObjectBase {
     update() {
         super.update();
 
-        console.log("--------------");
-        console.log(this.hunger);
-        if(this.target) {
-            console.log(this.target);
-        }
         switch (this.state) {
             case this.rabbitStates.Mating:
                 this.mate();
@@ -485,8 +482,8 @@ class Rabbit extends ObjectBases.MovableObjectBase {
     spawn() {
         const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
 
-        const newRabbit = new Rabbit(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
+            const newRabbit = new Rabbit(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
             world.instantiateObject(newRabbit);
             this.hunger += 30;
         }
@@ -498,13 +495,11 @@ class Rabbit extends ObjectBases.MovableObjectBase {
             return value instanceof Rabbit && thisGender !== value.gender
         });
 
-        console.log("mate beybi");
         if (this.target) {
             this.executePath(
                 () => {
                     if (this.target != null) {
                         this.spawn();
-                        this.target.hunger += 35;
                     }
 
                     this.state = this.rabbitStates.Grazing;
@@ -527,6 +522,7 @@ class Rabbit extends ObjectBases.MovableObjectBase {
 
         if (this.hunger > 70) {
             this.state = this.rabbitStates.Grazing;
+            this.target = null;
         }
 
     }
@@ -535,15 +531,14 @@ class Rabbit extends ObjectBases.MovableObjectBase {
         if (this.target == null) {
             this.findClosestWithAStar((value) => {
                 return value instanceof Wheat || value instanceof Grass;
-            });
+            }, GridLayer.Ground);
         }
 
-        console.log("graze beybi");
         if (this.target) {
             this.executePath(
                 () => {
                     if (this.target != null) {
-                        if (this.target.applyDamage(5)) {
+                        if (this.target.applyDamage(0.5)) {
                             this.hunger -= 20;
                             if (this.hunger < 0) {
                                 this.hunger = 0
@@ -570,6 +565,7 @@ class Rabbit extends ObjectBases.MovableObjectBase {
 
         if (this.hunger < 20) {
             this.state = this.rabbitStates.Mating;
+            this.target = null;
         }
     }
 }

@@ -12,6 +12,8 @@ class WorldObjectBase {
         this.setRot(rotation);
     }
 
+    onDelete() {}
+
     getPos() {
         return this.mesh.position;
     }
@@ -102,6 +104,7 @@ class MovableObjectBase extends LivingObjectBase {
         this.speed = null;
 
         this.findingPathParallel = false;
+
         this.worker = new Worker("./js/util/AStar.js", {type: "module"});
 
         this.path = [];
@@ -114,6 +117,16 @@ class MovableObjectBase extends LivingObjectBase {
         this.lastClosestCheckFrame = 0;
         this.lastClosest = null;
         this.closestCheckFrequency = 50;
+    }
+
+    onDelete() {
+        super.onDelete();
+
+        if (this.worker) {
+            this.worker.terminate();
+        }
+
+        this.cleanLines();
     }
 
     cleanLines() {
@@ -198,29 +211,35 @@ class MovableObjectBase extends LivingObjectBase {
         return movementVector;
     }
 
-    findClosestWithAStar(checkFunc, layer=GridLayer.Surface) {
+    findClosestWithAStar(checkFunc, targetLayer=GridLayer.Surface, movingLayer=GridLayer.Surface) {
         return this.findClosestWithAStarCustom(
             checkFunc,
             (e) => {
                 console.log("FOUND");
                 this.path = world.getPathFromPure2DMatrix(e);
-                this.target = world.grid.getPos(this.path[this.path.length - 1]);
+                let targetPos = this.path.length > 0 ? this.path[this.path.length - 1]: this.getPos();
+                this.target = world.grid.getPos(targetPos, targetLayer);
             },
             (e) => {
                 console.log("FAIL");
-            }, layer);
+            }, targetLayer, movingLayer);
     }
 
-    findClosestWithAStarCustom(checkFunc, onFind, onFail, layer=GridLayer.Surface) {
+    findClosestWithAStarCustom(checkFunc, onFind, onFail, targetLayer=GridLayer.Surface, movingLayer=GridLayer.Surface) {
         if (!this.findingPathParallel) {
             let that = this;
             this.worker.onmessage = function (oEvent) {
                 if (oEvent.data == null) {
                     onFail();
                 } else {
-                    let iidx = oEvent.data[oEvent.data.length - 1].i;
-                    let jidx = oEvent.data[oEvent.data.length - 1].j;
-                    this.lastClosest = world.getPos(world.grid.getIndexPos(iidx, jidx));
+                    if (oEvent.data.length > 0) {
+                        let iidx = oEvent.data[oEvent.data.length - 1].i;
+                        let jidx = oEvent.data[oEvent.data.length - 1].j;
+
+                        this.lastClosest = world.getPos(world.grid.getIndexPos(iidx, jidx), targetLayer);
+                    } else {
+                        this.lastClosest = world.getPos(that.getPos(), targetLayer);
+                    }
                     this.lastClosestCheckFrame = frameCount;
 
                     onFind(oEvent.data);
@@ -245,7 +264,7 @@ class MovableObjectBase extends LivingObjectBase {
             this.worker.postMessage({
                 thisPos: world.grid.getGridIndex(thisPos),
                 closestArr: toGoIdxs,
-                matrix: world.getPure2DMatrix(layer)
+                matrix: world.getPure2DMatrix(movingLayer)
             });
         }
     }

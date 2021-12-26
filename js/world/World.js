@@ -278,6 +278,8 @@ class World {
         }
 
         this.meshIdToObject.delete(object.mesh.id);
+
+        object.onDelete();
     }
 
     clearObjects() {

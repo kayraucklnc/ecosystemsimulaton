@@ -209,7 +209,6 @@ function threeStarter() {
         renderer.render(scene, camera);
 
         window.requestAnimationFrame(loop);
-        composer.render();
         loopStats.end();
     }
 

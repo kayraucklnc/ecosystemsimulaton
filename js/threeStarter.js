@@ -11,11 +11,44 @@ import {MousePicker} from "../../ecosystemsimulaton/js/mouse/mouse_picking.js";
 import * as Materials from "../../ecosystemsimulaton/js/world/Materials.js";
 import * as DataLoader from "../../ecosystemsimulaton/js/util/loadData.js";
 
-let sun;
+
+function skybox() {
+    let sun;
+    sun = new THREE.Vector3();
+
+    const sky = new Sky();
+    sky.scale.setScalar(10000);
+    world.scene.add(sky);
+
+    const skyUniforms = sky.material.uniforms;
+
+    skyUniforms['turbidity'].value = 20;
+    skyUniforms['rayleigh'].value = 4;
+    skyUniforms['mieCoefficient'].value = 0.005;
+    skyUniforms['mieDirectionalG'].value = 0.8;
+
+    const parameters = {
+        elevation: 1,
+        azimuth: 200
+    };
+
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+
+
+    const phi = THREE.MathUtils.degToRad(90 - parameters.elevation);
+    const theta = THREE.MathUtils.degToRad(parameters.azimuth);
+
+    sun.setFromSphericalCoords(1, phi, theta);
+
+    sky.material.uniforms['sunPosition'].value.copy(sun);
+
+    world.scene.environment = pmremGenerator.fromScene(sky).texture;
+
+
+}
 
 function createInitScene() {
     Math.seedrandom(parameters.simulation.seed);
-    sun = new THREE.Vector3();
 
     const scene = new THREE.Scene();
 
@@ -28,10 +61,11 @@ function createInitScene() {
         0.1,
         1000
     );
+
     renderer = new THREE.WebGLRenderer();
     raycaster = new THREE.Raycaster();
-    mousePicker = new MousePicker(scene, camera, renderer);
 
+    mousePicker = new MousePicker(scene, camera, renderer);
     camera.position.y = 15;
     camera.position.z = 30;
     renderer.setSize(canvasSize.width, canvasSize.height);
@@ -41,6 +75,7 @@ function createInitScene() {
     terrainObject = new Objects.Terrain(new THREE.Vector3(0, -0.03, 0), new THREE.Vector3(0, 0), Materials.planeCustomMat);
     world.instantiateObject(terrainObject, false);
     world.grid.setTerrain(terrainObject);
+    // skybox();
 
     return {scene, camera};
 }
@@ -76,7 +111,6 @@ function createWater() {
 
     world.scene.add(water);
 }
-
 
 
 function createTestSceneElements(scene) {
@@ -175,6 +209,7 @@ function threeStarter() {
         renderer.render(scene, camera);
 
         window.requestAnimationFrame(loop);
+        composer.render();
         loopStats.end();
     }
 

@@ -22,7 +22,7 @@ document.getElementById("templateList").addEventListener("change", () => {
     templateChange()
 });
 
-function simulationToggle(){
+function simulationToggle() {
     document.getElementById("stop-sim-button").innerText = isSimActive ? "Start Simulation" : "Pause Simulation";
     isSimActive = !isSimActive;
 }
@@ -38,7 +38,7 @@ function brushChange() {
         drawMode.eraser = false;
         orbitControls.enabled = false;
         mousePicker.isActive = false;
-    }else {
+    } else {
         drawMode.brush = false;
         orbitControls.enabled = true;
         mousePicker.isActive = true;
@@ -53,7 +53,7 @@ function eraserChange() {
         drawMode.brush = false;
         orbitControls.enabled = false;
         mousePicker.isActive = false;
-    }else {
+    } else {
         drawMode.eraser = false;
         orbitControls.enabled = true;
         mousePicker.isActive = true;
@@ -74,12 +74,14 @@ function saveTemplate() {
                 } else {
                     arr2.push(world.grid.matrix[i][j][k].constructor.name);
                 }
-            } arr1.push(arr2);
-        } toSave.arr.push(arr1);
+            }
+            arr1.push(arr2);
+        }
+        toSave.arr.push(arr1);
     }
 
     console.log(JSON.stringify(toSave));
-    download("template.json",JSON.stringify(toSave));
+    download("template.json", JSON.stringify(toSave));
 }
 
 function download(filename, text) {
@@ -102,10 +104,10 @@ async function loadTemplate() {
     let parsedData = JSON.parse(text);
 
     loadFileToMap(parsedData);
- }
+}
 
-async function openTemplate( fileName ){
-    let text =  readTextFile(fileName);
+async function openTemplate(fileName) {
+    let text = readTextFile(fileName);
     let parsedData = JSON.parse(text);
 
     loadFileToMap(parsedData);
@@ -114,29 +116,30 @@ async function openTemplate( fileName ){
 function templateChange() {
     switch (document.getElementById("templateList").value) {
         case "Template1":
-            openTemplate("/Templates/1.json");
+            openTemplate("./templates/1.json");
             break;
         case "Template2":
-            openTemplate("/Templates/2.json");
+            openTemplate("./templates/2.json");
             break;
         case "Template3":
-            openTemplate("/Templates/3.json");
+            openTemplate("./templates/3.json");
             break;
         case "Template4":
-            openTemplate("/Templates/4.json");
+            openTemplate("./templates/4.json");
             break;
-    };
+    }
+    ;
 }
 
-function loadFileToMap(parsedData){
+function loadFileToMap(parsedData) {
     world.clearObjects();
 
-    if ( parsedData.param != null ){
+    if (parsedData.param != null) {
         parameters = Object.assign({}, parsedData.param);
     }
-    world.grid.terrain.changePlaneGeometry( parameters );
+    world.grid.terrain.changePlaneGeometry(parameters);
 
-    for (let i = 0; i < parsedData.arr.length ; i++) {
+    for (let i = 0; i < parsedData.arr.length; i++) {
         for (let j = 0; j < parsedData.arr[i].length; j++) {
             for (let k = 0; k < parsedData.arr[i][j].length; k++) {
                 if (parsedData.arr[i][j][k] != null) {
@@ -164,14 +167,14 @@ function loadFileToMap(parsedData){
     }
 }
 
-function readTextFile(file){
+function readTextFile(file) {
     var txt;
     var rawFile = new XMLHttpRequest();
     rawFile.open("GET", file, false);
     rawFile.onreadystatechange = function () {
-        if(rawFile.readyState === 4) {
-            if(rawFile.status === 200 || rawFile.status == 0) {
-                txt= rawFile.responseText;
+        if (rawFile.readyState === 4) {
+            if (rawFile.status === 200 || rawFile.status == 0) {
+                txt = rawFile.responseText;
             }
         }
     }

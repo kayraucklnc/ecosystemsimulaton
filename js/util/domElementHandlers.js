@@ -152,13 +152,25 @@ function loadFileToMap(parsedData) {
                             let humanObject = new Objects.Human(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.humanMaterial);
                             world.instantiateObject(humanObject);
                             break;
-                        case "Squirrel":
-                            let squirrelObject = new Objects.Squirrel(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
-                            world.instantiateObject(squirrelObject);
-                            break;
                         case "Tree":
                             let treeObject = new Objects.Tree(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.treeMaterial);
                             world.instantiateObject(treeObject);
+                            break;
+                        case "Pig":
+                            let pigObject = new Objects.Pig(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.treeMaterial);
+                            world.instantiateObject(pigObject);
+                            break;
+                        case "Wolf":
+                            let wolfObject = new Objects.Wolf(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.treeMaterial);
+                            world.instantiateObject(wolfObject);
+                            break;
+                        case "Rabbit":
+                            let rabbitObject = new Objects.Rabbit(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.treeMaterial);
+                            world.instantiateObject(rabbitObject);
+                            break;
+                        case "Grass":
+                            let grassObject = new Objects.Grass(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.treeMaterial);
+                            world.instantiateObject(grassObject);
                             break;
                     }
                 }

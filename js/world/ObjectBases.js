@@ -64,9 +64,12 @@ class LivingObjectBase extends WorldObjectBase {
         this.health = null;
         this.hasDied = false;
 
+        this.hunger = 0;
+        this.getsHungryByTime = false;
+
         this.hungerIncreasePerFrame = 0.25;
         this.hungerToStarve = 100;
-        this.hungerDamage = 1;
+        this.hungerDamage = 5;
     }
 
     //Returns if object is dead after damage.
@@ -79,6 +82,15 @@ class LivingObjectBase extends WorldObjectBase {
         return false;
     };
 
+    changeHungerBy(amount) {
+        this.hunger += amount;
+
+        if (this.hunger >= this.hungerToStarve) {
+            this.hunger = this.hungerToStarve;
+        }
+        this.hunger = Math.max(0, this.hunger);
+    }
+
     die() {
         if (!this.hasDied) {
             world.deleteObject(this);
@@ -88,12 +100,12 @@ class LivingObjectBase extends WorldObjectBase {
 
     update() {
         super.update();
-        if (this.hunger != null) {
-            this.hunger += this.hungerIncreasePerFrame;
-            if (this.hunger >= this.hungerToStarve) {
-                this.hunger = this.hungerToStarve;
-                this.applyDamage(this.hungerDamage);
-            }
+        if (this.getsHungryByTime) {
+            this.changeHungerBy(this.hungerIncreasePerFrame);
+        }
+
+        if (this.hunger >= this.hungerToStarve) {
+            this.applyDamage(this.hungerDamage);
         }
     }
 }
@@ -114,7 +126,7 @@ class MovableObjectBase extends LivingObjectBase {
         this.lastPos = pos;
         this.movement = 0.0;
 
-        this.lastClosestCheckFrame = 0;
+        this.lastClosestCheckFrame = -frameCount;
         this.lastClosest = null;
         this.closestCheckFrequency = 50;
     }
@@ -222,6 +234,8 @@ class MovableObjectBase extends LivingObjectBase {
             },
             (e) => {
                 console.log("FAIL");
+                this.path = null;
+                this.target = null;
             }, targetLayer, movingLayer);
     }
 

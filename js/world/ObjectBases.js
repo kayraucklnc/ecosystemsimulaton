@@ -1,5 +1,5 @@
 import * as THREE from "../library/three.js-r135/build/three.module.js";
-import * as AStar from "../util/AStar.js";
+import {GridLayer} from "./Grid.js";
 
 class WorldObjectBase {
     constructor(pos, rotation, material) {
@@ -11,6 +11,8 @@ class WorldObjectBase {
         this.setPos(pos);
         this.setRot(rotation);
     }
+
+    onDelete() {}
 
     getPos() {
         return this.mesh.position;
@@ -61,12 +63,16 @@ class LivingObjectBase extends WorldObjectBase {
         super(pos, rotation, material);
         this.health = null;
         this.hasDied = false;
+
+        this.hungerIncreasePerFrame = 0.25;
+        this.hungerToStarve = 100;
+        this.hungerDamage = 1;
     }
 
     //Returns if object is dead after damage.
     applyDamage(damage) {
         this.health -= damage;
-        if (this.health != null && this.health <= 0) {
+        if (this.health <= 0) {
             this.die();
             return true;
         }
@@ -79,6 +85,17 @@ class LivingObjectBase extends WorldObjectBase {
             this.hasDied = true;
         }
     }
+
+    update() {
+        super.update();
+        if (this.hunger != null) {
+            this.hunger += this.hungerIncreasePerFrame;
+            if (this.hunger >= this.hungerToStarve) {
+                this.hunger = this.hungerToStarve;
+                this.applyDamage(this.hungerDamage);
+            }
+        }
+    }
 }
 
 class MovableObjectBase extends LivingObjectBase {
@@ -86,6 +103,9 @@ class MovableObjectBase extends LivingObjectBase {
         super(pos, rotation, material);
         this.speed = null;
 
+        this.findingPathParallel = false;
+
+        this.worker = new Worker("./js/util/AStar.js", {type: "module"});
 
         this.path = [];
         this.pathLines = [];
@@ -97,6 +117,16 @@ class MovableObjectBase extends LivingObjectBase {
         this.lastClosestCheckFrame = 0;
         this.lastClosest = null;
         this.closestCheckFrequency = 50;
+    }
+
+    onDelete() {
+        super.onDelete();
+
+        if (this.worker) {
+            this.worker.terminate();
+        }
+
+        this.cleanLines();
     }
 
     cleanLines() {
@@ -147,7 +177,6 @@ class MovableObjectBase extends LivingObjectBase {
         this.mesh.rotateY(angleInRad);
     }
 
-
     attack(target) {
     }
 
@@ -182,29 +211,65 @@ class MovableObjectBase extends LivingObjectBase {
         return movementVector;
     }
 
-    findClosestWithAStar(checkFunc) {
-        if (frameCount - this.lastClosestCheckFrame < this.closestCheckFrequency) {
-            return this.lastClosest;
-        }
-        let cloneObjects = [...world.objects];
-        let thisPos = this.getPos();
-        cloneObjects = cloneObjects.filter(checkFunc);
-        cloneObjects.sort((a, b) => (a.getPos().distanceToSquared(thisPos) > b.getPos().distanceToSquared(thisPos)) ? 1 : -1);
-
-        let closest = null;
-        for (let i = 0; i < cloneObjects.length; i++) {
-            closest = cloneObjects[i];
-            this.path = AStar.findPath(this.getPos(), closest.getPos());
-            if (this.path != null) {
-                break;
-            }
-        }
-        this.lastClosest = closest;
-        this.lastClosestCheckFrame = frameCount;
-        return closest;
+    findClosestWithAStar(checkFunc, targetLayer=GridLayer.Surface, movingLayer=GridLayer.Surface) {
+        return this.findClosestWithAStarCustom(
+            checkFunc,
+            (e) => {
+                console.log("FOUND");
+                this.path = world.getPathFromPure2DMatrix(e);
+                let targetPos = this.path.length > 0 ? this.path[this.path.length - 1]: this.getPos();
+                this.target = world.grid.getPos(targetPos, targetLayer);
+            },
+            (e) => {
+                console.log("FAIL");
+            }, targetLayer, movingLayer);
     }
 
-    // onReach and onStuck are functions. Needs targetPos to be assigned.
+    findClosestWithAStarCustom(checkFunc, onFind, onFail, targetLayer=GridLayer.Surface, movingLayer=GridLayer.Surface) {
+        if (!this.findingPathParallel) {
+            let that = this;
+            this.worker.onmessage = function (oEvent) {
+                if (oEvent.data == null) {
+                    onFail();
+                } else {
+                    if (oEvent.data.length > 0) {
+                        let iidx = oEvent.data[oEvent.data.length - 1].i;
+                        let jidx = oEvent.data[oEvent.data.length - 1].j;
+
+                        this.lastClosest = world.getPos(world.grid.getIndexPos(iidx, jidx), targetLayer);
+                    } else {
+                        this.lastClosest = world.getPos(that.getPos(), targetLayer);
+                    }
+                    this.lastClosestCheckFrame = frameCount;
+
+                    onFind(oEvent.data);
+                }
+                that.findingPathParallel = false;
+            };
+
+            if (frameCount - this.lastClosestCheckFrame < this.closestCheckFrequency) {
+                return this.lastClosest;
+            }
+
+            this.findingPathParallel = true;
+            let cloneObjects = [...world.objects];
+            let thisPos = this.getPos();
+            cloneObjects = cloneObjects.filter(checkFunc);
+            cloneObjects.sort((a, b) => (a.getPos().distanceToSquared(thisPos) > b.getPos().distanceToSquared(thisPos)) ? 1 : -1);
+            let toGoIdxs = [];
+            for (let i = 0; i < cloneObjects.length; i++) {
+                toGoIdxs.push(world.grid.getGridIndex(cloneObjects[i].getPos()));
+            }
+
+            this.worker.postMessage({
+                thisPos: world.grid.getGridIndex(thisPos),
+                closestArr: toGoIdxs,
+                matrix: world.getPure2DMatrix(movingLayer)
+            });
+        }
+    }
+
+    // onReach and onStuck are functions. Needs path to be assigned.
     executePath(onReach, onStuck, onMove = () => {
     }, hasTargetOnDest = false) {
         if (this.path == null) {
@@ -213,7 +278,7 @@ class MovableObjectBase extends LivingObjectBase {
         }
 
         let targetPos = null;
-        let reachCheck = null;
+        let reachCheck;
         if (hasTargetOnDest) {
             targetPos = this.path.length > 0 ? this.path[this.path.length - 1] : this.getPos();
             reachCheck = this.checkIfNextToTarget(targetPos);
@@ -242,6 +307,33 @@ class MovableObjectBase extends LivingObjectBase {
                 onStuck();
             }
         }
+    }
+
+    getMovementVectorToTarget(targetPos) {
+        let movementVector = new THREE.Vector3().subVectors(targetPos, this.getPos());
+        let x = Math.abs(movementVector.x);
+        let z = Math.abs(movementVector.z);
+        if (x > z) {
+            movementVector.x *= 2.0;
+            movementVector.z /= 2.0;
+        } else if (x < z) {
+            movementVector.x /= 2.0;
+            movementVector.z *= 2.0;
+        } else {
+            if (Math.random() > 0.5) {
+                movementVector.x *= 2.0;
+                movementVector.z /= 2.0;
+            } else {
+                movementVector.x /= 2.0;
+                movementVector.z *= 2.0;
+            }
+        }
+        movementVector = movementVector.normalize().multiplyScalar(this.speed);
+        return movementVector;
+    }
+
+    update() {
+        super.update();
     }
 }
 

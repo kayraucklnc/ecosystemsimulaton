@@ -18,6 +18,10 @@ document.getElementById("eraser").addEventListener("change", () => {
     eraserChange()
 });
 
+document.getElementById("templateList").addEventListener("change", () => {
+    templateChange()
+});
+
 function simulationToggle(){
     document.getElementById("stop-sim-button").innerText = isSimActive ? "Start Simulation" : "Pause Simulation";
     isSimActive = !isSimActive;
@@ -97,13 +101,40 @@ async function loadTemplate() {
     let text = await fileData.text();
     let parsedData = JSON.parse(text);
 
+    loadFileToMap(parsedData);
+ }
+
+async function openTemplate( fileName ){
+    let text =  readTextFile(fileName);
+    let parsedData = JSON.parse(text);
+
+    loadFileToMap(parsedData);
+}
+
+function templateChange() {
+    switch (document.getElementById("templateList").value) {
+        case "Template1":
+            openTemplate("/Templates/1.json");
+            break;
+        case "Template2":
+            openTemplate("/Templates/2.json");
+            break;
+        case "Template3":
+            openTemplate("/Templates/3.json");
+            break;
+        case "Template4":
+            openTemplate("/Templates/4.json");
+            break;
+    };
+}
+
+function loadFileToMap(parsedData){
     world.clearObjects();
 
     if ( parsedData.param != null ){
         parameters = Object.assign({}, parsedData.param);
     }
     world.grid.terrain.changePlaneGeometry( parameters );
-    console.log(parameters);
 
     for (let i = 0; i < parsedData.arr.length ; i++) {
         for (let j = 0; j < parsedData.arr[i].length; j++) {
@@ -115,15 +146,15 @@ async function loadTemplate() {
                             world.instantiateObject(wallObject);
                             break;
                         case "Human":
-                            let humanObject = new Objects.Wall(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.humanMaterial);
+                            let humanObject = new Objects.Human(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.humanMaterial);
                             world.instantiateObject(humanObject);
                             break;
                         case "Squirrel":
-                            let squirrelObject = new Objects.Wall(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+                            let squirrelObject = new Objects.Squirrel(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
                             world.instantiateObject(squirrelObject);
                             break;
                         case "Tree":
-                            let treeObject = new Objects.Wall(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.treeMaterial);
+                            let treeObject = new Objects.Tree(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.treeMaterial);
                             world.instantiateObject(treeObject);
                             break;
                     }
@@ -131,5 +162,19 @@ async function loadTemplate() {
             }
         }
     }
+}
 
- }
+function readTextFile(file){
+    var txt;
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, false);
+    rawFile.onreadystatechange = function () {
+        if(rawFile.readyState === 4) {
+            if(rawFile.status === 200 || rawFile.status == 0) {
+                txt= rawFile.responseText;
+            }
+        }
+    }
+    rawFile.send(null);
+    return txt;
+}

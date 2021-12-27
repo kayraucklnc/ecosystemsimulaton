@@ -353,7 +353,7 @@ class Fox extends ObjectBases.MovableObjectBase {
     hunt() {
         this.idleCount = 0;
         if (this.target == null) {
-            this.findClosestWithAStar((value) => {return value instanceof Rabbit});
+            this.findClosestWithAStarStateProtected((value) => {return value instanceof Rabbit});
         }
 
         if (this.target) {
@@ -398,7 +398,7 @@ class Fox extends ObjectBases.MovableObjectBase {
         this.idleCount = 0;
         const thisGender = this.gender;
         if (this.target == null) {
-            this.findClosestWithAStar((value) => {
+            this.findClosestWithAStarStateProtected((value) => {
                 return value instanceof Fox && thisGender !== value.gender
             });
         }
@@ -445,7 +445,7 @@ class Rabbit extends ObjectBases.MovableObjectBase {
 
         this.hunger = 10;
         this.getsHungryByTime = true;
-        this.hungerIncreasePerFrame = 0.06;
+        this.hungerIncreasePerFrame = 0.08;
         this.hungerToStarve = 100;
         this.hungerDamage = 1;
 
@@ -475,8 +475,6 @@ class Rabbit extends ObjectBases.MovableObjectBase {
     update() {
         super.update();
 
-        // let targetName = (this.target != null ? this.target.mesh.id: "---");
-        // console.log(this.mesh.id + " - " + this.health + " / " + this.hunger + "\t" + this.state + "\t" + targetName);
         switch (this.state) {
             case this.rabbitStates.Mating:
                 this.mate();
@@ -497,10 +495,10 @@ class Rabbit extends ObjectBases.MovableObjectBase {
         }
     }
 
-    mate() { // state değiştikten sonra önceki statein astarı bitip kafasını karıştırabiliyor.
+    mate() {
         const thisGender = this.gender;
-        this.findClosestWithAStar((value) => {
-            return value instanceof Rabbit && thisGender !== value.gender
+        this.findClosestWithAStarStateProtected((value) => {
+            return value instanceof Rabbit && thisGender !== value.gender;
         });
 
         if (this.target) {
@@ -535,7 +533,7 @@ class Rabbit extends ObjectBases.MovableObjectBase {
 
     graze() {
         if (this.target == null) {
-            this.findClosestWithAStar((value) => {
+            this.findClosestWithAStarStateProtected((value) => {
                 return value instanceof Wheat || value instanceof Grass;
             }, GridLayer.Ground);
         }
@@ -569,7 +567,7 @@ class Rabbit extends ObjectBases.MovableObjectBase {
             );
         }
 
-        if (this.hunger < 15 && this.gender == 1) {
+        if (this.hunger < 15 && Math.random() > 0.5) {
             this.state = this.rabbitStates.Mating;
             this.target = null;
         }
@@ -582,7 +580,7 @@ class Pig extends ObjectBases.MovableObjectBase {
         this.health = 200;
         this.speed = 0.03;
         this.selectable = true;
-        this.mode = 0;
+        this.state = 0;
         this.stateTick = 0;
         this.target = null;
 
@@ -594,9 +592,6 @@ class Pig extends ObjectBases.MovableObjectBase {
 
         this.gender = 0;
         if (Math.random() < 0.5) {
-            this.gender = 0;
-        }
-        else {
             this.gender = 1;
         }
 
@@ -621,17 +616,17 @@ class Pig extends ObjectBases.MovableObjectBase {
         if (this.hunger <= 15) {satiated = true;};
         if (this.hunger >= 40) {satiated = false};
         if (this.hunger > 20 && !satiated && this.target == null) {
-            this.findClosestWithAStar((value) => {return value instanceof Grass}, GridLayer.Ground);
-            this.mode = 0;
+            this.state = 0;
+            this.findClosestWithAStarStateProtected((value) => {return value instanceof Grass}, GridLayer.Ground);
         }
         else if (this.hunger < 20 && satiated && this.target == null) {
             const tmpGnd = this.gender;
-            this.findClosestWithAStar((value) => {return value instanceof Pig && value.gender !== tmpGnd});
-            this.mode = 1;
+            this.state = 1;
+            this.findClosestWithAStarStateProtected((value) => {return value instanceof Pig && value.gender !== tmpGnd});
         }
 
         if (this.target) {
-            if (this.mode == 0) {
+            if (this.state == 0) {
                 this.executePath(
                     () => {
                         if (this.target.applyDamage(6)) {
@@ -656,7 +651,7 @@ class Pig extends ObjectBases.MovableObjectBase {
                     },
                     true
                 );
-            } else if (this.mode == 1) {
+            } else if (this.state == 1) {
                 this.executePath(
                     () => {
                         if (this.target != null) {
@@ -769,7 +764,7 @@ class Wolf extends ObjectBases.MovableObjectBase {
     hunt() {
         this.idleCount = 0;
         if (this.target == null) {
-            this.findClosestWithAStar((value) => {
+            this.findClosestWithAStarStateProtected((value) => {
                 return value instanceof Pig
             });
         }
@@ -816,7 +811,7 @@ class Wolf extends ObjectBases.MovableObjectBase {
         this.idleCount = 0;
         const thisGender = this.gender;
         if (this.target == null) {
-            this.findClosestWithAStar((value) => {
+            this.findClosestWithAStarStateProtected((value) => {
                 return value instanceof Wolf && thisGender !== value.gender
             });
         }

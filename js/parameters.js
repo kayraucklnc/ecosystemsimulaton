@@ -18,6 +18,7 @@ let parameters = {
         count: 1.3,
     },
     simulation: {
-        showPaths: true
+        showPaths: true,
+        seed: (Math.random() * 1000.0) + ""
     }
 };

@@ -14,6 +14,7 @@ import * as DataLoader from "../../ecosystemsimulaton/js/util/loadData.js";
 let sun;
 
 function createInitScene() {
+    Math.seedrandom(parameters.simulation.seed);
     sun = new THREE.Vector3();
 
     const scene = new THREE.Scene();

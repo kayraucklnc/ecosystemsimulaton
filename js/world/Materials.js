@@ -4,6 +4,7 @@ let vShader;
 let fShader;
 let terrainFShader;
 let customWaterFShader;
+let customWaterFShader2;
 
 let sunFShader;
 
@@ -19,6 +20,7 @@ let wallMaterial = null;
 let squirrelMaterial = null;
 let lightIndicatorMaterial = null;
 let customWaterMaterial = null;
+let customWaterMaterial2 = null;
 
 function createAllMaterials() {
     vShader = shaders["vertexShader"];
@@ -26,6 +28,7 @@ function createAllMaterials() {
     terrainFShader = shaders["terrainFragmentShader"];
     sunFShader = shaders["sunFragmentShader"];
     customWaterFShader = shaders["customWaterShader"];
+    customWaterFShader2 = shaders["customWaterShader2"];
 
     let planeMatUniforms = THREE.UniformsUtils.merge([
         THREE.UniformsLib["lights"],
@@ -56,6 +59,15 @@ function createAllMaterials() {
         uniforms: planeMatUniforms,
         vertexShader: vShader,
         fragmentShader: customWaterFShader,
+        side: THREE.DoubleSide,
+        lights: true,
+        fog: true,
+    });
+
+    customWaterMaterial2 = new THREE.ShaderMaterial({
+        uniforms: planeMatUniforms,
+        vertexShader: vShader,
+        fragmentShader: customWaterFShader2,
         side: THREE.DoubleSide,
         lights: true,
         fog: true,
@@ -144,4 +156,5 @@ export {
     planeCustomMat,
     wallMaterial,
     customWaterMaterial,
+    customWaterMaterial2,
 };

@@ -8,11 +8,46 @@ function loadObjectMeshes(resolve) {
     let humanPromise = new Promise((resolve, reject) => {
         loadObject(resolve, "human.glb");
     });
+    let grassPromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "grass.glb");
+    });
+    let wheatPromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "wheat.glb");
+    });
+    let pigPromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "pig.glb");
+    });
+    let wolfPromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "wolf.glb");
+    });
+    let rabbitPromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "rabbit.glb");
+    });
+    let foxPromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "fox.glb");
+    });
+    let eaglePromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "eagle.glb");
+    });
+    let stockpilePromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "stockpile.glb");
+    });
+    let housePromise = new Promise((resolve, reject) => {
+        loadObject(resolve, "house.glb")
+    })
 
-    Promise.all([treePromise, humanPromise]).then((mesh) => {
+    Promise.all([treePromise, humanPromise, grassPromise, wheatPromise, pigPromise, wolfPromise, rabbitPromise, foxPromise, eaglePromise, stockpilePromise, housePromise]).then((mesh) => {
         meshes.tree = mesh[0];
         meshes.human = mesh[1];
-
+        meshes.grass = mesh[2];
+        meshes.wheat = mesh[3];
+        meshes.pig = mesh[4];
+        meshes.wolf = mesh[5];
+        meshes.rabbit = mesh[6];
+        meshes.fox = mesh[7];
+        meshes.eagle = mesh[8];
+        meshes.stockpile = mesh[9];
+        meshes.house = mesh[10];
         resolve();
     });
 }
@@ -29,10 +64,10 @@ function loadTextures(resolve) {
     texturePromises.push(new Promise((resolve, reject) => {
         const loader = new THREE.TextureLoader();
         loader.crossOrigin = "";
-        loader.load( "textures/terrain_n_map2.png", (texture) => {
+        loader.load("textures/terrain_n_map2.png", (texture) => {
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             let repeating = 7;
-            texture.repeat.set( repeating, repeating );
+            texture.repeat.set(repeating, repeating);
             textures.dirtNormalMap = {
                 texture: texture,
                 repeatFactor: repeating
@@ -44,10 +79,10 @@ function loadTextures(resolve) {
     texturePromises.push(new Promise((resolve, reject) => {
         const loader = new THREE.TextureLoader();
         loader.crossOrigin = "";
-        loader.load( "textures/indir.jfif", (texture) => {
+        loader.load("textures/indir.jfif", (texture) => {
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             let repeating = 10;
-            texture.repeat.set( repeating, repeating );
+            texture.repeat.set(repeating, repeating);
             textures.snowNormalMap = {
                 texture: texture,
                 repeatFactor: repeating
@@ -59,10 +94,10 @@ function loadTextures(resolve) {
     texturePromises.push(new Promise((resolve, reject) => {
         const loader = new THREE.TextureLoader();
         loader.crossOrigin = "";
-        loader.load( "textures/perlin_noise.png", (texture) => {
+        loader.load("textures/perlin_noise.png", (texture) => {
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             let repeating = 10;
-            texture.repeat.set( repeating, repeating );
+            texture.repeat.set(repeating, repeating);
             textures.perlinNoiseMap = {
                 texture: texture,
                 repeatFactor: repeating
@@ -78,7 +113,7 @@ function loadTextures(resolve) {
 
 function loadShaders(resolve) {
     let shaderFilePath = "/shaders/";
-    let fileNames = ["vertexShader.glsl", "fragmentShader.glsl", "terrainFragmentShader.glsl", "sunFragmentShader.glsl"];
+    let fileNames = ["vertexShader.glsl", "fragmentShader.glsl", "terrainFragmentShader.glsl", "sunFragmentShader.glsl", "customWaterShader.glsl"];
 
     let loadShaderPromises = [];
     const loader = new THREE.FileLoader();

@@ -111,6 +111,13 @@ function createWater() {
     world.scene.add(water);
 }
 
+function createCustomWater() {
+    let customWaterGeo = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale).translate(0, 0, -0.34 * parameters.plane.heightMultiplier).rotateX(-Math.PI / 2);
+    // water.material.uniforms.size = 500.0;
+    const material = Materials.customWaterMaterial;
+    const plane = new THREE.Mesh(customWaterGeo, material);
+    world.scene.add(plane);
+}
 
 function createTestSceneElements(scene) {
     // let treeObject = new Objects.Tree(new THREE.Vector3(-35, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
@@ -179,8 +186,8 @@ function createTestSceneElements(scene) {
     let lightSphereObject = new Objects.LightIndicator(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.lightIndicatorMaterial, pointLight);
     world.instantiateObject(lightSphereObject, false);
 
-    createWater();
-
+    // createWater();
+    createCustomWater();
     return {terrainObject};
 }
 
@@ -211,7 +218,6 @@ function threeStarter() {
         renderer.render(scene, camera);
 
         window.requestAnimationFrame(loop);
-        composer.render();
         loopStats.end();
     }
 

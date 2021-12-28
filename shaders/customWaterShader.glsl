@@ -105,11 +105,6 @@ void main() {
     }
 
     vec3 norm;
-    /*if (terrainType == 3) {
-        norm = texture2D(snowNormalMap, vUv * 5.0).rgb;
-    } else {
-        norm = texture2D(groundNormalMap, vUv * repeatFactor).rgb;
-    }*/
 
     norm = texture2D(groundNormalMap, vUv * repeatFactor).rgb;
     norm = vec3(1.0 - norm.r, 1.0 - norm.g, norm.b);

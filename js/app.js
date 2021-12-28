@@ -5,6 +5,8 @@ let water;
 let terrainObject;
 let frameCount = 0;
 
+let worker = new Worker("./js/util/AStar.js", {type: "module"});
+
 let raycaster;
 let orbitControls = null;
 let mousePicker = null;
@@ -39,7 +41,7 @@ let rigthBar = {
 };
 
 let canvasSize = {
-    width: innerWidth - chartSettings.chartSize.width-rigthBar.width,
+    width: innerWidth - chartSettings.chartSize.width - rigthBar.width,
     height: innerHeight,
 };
 

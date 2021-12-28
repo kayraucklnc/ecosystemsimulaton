@@ -181,6 +181,7 @@ class World {
     instantiateObjectOnGrid(object, layer = GridLayer.Surface) {
         let pos = object.getPos();
         if (this.checkPos(pos)) {
+            object.onDelete();
             return false;
         } else {
             this.fixObjectPos(object);

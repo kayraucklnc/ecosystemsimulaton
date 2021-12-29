@@ -117,7 +117,6 @@ class MovableObjectBase extends LivingObjectBase {
         this.speed = null;
 
         this.findingPathParallel = false;
-        // this.worker = new Worker("./js/util/AStar.js", {type: "module"});
 
         this.path = [];
         this.pathLines = [];
@@ -141,6 +140,11 @@ class MovableObjectBase extends LivingObjectBase {
         this.cleanLines();
     }
 
+    updateLines() {
+        world.scene.remove(this.pathLines[0]);
+        this.pathLines.shift();
+    }
+
     cleanLines() {
         this.pathLines.forEach((pL) => {
             world.scene.remove(pL);
@@ -149,21 +153,24 @@ class MovableObjectBase extends LivingObjectBase {
     }
 
     createLines(path) {
-        this.cleanLines();
+        this.updateLines();
 
-        if (path != null && path.length > 0) {
-            // let line = world.createLine(this.getPos(), path[path.length - 1], this.pathHeight, this.pathColor);
-            // this.pathLines.push(line);
-            // world.scene.add(line);
+        if (this.pathLines.length == 0) {
+            // console.log(path.length + " - " + this.pathLines.length);
+            if (path != null && path.length > 0) {
+                // let line = world.createLine(this.getPos(), path[path.length - 1], this.pathHeight, this.pathColor);
+                // this.pathLines.push(line);
+                // world.scene.add(line);
 
-            let line = world.createLine(this.getPos(), path[0], this.pathHeight, this.pathColor);
-            this.pathLines.push(line);
-            world.scene.add(line);
-
-            for (let i = 0; i < path.length - 1; i++) {
-                let line = world.createLine(path[i], path[i + 1], this.pathHeight, this.pathColor);
+                let line = world.createLine(this.getPos(), path[0], this.pathHeight, this.pathColor);
                 this.pathLines.push(line);
                 world.scene.add(line);
+
+                for (let i = 0; i < path.length - 1; i++) {
+                    let line = world.createLine(path[i], path[i + 1], this.pathHeight, this.pathColor);
+                    this.pathLines.push(line);
+                    world.scene.add(line);
+                }
             }
         }
     }
@@ -246,13 +253,13 @@ class MovableObjectBase extends LivingObjectBase {
         return this.findClosestWithAStarCustom(
             checkFunc,
             (e) => {
-                console.log("FOUND");
+                // console.log("FOUND");
                 this.path = world.getPathFromPure2DMatrix(e);
                 let targetPos = this.path.length > 0 ? this.path[this.path.length - 1] : this.getPos();
                 this.target = world.grid.getPos(targetPos, targetLayer);
             },
             (e) => {
-                console.log("FAIL");
+                // console.log("FAIL");
                 this.path = null;
                 this.target = null;
             }, targetLayer, movingLayer);

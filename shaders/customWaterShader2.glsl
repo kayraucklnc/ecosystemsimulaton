@@ -158,7 +158,6 @@ vec3 voronoi(in vec2 x) {
 //------------------------------
 
 void main() {
-    //    vec3 p =  worldPosition + vec3(u_time / 2.0, u_time, 0.0);
     vec3 p =  worldPosition;
     //----------- Lights -----------------
     vec3 norm = vNormal;

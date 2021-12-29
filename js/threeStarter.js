@@ -115,7 +115,7 @@ function createWater() {
 function createCustomWater() {
     let customWaterGeo = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale).translate(0, 0, -0.34 * parameters.plane.heightMultiplier).rotateX(-Math.PI / 2);
     // water.material.uniforms.size = 500.0;
-    const material = Materials.customWaterMaterial2;
+    const material = Materials.customWaterMaterial3;
     const plane = new THREE.Mesh(customWaterGeo, material);
     world.scene.add(plane);
 }

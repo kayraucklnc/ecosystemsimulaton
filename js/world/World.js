@@ -40,7 +40,7 @@ class World {
         return (Math.random() * (max - min) + min);
     }
 
-    getPure2DMatrix(layer=GridLayer.Surface) {
+    getPure2DMatrix(layer = GridLayer.Surface) {
         let matrix2d = [];
         for (let i = 0; i < world.grid.matrix[layer].length; i++) {
             let temp = [];
@@ -277,6 +277,7 @@ class World {
         } else {
             this.generalParent.remove(object.mesh);
         }
+
 
         this.meshIdToObject.delete(object.mesh.id);
 

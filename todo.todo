@@ -30,6 +30,8 @@
 [ İrem ] Load/Save template.
 [ Safa ] Grid üstündeki objeler diğerinden farklı bir objenin altında olsun.
 [ Safa ] make grass passable
+[ Safa ] Major optimizations.
+[ Safa ] Objelerin boyutlarını ayarla.
 
 
 --- OnGoing ---
@@ -41,8 +43,6 @@
 [ Safa ] Hayvanların parametrelerini parametersa koyma.
 [ Safa ] Pigle aynı bir cow.
 [ Safa ] Işık açıp kapatma.
-[ Safa ] Objelerin boyutlarını ayarla.
-[ Safa ] Optimize et.
 [ Kayra ] Webworker fix.
 [ Kayra ] Water shader.
 [ Kayra ] Shader değiştirme.

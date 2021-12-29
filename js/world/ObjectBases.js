@@ -132,12 +132,12 @@ class MovableObjectBase extends LivingObjectBase {
 
     onDelete() {
         super.onDelete();
-
+        this.cleanLines();
+        
         if (this.worker) {
             this.worker.terminate();
-        }
 
-        this.cleanLines();
+        }
     }
 
     updateLines() {
@@ -390,6 +390,9 @@ class MovableObjectBase extends LivingObjectBase {
 
     update() {
         super.update();
+        if (!parameters.simulation.showPaths) {
+            this.cleanLines();
+        }
     }
 }
 

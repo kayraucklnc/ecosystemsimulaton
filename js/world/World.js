@@ -44,9 +44,9 @@ class World {
         let matrix2d = [];
         for (let i = 0; i < world.grid.matrix[layer].length; i++) {
             let temp = [];
-            for (let j = 0; j < world.grid.matrix[2][i].length; j++) {
-                if (world.grid.matrix[2][i][j] != null) {
-                    temp.push(world.grid.matrix[2][i][j].constructor.name);
+            for (let j = 0; j < world.grid.matrix[layer][i].length; j++) {
+                if (world.grid.matrix[layer][i][j] != null) {
+                    temp.push(world.grid.matrix[layer][i][j].constructor.name);
                 } else {
                     temp.push(null);
                 }

@@ -495,9 +495,11 @@ class Rabbit extends ObjectBases.MovableObjectBase {
 
     mate() {
         const thisGender = this.gender;
-        this.findClosestWithAStarStateProtected((value) => {
-            return value instanceof Rabbit && thisGender !== value.gender;
-        });
+        if (this.target == null) {
+            this.findClosestWithAStarStateProtected((value) => {
+                return value instanceof Rabbit && thisGender !== value.gender;
+            });
+        }
 
         if (this.target) {
             this.executePath(
@@ -518,6 +520,10 @@ class Rabbit extends ObjectBases.MovableObjectBase {
                     } else {
                         this.cleanLines();
                     }
+
+                    this.findClosestWithAStarStateProtected((value) => {
+                        return value instanceof Rabbit && thisGender !== value.gender;
+                    });
                 },
                 true
             );

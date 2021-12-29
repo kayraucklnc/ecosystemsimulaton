@@ -121,61 +121,61 @@ function createCustomWater() {
 }
 
 function createTestSceneElements(scene) {
-    // let treeObject = new Objects.Tree(new THREE.Vector3(-35, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
-    // world.instantiateObject(treeObject);
-    // let humanObject = new Objects.Human(new THREE.Vector3(35, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);
-    // world.instantiateObject(humanObject);
-    // let squirrelObject = new Objects.Squirrel(new THREE.Vector3(6,0,0), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
-    // world.instantiateObject(squirrelObject);
-    //
-    // for (let i = 0; i < 100; i++) {
-    //     let grassObject = new Objects.Grass(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.treeMaterial);
-    //     world.instantiateObject(grassObject);
-    // }
-    //
-    // for (let i = 0; i < 200; i++) {
-    //     let wheatObject = new Objects.Wheat(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.treeMaterial);
-    //     world.instantiateObject(wheatObject);
-    // }
-    //
-    //
-    // for (let i = 0; i < 100; i++) {
-    //     let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.treeMaterial);
-    //     world.instantiateObject(treeObject);
-    // }
-    //
-    //
-    // for (let i = 0; i < 150; i++) {
-    //     let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.humanMaterial);
-    //     world.instantiateObject(humanObject);
-    // }
-    //
-    //
+    let treeObject = new Objects.Tree(new THREE.Vector3(-35, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
+    world.instantiateObject(treeObject);
+    let humanObject = new Objects.Human(new THREE.Vector3(35, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);
+    world.instantiateObject(humanObject);
+    let squirrelObject = new Objects.Squirrel(new THREE.Vector3(6,0,0), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+    world.instantiateObject(squirrelObject);
+
+    for (let i = 0; i < 100; i++) {
+        let grassObject = new Objects.Grass(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.treeMaterial);
+        world.instantiateObject(grassObject);
+    }
+
+    for (let i = 0; i < 200; i++) {
+        let wheatObject = new Objects.Wheat(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.treeMaterial);
+        world.instantiateObject(wheatObject);
+    }
+
+
+    for (let i = 0; i < 100; i++) {
+        let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.treeMaterial);
+        world.instantiateObject(treeObject);
+    }
+
+
+    for (let i = 0; i < 150; i++) {
+        let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.humanMaterial);
+        world.instantiateObject(humanObject);
+    }
+
+
     // for (let i = 0; i < 50; i++) {
     //     let squirrelObject = new Objects.Squirrel(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
     //     world.instantiateObject(squirrelObject);
     // }
-    //
-    //
-    // for (let i = 0; i < 150; i++) {
-    //     let pigObject = new Objects.Pig(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
-    //     world.instantiateObject(pigObject);
-    // }
-    //
-    // for (let i = 0; i < 150; i++) {
-    //     let wolfObject = new Objects.Wolf(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
-    //     world.instantiateObject(wolfObject);
-    // }
-    //
-    // for (let i = 0; i < 150; i++) {
-    //     let rabbitObject = new Objects.Rabbit(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
-    //     world.instantiateObject(rabbitObject);
-    // }
-    //
-    // for (let i = 0; i < 10; i++) {
-    //     let foxObject = new Objects.Fox(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
-    //     world.instantiateObject(foxObject);
-    // }
+
+
+    for (let i = 0; i < 150; i++) {
+        let pigObject = new Objects.Pig(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+        world.instantiateObject(pigObject);
+    }
+
+    for (let i = 0; i < 150; i++) {
+        let wolfObject = new Objects.Wolf(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+        world.instantiateObject(wolfObject);
+    }
+
+    for (let i = 0; i < 150; i++) {
+        let rabbitObject = new Objects.Rabbit(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+        world.instantiateObject(rabbitObject);
+    }
+
+    for (let i = 0; i < 10; i++) {
+        let foxObject = new Objects.Fox(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+        world.instantiateObject(foxObject);
+    }
 
     const pointLight = new THREE.PointLight(0xffffff, 1.05, 400);
     pointLight.position.set(12, 25, 9);

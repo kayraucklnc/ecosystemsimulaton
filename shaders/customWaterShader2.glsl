@@ -73,7 +73,7 @@ float snoise(vec3 p) {
 }
 
 vec2 random2(vec2 p) {
-    return fract(sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3))))*43758.5453);
+return fract(sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3))))*43758.5453);
 }
 
 vec3 voronoi(in vec2 x) {
@@ -120,7 +120,7 @@ vec3 voronoi(in vec2 x) {
 //------------------------------
 
 void main() {
-    vec3 p =  worldPosition + vec3(u_time / 2.0, u_time, 0.0);
+    vec3 p =  worldPosition + vec3(u_time, u_time, 0.0);
     //----------- Lights -----------------
     vec3 norm = vNormal;
     vec4 addedLights = vec4(0.0,

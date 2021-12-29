@@ -96,10 +96,11 @@ class Terrain extends ObjectBases.WorldObjectBase {
     getHeight(vec2) {
         //return perlin.get(vec2.x * parameters.plane.noiseScale, vec2.y * parameters.plane.noiseScale) * parameters.plane.heightMultiplier;
         var r = 0;
+        let frequency, amplitude, noise;
         for (var i = 0; i <= 3; i++) {
-            var frequency = Math.pow(parameters.plane.lacunarity, i);
-            var amplitude = Math.pow(parameters.plane.persistance, i);
-            var noise = perlin.get(vec2.x *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness, vec2.y *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness ) ;
+            frequency = Math.pow(parameters.plane.lacunarity, i);
+            amplitude = Math.pow(parameters.plane.persistance, i);
+            noise = perlin.get(vec2.x *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness, vec2.y *  parameters.plane.noiseScale * frequency / parameters.plane.smoothness ) ;
             r += noise * amplitude;
         }
         return r * parameters.plane.heightMultiplier;
@@ -124,7 +125,9 @@ class Terrain extends ObjectBases.WorldObjectBase {
         this.material.uniforms["maxTerrainHeight"].value = parameters.plane.heightMultiplier;
 
         if (water) {
-            water.position.y = parameters.plane.waterHeight * parameters.plane.heightMultiplier;
+            water.geometry = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale).translate(0, 0, parameters.plane.waterHeight * parameters.plane.heightMultiplier).rotateX(-Math.PI / 2);
+            water.geometry.computeVertexNormals();
+            water.geometry.computeTangents();
         }
 
         if (world.grid && this.grid == null) {
@@ -160,6 +163,8 @@ class Tree extends ObjectBases.LivingObjectBase {
         this.spawnPos = null;
 
         this.mesh = meshes.tree.clone();
+        let scaleFactor = 0.35 * world.getCellSize();
+        this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
         this.setPos(pos);
         this.setRot(rotation);
@@ -215,6 +220,9 @@ class Grass extends ObjectBases.LivingObjectBase {
 
         this._onLayer = GridLayer.Ground;
 
+        let scaleFactor = 1.5 * world.getCellSize();
+        this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
+
         this.setPos(pos);
         this.setRot(rotation);
     }
@@ -263,6 +271,8 @@ class Wheat extends ObjectBases.LivingObjectBase {
         this.health = 50;
         this.selectable =true;
         this.mesh = meshes.wheat.clone();
+        let scaleFactor = 3.0 * world.getCellSize();
+        this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
         this._onLayer = GridLayer.Ground;
 
@@ -311,9 +321,10 @@ class Fox extends ObjectBases.MovableObjectBase {
         }
 
         this.mesh = meshes.fox.clone();
+        let scaleFactor = 3.0 * world.getCellSize();
+        this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
         this.setPos(pos);
         this.setRot(rotation);
-        this.movement = 0.0
 
         this.state = this.foxStates.Idle;
         this.idleCount = 0;
@@ -466,7 +477,8 @@ class Rabbit extends ObjectBases.MovableObjectBase {
         this.setPos(pos);
         this.setRot(rotation);
 
-        this.mesh.scale.set(5 * world.getCellSize(), 5 * world.getCellSize(), 5 * world.getCellSize());
+        let scaleFactor = 5.0 * world.getCellSize();
+        this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
         this.state = this.rabbitStates.Grazing;
     }
 
@@ -604,8 +616,8 @@ class Pig extends ObjectBases.MovableObjectBase {
         this.setPos(pos);
         this.setRot(rotation);
 
-        this.mesh.scale.set(5.0, 5.0, 5.0);
-        this.movement = 0.0
+        let scaleFactor = 3.0 * world.getCellSize();
+        this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
     }
 
     update() {
@@ -721,9 +733,10 @@ class Wolf extends ObjectBases.MovableObjectBase {
         }
 
         this.mesh = meshes.wolf.clone();
+        let scaleFactor = 2.0 * world.getCellSize();
+        this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
         this.setPos(pos);
         this.setRot(rotation);
-        this.movement = 0.0
 
         this.state = this.wolfStates.Idle;
         this.idleCount = 0;
@@ -974,6 +987,8 @@ class Human extends ObjectBases.MovableObjectBase {
         this.selectable = true;
 
         this.mesh = meshes.human.clone();
+        let scaleFactor = 0.04 * world.getCellSize();
+        this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
         this.setPos(pos);
         this.setRot(rotation);

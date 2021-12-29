@@ -15,7 +15,7 @@ class GUI {
         cloudsFolder.add(parameters.clouds,'count', 0.1, 2).name("Count");
 
 
-        this.planeScale = terrainFolder.add(parameters.plane, 'scale', 1, 30).name("Plane Scale");
+        this.planeScale = terrainFolder.add(parameters.plane, 'scale', 20, 1500).name("Plane Scale");
         this.heightMultiplier = terrainFolder.add(parameters.plane, 'heightMultiplier', 1, 30).name("Plane Height");
         this.noiseScale = terrainFolder.add(parameters.plane, 'noiseScale', 0.001, 3).name("Noise Scale");
         this.resolution = terrainFolder.add(parameters.plane, 'resolution', 4, 300).name("Resolution");

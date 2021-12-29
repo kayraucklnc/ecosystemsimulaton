@@ -113,39 +113,39 @@ function createWater() {
 }
 
 function createCustomWater() {
-    let customWaterGeo = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale).translate(0, 0, -0.34 * parameters.plane.heightMultiplier).rotateX(-Math.PI / 2);
+    let customWaterGeo = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale).translate(0, 0, parameters.plane.waterHeight * parameters.plane.heightMultiplier).rotateX(-Math.PI / 2);
     // water.material.uniforms.size = 500.0;
     const material = Materials.customWaterMaterial2;
-    const plane = new THREE.Mesh(customWaterGeo, material);
-    world.scene.add(plane);
+    water = new THREE.Mesh(customWaterGeo, material);
+    world.scene.add(water);
 }
 
 function createTestSceneElements(scene) {
-    let treeObject = new Objects.Tree(new THREE.Vector3(-35, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
-    world.instantiateObject(treeObject);
-    let humanObject = new Objects.Human(new THREE.Vector3(35, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);
-    world.instantiateObject(humanObject);
-    let squirrelObject = new Objects.Squirrel(new THREE.Vector3(6,0,0), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
-    world.instantiateObject(squirrelObject);
+    // let treeObject = new Objects.Tree(new THREE.Vector3(-35, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
+    // world.instantiateObject(treeObject);
+    // let humanObject = new Objects.Human(new THREE.Vector3(35, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);
+    // world.instantiateObject(humanObject);
+    // let squirrelObject = new Objects.Squirrel(new THREE.Vector3(6,0,0), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+    // world.instantiateObject(squirrelObject);
 
     for (let i = 0; i < 100; i++) {
         let grassObject = new Objects.Grass(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.treeMaterial);
         world.instantiateObject(grassObject);
     }
 
-    for (let i = 0; i < 200; i++) {
-        let wheatObject = new Objects.Wheat(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.treeMaterial);
-        world.instantiateObject(wheatObject);
-    }
+    // for (let i = 0; i < 200; i++) {
+    //     let wheatObject = new Objects.Wheat(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.treeMaterial);
+    //     world.instantiateObject(wheatObject);
+    // }
 
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 500; i++) {
         let treeObject = new Objects.Tree(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.treeMaterial);
         world.instantiateObject(treeObject);
     }
 
 
-    for (let i = 0; i < 150; i++) {
+    for (let i = 0; i < 200; i++) {
         let humanObject = new Objects.Human(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.humanMaterial);
         world.instantiateObject(humanObject);
     }
@@ -207,8 +207,6 @@ function threeStarter() {
     function loop() {
         loopStats.begin();
 
-        frameCount++;
-
         raycaster.setFromCamera(mouse, camera);
 
         controls.update();
@@ -223,13 +221,11 @@ function threeStarter() {
         if (isSimActive) {
             let timeBoostAmount = simulation.timeScale / (1000 / 60)
             for (let i = 0; i < timeBoostAmount; i++) {
+                frameCount++;
                 world.update();
             }
 
             Materials.planeCustomMat.uniforms.u_time.value += 0.01 * timeBoostAmount;
-            if (water) {
-                water.material.uniforms['time'].value += (0.1 / 60.0) * timeBoostAmount;
-            }
         }
 
         window.requestAnimationFrame(worldLoop);

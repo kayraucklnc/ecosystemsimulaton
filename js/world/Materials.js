@@ -3,6 +3,9 @@ import * as THREE from "../library/three.js-r135/build/three.module.js";
 let vShader;
 let fShader;
 let terrainFShader;
+let customWaterFShader;
+let customWaterFShader2;
+
 let sunFShader;
 
 const planeMat = new THREE.MeshPhongMaterial({
@@ -10,19 +13,22 @@ const planeMat = new THREE.MeshPhongMaterial({
     side: THREE.DoubleSide,
     flatShading: THREE.FlatShading,
 });
-
 let planeCustomMat = null;
 let treeMaterial = null;
 let humanMaterial = null;
 let wallMaterial = null;
 let squirrelMaterial = null;
 let lightIndicatorMaterial = null;
+let customWaterMaterial = null;
+let customWaterMaterial2 = null;
 
 function createAllMaterials() {
     vShader = shaders["vertexShader"];
     fShader = shaders["fragmentShader"];
     terrainFShader = shaders["terrainFragmentShader"];
     sunFShader = shaders["sunFragmentShader"];
+    customWaterFShader = shaders["customWaterShader"];
+    customWaterFShader2 = shaders["customWaterShader2"];
 
     let planeMatUniforms = THREE.UniformsUtils.merge([
         THREE.UniformsLib["lights"],
@@ -44,6 +50,24 @@ function createAllMaterials() {
         uniforms: planeMatUniforms,
         vertexShader: vShader,
         fragmentShader: terrainFShader,
+        side: THREE.DoubleSide,
+        lights: true,
+        fog: true,
+    });
+
+    customWaterMaterial = new THREE.ShaderMaterial({
+        uniforms: planeMatUniforms,
+        vertexShader: vShader,
+        fragmentShader: customWaterFShader,
+        side: THREE.DoubleSide,
+        lights: true,
+        fog: true,
+    });
+
+    customWaterMaterial2 = new THREE.ShaderMaterial({
+        uniforms: planeMatUniforms,
+        vertexShader: vShader,
+        fragmentShader: customWaterFShader2,
         side: THREE.DoubleSide,
         lights: true,
         fog: true,
@@ -131,4 +155,6 @@ export {
     planeMat,
     planeCustomMat,
     wallMaterial,
+    customWaterMaterial,
+    customWaterMaterial2,
 };

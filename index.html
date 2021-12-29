@@ -18,9 +18,9 @@
 <script src="/js/app.js"></script>
 <script type="module" src="/js/threeStarter.js"></script>
 <script src="js/util/perlinNoise.js"></script>
-<script type= "module" src="js/util/domElementHandlers.js"></script>
+<script type="module" src="js/util/domElementHandlers.js"></script>
 <script src="js/util/chartDrawer.js"></script>
-<script src="js/util/AStar.js" type="module"></script>
+<!--<script src="js/util/AStar.js" type="module"></script>-->
 <script src="js/parameters.js"></script>
 <script src="js/library/dat.gui.min.js"></script>
 <script src="js/gui/gui.js"></script>
@@ -40,11 +40,11 @@
         <div>
             <div style="text-align: center; padding: 10px">
                 <div style="font-size: 18pt; color: aliceblue">Timescale</div>
-                <input onchange="simulationSpeedChange()" style="width: 100%;" type="range" min="0.1" max="200"
+                <input style="width: 100%;" type="range" min="0.1" max="200"
                        value="20" step="0.1" class="slider" id="timescale-slider">
             </div>
             <div style="text-align: center; padding: 10px">
-                <button onclick="simulationToggle()" class="button" style="font-size: 20pt" id="stop-sim-button">Pause
+                <button class="button" style="font-size: 20pt" id="stop-sim-button">Pause
                     Simulation
                 </button>
             </div>
@@ -72,9 +72,10 @@
             <option value="Template4">Template 4</option>
         </select>
 
-        <button id='saveButton' class="btn" style="font-size: 14pt"><i class="fa fa-download"></i> Save Template</button>
+        <button id='saveButton' class="btn" style="font-size: 14pt"><i class="fa fa-download"></i> Save Template
+        </button>
         <input id='fileid' type='file' hidden/>
-        <input id='loadButton' type='button' value='Load Template'  style="font-size : 19px" />
+        <input id='loadButton' type='button' value='Load Template' style="font-size : 19px"/>
 
     </div>
 </div>

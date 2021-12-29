@@ -37,7 +37,6 @@
 --- OnGoing ---
 [ Yiğit ] Alternative terrain shader.
 [ Yiğit ] Obje shaderlarını ve emissionları düzeltme
-[ Yiğit ] Implement bird
 [ Safa ] Grassları treelere bağlama.
 [ Safa ] Her obje farklı classta.
 [ Safa ] Hayvanların parametrelerini parametersa koyma.
@@ -57,5 +56,4 @@
 [ Kayra ] Water Shader - (Bump Mapping ile) ve Water Plane
 [ Kayra ] Atmospher Shader
 [ Yiğit ] Switch object mesh according to entity status (i.e. idle vs moving)
-[ Yiğit ] Move object properties such as hunger to parameters.js
 [ ] Tree - Human - Squirrel - Fox - House   Human Fox ve Tree öldürüyor, ev yapıyor. Squirrel ağaçla çoğalıyor, ağaç dikiyor. Fox Squirrel yiyor. (Şimdilik)

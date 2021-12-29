@@ -467,8 +467,6 @@ class Rabbit extends ObjectBases.MovableObjectBase {
         this.setRot(rotation);
 
         this.mesh.scale.set(5 * world.getCellSize(), 5 * world.getCellSize(), 5 * world.getCellSize());
-        this.movement = 0.0;
-
         this.state = this.rabbitStates.Grazing;
     }
 

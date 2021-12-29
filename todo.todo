@@ -32,6 +32,7 @@
 [ Safa ] make grass passable
 [ Safa ] Major optimizations.
 [ Safa ] Objelerin boyutlarını ayarla.
+[ Safa ] Işık açıp kapatma.
 
 
 --- OnGoing ---
@@ -41,7 +42,6 @@
 [ Safa ] Her obje farklı classta.
 [ Safa ] Hayvanların parametrelerini parametersa koyma.
 [ Safa ] Pigle aynı bir cow.
-[ Safa ] Işık açıp kapatma.
 [ Kayra ] Webworker fix.
 [ Kayra ] Water shader.
 [ Kayra ] Shader değiştirme.

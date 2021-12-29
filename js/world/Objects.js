@@ -41,23 +41,23 @@ class Sphere extends ObjectBases.MovableObjectBase {
 class LightIndicator extends ObjectBases.WorldObjectBase {
     constructor(pos, rotation, material, target) {
         super(pos, rotation, material);
-        this.toFollow = target;
+        this.light = target;
 
         this.selectable = true;
 
-        const sphereGeometry = new THREE.SphereGeometry(0.5);
+        const sphereGeometry = new THREE.SphereGeometry(1.3);
         this.mesh = new THREE.Mesh(sphereGeometry, material);
 
-        this.setPos(this.toFollow.position);
+        this.setPos(this.light.position);
         this.setRot(rotation);
     }
 
     update() {
         super.update();
 
-        if (this.getPos().distanceToSquared(this.toFollow.position) > 0.01) {
+        if (this.getPos().distanceToSquared(this.light.position) > 0.01) {
             let currentPos = this.getPos();
-            this.toFollow.position.set(currentPos.x, currentPos.y, currentPos.z);
+            this.light.position.set(currentPos.x, currentPos.y, currentPos.z);
         }
     }
 }

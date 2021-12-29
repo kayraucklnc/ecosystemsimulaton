@@ -185,9 +185,9 @@ void main() {
 
     //----------- Voronoi -----------------
     vec3 color = vec3(0.);
-    vec3 c = voronoi(p.xz / 5.0);
+    vec3 c = voronoi(p.xz / 2.0);
     float scale = 1.5;
-    float scale2 = 0.3;
+    float scale2 = 0.45;
     float a = snoise(p.xyz / scale) * scale2;
     float b = snoise(p.xyz / scale) * scale2;
 

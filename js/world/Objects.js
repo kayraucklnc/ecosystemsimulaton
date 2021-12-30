@@ -359,11 +359,11 @@ class Fox extends ObjectBases.MovableObjectBase {
         this.idleCount += 1;
         if (this.idleCount >= 10) {
             this.state = this.foxStates.Hunting;
+            this.idleCount = 0;
         }
     }
 
     hunt() {
-        this.idleCount = 0;
         if (this.target == null) {
             this.findClosestWithAStarStateProtected((value) => {
                 return value instanceof Rabbit
@@ -374,8 +374,8 @@ class Fox extends ObjectBases.MovableObjectBase {
             this.executePath(
                 () => {
                     if (this.target != null) {
-                        if (this.target.applyDamage(50)) {
-                            this.hunger -= 20;
+                        if (this.target.applyDamage(20)) {
+                            this.hunger -= 30;
                             if (this.hunger < 0) {
                                 this.hunger = 0
                             }
@@ -400,13 +400,10 @@ class Fox extends ObjectBases.MovableObjectBase {
             this.state = this.foxStates.Hunting;
         } else if (this.hunger < 15) {
             this.state = this.foxStates.Mating;
-        } else {
-            this.state = this.foxStates.Idle;
         }
     }
 
     mate() {
-        this.idleCount = 0;
         const thisGender = this.gender;
         if (this.target == null) {
             this.findClosestWithAStarStateProtected((value) => {
@@ -438,8 +435,6 @@ class Fox extends ObjectBases.MovableObjectBase {
 
         if (this.hunger >= 40) {
             this.state = this.foxStates.Hunting;
-        } else {
-            this.state = this.foxStates.Idle;
         }
     }
 
@@ -593,9 +588,9 @@ class Pig extends ObjectBases.MovableObjectBase {
         this.stateTick = 0;
         this.target = null;
 
-        this.hunger = 1;
+        this.hunger = 50;
         this.getsHungryByTime = true;
-        this.hungerIncreasePerFrame = 0.08;
+        this.hungerIncreasePerFrame = 0.04;
         this.hungerToStarve = 100;
         this.hungerDamage = 1;
 
@@ -624,12 +619,12 @@ class Pig extends ObjectBases.MovableObjectBase {
         let satiated = false;
         if (this.hunger <= 15) {
             satiated = true;
-        }
-        ;
+        };
+
         if (this.hunger >= 40) {
             satiated = false
-        }
-        ;
+        };
+
         if (this.hunger > 20 && !satiated && this.target == null) {
             this.state = 0;
             this.findClosestWithAStarStateProtected((value) => {
@@ -647,13 +642,8 @@ class Pig extends ObjectBases.MovableObjectBase {
             if (this.state == 0) {
                 this.executePath(
                     () => {
-                        if (this.target.applyDamage(6)) {
-                            this.hunger -= 20;
-                            if (this.hunger < 0) {
-                                this.hunger = 0
-                            }
-                            ;
-
+                        if (this.target.applyDamage(4)) {
+                            this.changeHungerBy(-15);
                             this.target = null;
                         }
                     },
@@ -708,7 +698,7 @@ class Wolf extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 250;
-        this.speed = 0.04;
+        this.speed = 0.03;
         this.selectable = true;
 
         this.hunger = 50;
@@ -777,11 +767,11 @@ class Wolf extends ObjectBases.MovableObjectBase {
         this.idleCount += 1;
         if (this.idleCount >= 10) {
             this.state = this.wolfStates.Hunting;
+            this.idleCount = 0;
         }
     }
 
     hunt() {
-        this.idleCount = 0;
         if (this.target == null) {
             this.findClosestWithAStarStateProtected((value) => {
                 return value instanceof Pig
@@ -792,11 +782,8 @@ class Wolf extends ObjectBases.MovableObjectBase {
             this.executePath(
                 () => {
                     if (this.target != null) {
-                        if (this.target.applyDamage(50)) {
-                            this.hunger -= 20;
-                            if (this.hunger < 0) {
-                                this.hunger = 0
-                            }
+                        if (this.target.applyDamage(15)) {
+                            this.changeHungerBy(-20);
                             this.target = null;
                         }
                     }
@@ -818,13 +805,10 @@ class Wolf extends ObjectBases.MovableObjectBase {
             this.state = this.wolfStates.Hunting;
         } else if (this.hunger < 15) {
             this.state = this.wolfStates.Mating;
-        } else {
-            this.state = this.wolfStates.Idle;
         }
     }
 
     mate() {
-        this.idleCount = 0;
         const thisGender = this.gender;
         if (this.target == null) {
             this.findClosestWithAStarStateProtected((value) => {
@@ -856,8 +840,6 @@ class Wolf extends ObjectBases.MovableObjectBase {
 
         if (this.hunger >= 40) {
             this.state = this.wolfStates.Hunting;
-        } else {
-            this.state = this.wolfStates.Idle;
         }
     }
 

@@ -153,7 +153,6 @@ class Terrain extends ObjectBases.WorldObjectBase {
 
 
 class Tree extends ObjectBases.LivingObjectBase {
-    //TODO: implement self-spreading instead of squirrels
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
@@ -165,6 +164,11 @@ class Tree extends ObjectBases.LivingObjectBase {
         this.mesh = meshes.tree.clone();
         let scaleFactor = 0.35 * world.getCellSize();
         this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
+
+        this.ticker = 0;
+        this.spreadCheckFrequency = 300;
+        this.spreadChance = 0.10;
+        this.nextSpread = this.spreadCheckFrequency;
 
         this.setPos(pos);
         this.setRot(rotation);
@@ -180,13 +184,17 @@ class Tree extends ObjectBases.LivingObjectBase {
         super.update();
 
         this.ticker += 1;
-        let i = Math.random();
-        if (this.ticker == 120) {
-            if (i >= 0.88) {
+        if (this.ticker >= this.nextSpread) {
+            let i = Math.random();
+            if (i < this.spreadChance) {
                 this.spread();
             }
+
+            let change = 1 - (Math.random() - 0.5) / 3.0;
+            this.nextSpread = this.spreadCheckFrequency * change;
             this.ticker = 0;
         }
+
         if (this.health <= 0) {
             this.die();
         }
@@ -208,7 +216,6 @@ class Tree extends ObjectBases.LivingObjectBase {
 }
 
 class Grass extends ObjectBases.LivingObjectBase {
-    //TODO: make grass passable, adjust spread values, fix error with grass spawning (spawnpos is null) that happens for some reason
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 50;
@@ -217,6 +224,9 @@ class Grass extends ObjectBases.LivingObjectBase {
         this.mesh = meshes.grass.clone();
 
         this.ticker = 0;
+        this.spreadCheckFrequency = 200;
+        this.spreadChance = 0.3;
+        this.nextSpread = this.spreadCheckFrequency;
 
         this._onLayer = GridLayer.Ground;
 
@@ -235,11 +245,14 @@ class Grass extends ObjectBases.LivingObjectBase {
         super.update();
 
         this.ticker += 1;
-        let i = Math.random();
-        if (this.ticker == 100) {
-            if (i > 0.95) {
+        if (this.ticker >= this.nextSpread) {
+            let i = Math.random();
+            if (i < this.spreadChance) {
                 this.spread();
             }
+
+            let change = 1 - (Math.random() - 0.5) / 3.0;
+            this.nextSpread = this.spreadCheckFrequency * change;
             this.ticker = 0;
         }
 
@@ -547,13 +560,8 @@ class Rabbit extends ObjectBases.MovableObjectBase {
             this.executePath(
                 () => {
                     if (this.target != null) {
-                        if (this.target.applyDamage(3)) {
-                            this.hunger -= 25;
-                            if (this.hunger < 0) {
-                                this.hunger = 0
-                            }
-                            ;
-
+                        if (this.target.applyDamage(2)) {
+                            this.changeHungerBy(-35);
                             this.target = null;
                         }
                     }
@@ -588,7 +596,7 @@ class Pig extends ObjectBases.MovableObjectBase {
         this.stateTick = 0;
         this.target = null;
 
-        this.hunger = 50;
+        this.hunger = 40;
         this.getsHungryByTime = true;
         this.hungerIncreasePerFrame = 0.04;
         this.hungerToStarve = 100;
@@ -642,8 +650,8 @@ class Pig extends ObjectBases.MovableObjectBase {
             if (this.state == 0) {
                 this.executePath(
                     () => {
-                        if (this.target.applyDamage(4)) {
-                            this.changeHungerBy(-15);
+                        if (this.target.applyDamage(3)) {
+                            this.changeHungerBy(-35);
                             this.target = null;
                         }
                     },
@@ -697,13 +705,13 @@ class Pig extends ObjectBases.MovableObjectBase {
 class Wolf extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
-        this.health = 250;
+        this.health = 200;
         this.speed = 0.03;
         this.selectable = true;
 
         this.hunger = 50;
         this.getsHungryByTime = true;
-        this.hungerIncreasePerFrame = 0.04;
+        this.hungerIncreasePerFrame = 0.12;
         this.hungerToStarve = 100;
         this.hungerDamage = 4;
 
@@ -774,7 +782,7 @@ class Wolf extends ObjectBases.MovableObjectBase {
     hunt() {
         if (this.target == null) {
             this.findClosestWithAStarStateProtected((value) => {
-                return value instanceof Pig
+                return value instanceof Pig || value instanceof Rabbit || value instanceof Fox || value instanceof Human;
             });
         }
 
@@ -977,7 +985,7 @@ class Human extends ObjectBases.MovableObjectBase {
 
         if (this.target == null) {
             this.findClosestWithAStar((o) => {
-                return o instanceof Tree;
+                return o instanceof Tree || o instanceof Wolf;
             });
         }
 

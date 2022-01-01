@@ -166,18 +166,12 @@ class Tree extends ObjectBases.LivingObjectBase {
         this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
         this.ticker = 0;
-        this.spreadCheckFrequency = 300;
-        this.spreadChance = 0.10;
+        this.spreadCheckFrequency = 400;
+        this.spreadChance = 0.25;
         this.nextSpread = this.spreadCheckFrequency;
 
         this.setPos(pos);
         this.setRot(rotation);
-    }
-
-
-    applyDamage(damage) {
-        // console.log("Tree got " + damage + " damage.")
-        return super.applyDamage(damage);
     }
 
     update() {
@@ -201,7 +195,7 @@ class Tree extends ObjectBases.LivingObjectBase {
     }
 
     spread() {
-        const randomPoint = new THREE.Vector3((Math.random() - 0.5) * 10, 0, (Math.random() - 0.5) * 10).add(this.getPos());
+        const randomPoint = new THREE.Vector3((Math.random() - 0.5) * 15, 0, (Math.random() - 0.5) * 15).add(this.getPos());
         if (world.grid.checkIfInGrid(randomPoint) && !world.checkPos(randomPoint)) {
             this.spawnPos = world.getCellCenter(randomPoint);
             const newTree = new Tree(this.spawnPos, new THREE.Vector3(), Materials.treeMaterial);
@@ -235,10 +229,6 @@ class Grass extends ObjectBases.LivingObjectBase {
 
         this.setPos(pos);
         this.setRot(rotation);
-    }
-
-    applyDamage(damage) {
-        return super.applyDamage(damage);
     }
 
     update() {
@@ -291,10 +281,6 @@ class Wheat extends ObjectBases.LivingObjectBase {
 
         this.setPos(pos);
         this.setRot(rotation);
-    }
-
-    applyDamage(damage) {
-        return super.applyDamage(damage);
     }
 
     update() {
@@ -359,7 +345,7 @@ class Fox extends ObjectBases.MovableObjectBase {
     }
 
     spawn() {
-        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0, 0, 1).applyEuler(this.getRot()));
+        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5));
 
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
             const newFox = new Fox(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
@@ -500,7 +486,7 @@ class Rabbit extends ObjectBases.MovableObjectBase {
     }
 
     spawn() {
-        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0, 0, 1).applyEuler(this.getRot()));
+        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5));
 
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
             const newRabbit = new Rabbit(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
@@ -623,22 +609,13 @@ class Pig extends ObjectBases.MovableObjectBase {
         if (this.health <= 0) {
             this.die();
         }
-        //will go for the closest grass if hungry, else it'll try to find a mate
-        let satiated = false;
-        if (this.hunger <= 15) {
-            satiated = true;
-        };
 
-        if (this.hunger >= 40) {
-            satiated = false
-        };
-
-        if (this.hunger > 20 && !satiated && this.target == null) {
+        if (this.hunger > 15 && this.target == null) {
             this.state = 0;
             this.findClosestWithAStarStateProtected((value) => {
                 return value instanceof Grass
             }, GridLayer.Ground);
-        } else if (this.hunger < 20 && satiated && this.target == null) {
+        } else if (this.hunger <= 15 && this.target == null) {
             const tmpGnd = this.gender;
             this.state = 1;
             this.findClosestWithAStarStateProtected((value) => {
@@ -650,8 +627,8 @@ class Pig extends ObjectBases.MovableObjectBase {
             if (this.state == 0) {
                 this.executePath(
                     () => {
-                        if (this.target.applyDamage(3)) {
-                            this.changeHungerBy(-35);
+                        if (this.target.applyDamage(2)) {
+                            this.changeHungerBy(-40);
                             this.target = null;
                         }
                     },
@@ -692,7 +669,7 @@ class Pig extends ObjectBases.MovableObjectBase {
     }
 
     spawn() {
-        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0, 0, 1).applyEuler(this.getRot()));
+        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5));
 
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
             const newPig = new Pig(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
@@ -757,12 +734,8 @@ class Wolf extends ObjectBases.MovableObjectBase {
         }
     }
 
-    die() {
-        super.die();
-    }
-
     spawn() {
-        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0, 0, 1).applyEuler(this.getRot()));
+        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5));
 
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
             const newWolf = new Wolf(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
@@ -813,6 +786,7 @@ class Wolf extends ObjectBases.MovableObjectBase {
             this.state = this.wolfStates.Hunting;
         } else if (this.hunger < 15) {
             this.state = this.wolfStates.Mating;
+            this.target = null;
         }
     }
 
@@ -848,6 +822,7 @@ class Wolf extends ObjectBases.MovableObjectBase {
 
         if (this.hunger >= 40) {
             this.state = this.wolfStates.Hunting;
+            this.target = null;
         }
     }
 
@@ -967,44 +942,164 @@ class Human extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
-        this.speed = 0.02;
         this.target = null;
-
         this.selectable = true;
+
+        this.hunger = 50;
+        this.getsHungryByTime = true;
+        this.hungerIncreasePerFrame = 0.02;
+        this.hungerToStarve = 100;
+        this.hungerDamage = 2;
 
         this.mesh = meshes.human.clone();
         let scaleFactor = 0.04 * world.getCellSize();
         this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
+        this.gender = 0;
+        if (Math.random() < 0.5) {
+            this.gender = 0;
+        } else {
+            this.gender = 1;
+        }
+
+        this.humanStates = {
+            Idle: 0,
+            Hunting: 1,
+            Mating: 2
+        }
+
         this.setPos(pos);
         this.setRot(rotation);
+
+        this.state = this.humanStates.Idle;
+        this.idleCount = 0;
+
+        this.updateAccordingToAggressiveness();
+    }
+
+    updateAccordingToAggressiveness() {
+        let aggressiveness = parameters.simulation.humanAggressiveness;
+        this.speed = 0.02 + 0.02 * (aggressiveness - 1.0) * 0.1;
+
+        this.huntingDamage = 15 * aggressiveness;
+        this.hungerChangeOnHunt = -20 * aggressiveness;
+
     }
 
     update() {
         super.update();
 
+        switch (this.state) {
+            case this.humanStates.Idle:
+                this.idle();
+                break;
+            case this.humanStates.Hunting:
+                this.hunt();
+                break;
+            case this.humanStates.Mating:
+                this.mate();
+                break;
+        }
+        if (this.health <= 0) {
+            this.die();
+        }
+    }
+
+    spawn() {
+        // const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0, 0, 1).applyEuler(this.getRot()));
+        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5));
+
+        if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
+            const newHuman = new Human(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
+            world.instantiateObject(newHuman);
+            this.hunger += 35;
+        }
+    }
+
+    idle() {
+        this.idleCount += 1;
+        if (this.idleCount >= 10) {
+            this.state = this.humanStates.Hunting;
+            this.idleCount = 0;
+        }
+    }
+
+    hunt() {
+
         if (this.target == null) {
-            this.findClosestWithAStar((o) => {
-                return o instanceof Tree || o instanceof Wolf;
+            if (datamap.get("Tree") > 10 || datamap.get("Wolf") > 20) {
+                this.findClosestWithAStarStateProtected((o) => {
+                    return o instanceof Tree || o instanceof Wolf;
+                });
+            } else {
+                this.findClosestWithAStarStateProtected((o) => {
+                    return o instanceof Pig || o instanceof Rabbit || o instanceof Grass;
+                });
+            }
+        }
+
+        if (this.target) {
+            this.executePath(
+                () => {
+                    if (this.target != null) {
+                        if (this.target.applyDamage(this.huntingDamage)) {
+                            this.changeHungerBy(this.hungerChangeOnHunt);
+                            this.target = null;
+                        }
+                    }
+                },
+                () => {
+                    this.target = null;
+                },
+                () => {
+                    this.lookTowardsPath();
+                    if (parameters.simulation.showPaths) {
+                        this.createLines(this.path);
+                    }
+                },
+                true
+            );
+        }
+
+        if (this.hunger < 25) {
+            this.state = this.humanStates.Mating;
+            this.target = null;
+        }
+    }
+
+    mate() {
+        const thisGender = this.gender;
+        if (this.target == null) {
+            this.findClosestWithAStarStateProtected((value) => {
+                return value instanceof Human && thisGender !== value.gender
             });
         }
 
         if (this.target) {
             this.executePath(
                 () => {
-                    if (this.target.applyDamage(1)) {
-                        this.target = null;
+                    if (this.target != null) {
+                        this.spawn();
+                        this.target.hunger += 35;
                     }
+                    this.target = null;
                 },
                 () => {
                     this.target = null;
-                }, (e) => {
+                },
+                () => {
+                    this.lookTowardsPath();
                     if (parameters.simulation.showPaths) {
                         this.createLines(this.path);
                     }
+                },
+                true
+            );
+        }
 
-                    this.lookTowardsPath();
-                }, true);
+        if (this.hunger >= 40) {
+            this.state = this.humanStates.Hunting;
+            this.target = null;
         }
     }
 }

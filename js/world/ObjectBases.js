@@ -241,6 +241,7 @@ class MovableObjectBase extends LivingObjectBase {
                 if (this.state == startedState) {
                     this.path = null;
                     this.target = null;
+
                 }
             }, targetLayer, movingLayer);
     }
@@ -386,7 +387,7 @@ class MovableObjectBase extends LivingObjectBase {
 
     update() {
         super.update();
-        if (!parameters.simulation.showPaths) {
+        if (!parameters.simulation.showPaths || this.target == null) {
             this.cleanLines();
         }
     }

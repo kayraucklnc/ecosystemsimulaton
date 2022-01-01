@@ -168,6 +168,7 @@ class Tree extends ObjectBases.LivingObjectBase {
         this.ticker = 0;
         this.spreadCheckFrequency = 400;
         this.spreadChance = 0.25;
+        this.grassSpreadChance = 0.35;
         this.nextSpread = this.spreadCheckFrequency;
 
         this.setPos(pos);
@@ -179,10 +180,7 @@ class Tree extends ObjectBases.LivingObjectBase {
 
         this.ticker += 1;
         if (this.ticker >= this.nextSpread) {
-            let i = Math.random();
-            if (i < this.spreadChance) {
-                this.spread();
-            }
+            this.spread();
 
             let change = 1 - (Math.random() - 0.5) / 3.0;
             this.nextSpread = this.spreadCheckFrequency * change;
@@ -195,13 +193,28 @@ class Tree extends ObjectBases.LivingObjectBase {
     }
 
     spread() {
-        const randomPoint = new THREE.Vector3((Math.random() - 0.5) * 15, 0, (Math.random() - 0.5) * 15).add(this.getPos());
-        if (world.grid.checkIfInGrid(randomPoint) && !world.checkPos(randomPoint)) {
-            this.spawnPos = world.getCellCenter(randomPoint);
-            const newTree = new Tree(this.spawnPos, new THREE.Vector3(), Materials.treeMaterial);
-            world.instantiateObject(newTree);
+        let i = Math.random();
+        if (datamap.get("Tree") + datamap.get("Grass") >= 6000.0 + (20.0 * i)) {
+            return;
+        }
+        if (i < this.spreadChance) {
+            const randomPoint = new THREE.Vector3((Math.random() - 0.5) * 20, 0, (Math.random() - 0.5) * 20).add(this.getPos());
+            if (world.grid.checkIfInGrid(randomPoint) && !world.checkPos(randomPoint)) {
+                this.spawnPos = world.getCellCenter(randomPoint);
+                const newTree = new Tree(this.spawnPos, new THREE.Vector3(), Materials.treeMaterial);
+                world.instantiateObject(newTree);
+            }
         }
 
+        let j = Math.random();
+        if (j < this.grassSpreadChance) {
+            const randomPointForGrass = new THREE.Vector3((Math.random() - 0.5) * 5, 0, (Math.random() - 0.5) * 5).add(this.getPos());
+            if (world.grid.checkIfInGrid(randomPointForGrass) && !world.checkPos(randomPointForGrass, GridLayer.Ground)) {
+                let spawnPos = world.getCellCenter(randomPointForGrass);
+                const newGrass = new Grass(spawnPos, new THREE.Vector3(), Materials.treeMaterial);
+                world.instantiateObject(newGrass);
+            }
+        }
     }
 
     die() {
@@ -219,7 +232,7 @@ class Grass extends ObjectBases.LivingObjectBase {
 
         this.ticker = 0;
         this.spreadCheckFrequency = 200;
-        this.spreadChance = 0.3;
+        this.spreadChance = 0.05;
         this.nextSpread = this.spreadCheckFrequency;
 
         this._onLayer = GridLayer.Ground;
@@ -236,10 +249,7 @@ class Grass extends ObjectBases.LivingObjectBase {
 
         this.ticker += 1;
         if (this.ticker >= this.nextSpread) {
-            let i = Math.random();
-            if (i < this.spreadChance) {
-                this.spread();
-            }
+            this.spread();
 
             let change = 1 - (Math.random() - 0.5) / 3.0;
             this.nextSpread = this.spreadCheckFrequency * change;
@@ -252,19 +262,20 @@ class Grass extends ObjectBases.LivingObjectBase {
     }
 
     spread() {
-        const randomPoint = new THREE.Vector3((Math.random() - 0.5) * 10, 0, (Math.random() - 0.5) * 10).add(this.getPos());
-        if (world.grid.checkIfInGrid(randomPoint) && !world.checkPos(randomPoint, GridLayer.Ground)) {
-            this.spawnPos = world.getCellCenter(randomPoint);
-            const newGrass = new Grass(this.spawnPos, new THREE.Vector3(), Materials.treeMaterial);
-            world.instantiateObject(newGrass);
-
+        let i = Math.random();
+        if (datamap.get("Tree") + datamap.get("Grass") >= 6000.0 + (20.0 * i)) {
+            return;
         }
+        if (i < this.spreadChance) {
+            const randomPoint = new THREE.Vector3((Math.random() - 0.5) * 10, 0, (Math.random() - 0.5) * 10).add(this.getPos());
+            if (world.grid.checkIfInGrid(randomPoint) && !world.checkPos(randomPoint, GridLayer.Ground)) {
+                this.spawnPos = world.getCellCenter(randomPoint);
+                const newGrass = new Grass(this.spawnPos, new THREE.Vector3(), Materials.treeMaterial);
+                world.instantiateObject(newGrass);
 
+            }
+        }
     }
-
-    /*die() {
-        super.die();
-    }*/
 }
 
 class Wheat extends ObjectBases.LivingObjectBase {
@@ -319,7 +330,7 @@ class Fox extends ObjectBases.MovableObjectBase {
         }
 
         this.mesh = meshes.fox.clone();
-        let scaleFactor = 3.0 * world.getCellSize();
+        let scaleFactor = 2.5 * world.getCellSize();
         this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
         this.setPos(pos);
         this.setRot(rotation);
@@ -373,6 +384,10 @@ class Fox extends ObjectBases.MovableObjectBase {
             this.executePath(
                 () => {
                     if (this.target != null) {
+                        if (!this.checkIfNextToTarget(this.target.getPos())) {
+                            this.target = null;
+                            return;
+                        }
                         if (this.target.applyDamage(20)) {
                             this.hunger -= 30;
                             if (this.hunger < 0) {
@@ -414,6 +429,11 @@ class Fox extends ObjectBases.MovableObjectBase {
             this.executePath(
                 () => {
                     if (this.target != null) {
+                        if (!this.checkIfNextToTarget(this.target.getPos())) {
+                            this.target = null;
+                            return;
+                        }
+
                         this.spawn();
                         this.target.hunger += 35;
                     }
@@ -445,9 +465,9 @@ class Rabbit extends ObjectBases.MovableObjectBase {
         this.health = 50;
         this.speed = 0.05;
 
-        this.hunger = 10;
+        this.hunger = 40;
         this.getsHungryByTime = true;
-        this.hungerIncreasePerFrame = 0.08;
+        this.hungerIncreasePerFrame = 0.05;
         this.hungerToStarve = 100;
         this.hungerDamage = 1;
 
@@ -507,6 +527,11 @@ class Rabbit extends ObjectBases.MovableObjectBase {
             this.executePath(
                 () => {
                     if (this.target != null) {
+                        if (!this.checkIfNextToTarget(this.target.getPos())) {
+                            this.target = null;
+                            return;
+                        }
+
                         this.spawn();
                         this.target.changeHungerBy(5);
                         this.target = null;
@@ -529,7 +554,7 @@ class Rabbit extends ObjectBases.MovableObjectBase {
             );
         }
 
-        if ((this.hunger > 60 || (this.target != null && this.target.hunger > 70))) {
+        if (this.hunger > 60 || (this.target != null && this.target.hunger > 70)) {
             this.state = this.rabbitStates.Grazing;
             this.target = null;
         }
@@ -546,8 +571,13 @@ class Rabbit extends ObjectBases.MovableObjectBase {
             this.executePath(
                 () => {
                     if (this.target != null) {
+                        if (!this.checkIfNextToTarget(this.target.getPos())) {
+                            this.target = null;
+                            return;
+                        }
+
                         if (this.target.applyDamage(2)) {
-                            this.changeHungerBy(-35);
+                            this.changeHungerBy(-40);
                             this.target = null;
                         }
                     }
@@ -584,7 +614,7 @@ class Pig extends ObjectBases.MovableObjectBase {
 
         this.hunger = 40;
         this.getsHungryByTime = true;
-        this.hungerIncreasePerFrame = 0.04;
+        this.hungerIncreasePerFrame = 0.05;
         this.hungerToStarve = 100;
         this.hungerDamage = 1;
 
@@ -627,6 +657,11 @@ class Pig extends ObjectBases.MovableObjectBase {
             if (this.state == 0) {
                 this.executePath(
                     () => {
+                        if (!this.checkIfNextToTarget(this.target.getPos())) {
+                            this.target = null;
+                            return;
+                        }
+
                         if (this.target.applyDamage(2)) {
                             this.changeHungerBy(-40);
                             this.target = null;
@@ -647,6 +682,11 @@ class Pig extends ObjectBases.MovableObjectBase {
                 this.executePath(
                     () => {
                         if (this.target != null) {
+                            if (!this.checkIfNextToTarget(this.target.getPos())) {
+                                this.target = null;
+                                return;
+                            }
+
                             this.spawn();
                             this.target.hunger += 35;
                         }
@@ -688,9 +728,9 @@ class Wolf extends ObjectBases.MovableObjectBase {
 
         this.hunger = 50;
         this.getsHungryByTime = true;
-        this.hungerIncreasePerFrame = 0.12;
+        this.hungerIncreasePerFrame = 0.06;
         this.hungerToStarve = 100;
-        this.hungerDamage = 4;
+        this.hungerDamage = 3;
 
         this.gender = 0;
         if (Math.random() < 0.5) {
@@ -763,6 +803,11 @@ class Wolf extends ObjectBases.MovableObjectBase {
             this.executePath(
                 () => {
                     if (this.target != null) {
+                        if (!this.checkIfNextToTarget(this.target.getPos())) {
+                            this.target = null;
+                            return;
+                        }
+
                         if (this.target.applyDamage(15)) {
                             this.changeHungerBy(-20);
                             this.target = null;
@@ -802,6 +847,11 @@ class Wolf extends ObjectBases.MovableObjectBase {
             this.executePath(
                 () => {
                     if (this.target != null) {
+                        if (!this.checkIfNextToTarget(this.target.getPos())) {
+                            this.target = null;
+                            return;
+                        }
+
                         this.spawn();
                         this.target.hunger += 35;
                     }
@@ -989,6 +1039,7 @@ class Human extends ObjectBases.MovableObjectBase {
     update() {
         super.update();
 
+        console.log(this.mesh.id + " - " + this.hunger + " / " + this.target);
         switch (this.state) {
             case this.humanStates.Idle:
                 this.idle();
@@ -1027,13 +1078,13 @@ class Human extends ObjectBases.MovableObjectBase {
     hunt() {
 
         if (this.target == null) {
-            if (datamap.get("Tree") > 10 || datamap.get("Wolf") > 20) {
+            if (datamap.get("Tree") > 2) {
                 this.findClosestWithAStarStateProtected((o) => {
                     return o instanceof Tree || o instanceof Wolf;
                 });
             } else {
                 this.findClosestWithAStarStateProtected((o) => {
-                    return o instanceof Pig || o instanceof Rabbit || o instanceof Grass;
+                    return o instanceof Pig || o instanceof Rabbit || o instanceof Grass || o instanceof Wolf;
                 });
             }
         }
@@ -1042,6 +1093,11 @@ class Human extends ObjectBases.MovableObjectBase {
             this.executePath(
                 () => {
                     if (this.target != null) {
+                        if (!this.checkIfNextToTarget(this.target.getPos())) {
+                            this.target = null;
+                            return;
+                        }
+
                         if (this.target.applyDamage(this.huntingDamage)) {
                             this.changeHungerBy(this.hungerChangeOnHunt);
                             this.target = null;
@@ -1079,6 +1135,11 @@ class Human extends ObjectBases.MovableObjectBase {
             this.executePath(
                 () => {
                     if (this.target != null) {
+                        if (!this.checkIfNextToTarget(this.target.getPos())) {
+                            this.target = null;
+                            return;
+                        }
+
                         this.spawn();
                         this.target.hunger += 35;
                     }

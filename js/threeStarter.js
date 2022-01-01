@@ -121,12 +121,12 @@ function createCustomWater() {
 }
 
 function createTestSceneElements(scene) {
-    // let treeObject = new Objects.Tree(new THREE.Vector3(-35, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
+    // let treeObject = new Objects.Grass(new THREE.Vector3(-20, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
     // world.instantiateObject(treeObject);
-    // let humanObject = new Objects.Human(new THREE.Vector3(35, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);
+    // let humanObject = new Objects.Rabbit(new THREE.Vector3(20, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);
     // world.instantiateObject(humanObject);
-    // let squirrelObject = new Objects.Squirrel(new THREE.Vector3(6,0,0), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
-    // world.instantiateObject(squirrelObject);
+    // let wolfObject = new Objects.Fox(new THREE.Vector3(0, 0, -10), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+    // world.instantiateObject(wolfObject);
 
     for (let i = 0; i < 300; i++) {
         let grassObject = new Objects.Grass(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.treeMaterial);

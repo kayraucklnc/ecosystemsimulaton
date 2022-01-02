@@ -200,6 +200,5 @@ onmessage = function (oEvent) {
             break;
         }
     }
-
-    postMessage(closestPath);
+    postMessage({path: closestPath, nowId: oEvent.data.nowId});
 };

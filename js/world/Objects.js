@@ -229,7 +229,7 @@ class Grass extends ObjectBases.LivingObjectBase {
         this.ticker += 1;
         let i = Math.random();
         if (this.ticker == 100) {
-            if (i > 0.9) {
+            if (i > 0.95) {
                 this.spread();
             }
             this.ticker = 0;
@@ -288,8 +288,13 @@ class Fox extends ObjectBases.MovableObjectBase {
         super(pos, rotation, material);
         this.health = 150;
         this.speed = 0.05;
-        this.hunger = 40;
         this.selectable = true;
+
+        this.hunger = 30;
+        this.getsHungryByTime = true;
+        this.hungerIncreasePerFrame = 0.1;
+        this.hungerToStarve = 100;
+        this.hungerDamage = 1;
 
         this.gender = 0;
         if (Math.random() < 0.5) {
@@ -333,8 +338,8 @@ class Fox extends ObjectBases.MovableObjectBase {
     spawn() {
         const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
 
-        const newFox = new Fox(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
+            const newFox = new Fox(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
             world.instantiateObject(newFox);
             this.hunger += 40;
         }
@@ -348,13 +353,13 @@ class Fox extends ObjectBases.MovableObjectBase {
     hunt() {
         this.idleCount = 0;
         if (this.target == null) {
-            this.findClosestWithAStar((value) => {return value instanceof Rabbit});
+            this.findClosestWithAStarStateProtected((value) => {return value instanceof Rabbit});
         }
 
         if (this.target) {
             this.executePath(
                 () => {
-                    if (this.target !== null) {
+                    if (this.target != null) {
                         if (this.target.applyDamage(50)) {
                             this.hunger -= 20;
                             if (this.hunger < 0) {
@@ -393,7 +398,7 @@ class Fox extends ObjectBases.MovableObjectBase {
         this.idleCount = 0;
         const thisGender = this.gender;
         if (this.target == null) {
-            this.findClosestWithAStar((value) => {
+            this.findClosestWithAStarStateProtected((value) => {
                 return value instanceof Fox && thisGender !== value.gender
             });
         }
@@ -436,13 +441,14 @@ class Rabbit extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 50;
-        this.speed = 0.04;
+        this.speed = 0.05;
 
-        this.hungerIncreasePerFrame = 0.05;
-        this.hungerToDie = 100;
+        this.hunger = 10;
+        this.getsHungryByTime = true;
+        this.hungerIncreasePerFrame = 0.08;
+        this.hungerToStarve = 100;
         this.hungerDamage = 1;
 
-        this.hunger = 50;
         this.selectable = true;
         this.gender = 0;
         if (Math.random() < 0.5) {
@@ -485,14 +491,14 @@ class Rabbit extends ObjectBases.MovableObjectBase {
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
             const newRabbit = new Rabbit(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
             world.instantiateObject(newRabbit);
-            this.hunger += 30;
+            this.changeHungerBy(30);
         }
     }
 
     mate() {
         const thisGender = this.gender;
-        this.findClosestWithAStar((value) => {
-            return value instanceof Rabbit && thisGender !== value.gender
+        this.findClosestWithAStarStateProtected((value) => {
+            return value instanceof Rabbit && thisGender !== value.gender;
         });
 
         if (this.target) {
@@ -500,10 +506,9 @@ class Rabbit extends ObjectBases.MovableObjectBase {
                 () => {
                     if (this.target != null) {
                         this.spawn();
+                        this.target.changeHungerBy(5);
+                        this.target = null;
                     }
-
-                    this.state = this.rabbitStates.Grazing;
-                    this.target = null;
                 },
                 () => {
                     this.target = null;
@@ -520,16 +525,15 @@ class Rabbit extends ObjectBases.MovableObjectBase {
             );
         }
 
-        if (this.hunger > 70) {
+        if ((this.hunger > 60 || (this.target != null && this.target.hunger > 70))) {
             this.state = this.rabbitStates.Grazing;
             this.target = null;
         }
-
     }
 
     graze() {
         if (this.target == null) {
-            this.findClosestWithAStar((value) => {
+            this.findClosestWithAStarStateProtected((value) => {
                 return value instanceof Wheat || value instanceof Grass;
             }, GridLayer.Ground);
         }
@@ -538,8 +542,8 @@ class Rabbit extends ObjectBases.MovableObjectBase {
             this.executePath(
                 () => {
                     if (this.target != null) {
-                        if (this.target.applyDamage(0.5)) {
-                            this.hunger -= 20;
+                        if (this.target.applyDamage(3)) {
+                            this.hunger -= 25;
                             if (this.hunger < 0) {
                                 this.hunger = 0
                             };
@@ -563,7 +567,7 @@ class Rabbit extends ObjectBases.MovableObjectBase {
             );
         }
 
-        if (this.hunger < 20) {
+        if (this.hunger < 15 && Math.random() > 0.5) {
             this.state = this.rabbitStates.Mating;
             this.target = null;
         }
@@ -575,17 +579,19 @@ class Pig extends ObjectBases.MovableObjectBase {
         super(pos, rotation, material);
         this.health = 200;
         this.speed = 0.03;
-        this.hunger = 50;
         this.selectable = true;
-        this.mode = 0;
+        this.state = 0;
         this.stateTick = 0;
         this.target = null;
 
+        this.hunger = 1;
+        this.getsHungryByTime = true;
+        this.hungerIncreasePerFrame = 0.08;
+        this.hungerToStarve = 100;
+        this.hungerDamage = 1;
+
         this.gender = 0;
         if (Math.random() < 0.5) {
-            this.gender = 0;
-        }
-        else {
             this.gender = 1;
         }
 
@@ -593,6 +599,8 @@ class Pig extends ObjectBases.MovableObjectBase {
         this.mesh = meshes.pig.clone();
         this.setPos(pos);
         this.setRot(rotation);
+
+        this.mesh.scale.set(5.0, 5.0, 5.0);
         this.movement = 0.0
     }
 
@@ -608,25 +616,25 @@ class Pig extends ObjectBases.MovableObjectBase {
         if (this.hunger <= 15) {satiated = true;};
         if (this.hunger >= 40) {satiated = false};
         if (this.hunger > 20 && !satiated && this.target == null) {
-            this.findClosestWithAStar((value) => {return value instanceof Grass});
-            this.mode = 0;
+            this.state = 0;
+            this.findClosestWithAStarStateProtected((value) => {return value instanceof Grass}, GridLayer.Ground);
         }
         else if (this.hunger < 20 && satiated && this.target == null) {
             const tmpGnd = this.gender;
-            this.findClosestWithAStar((value) => {return value instanceof Pig && value.gender !== tmpGnd});
-            this.mode = 1;
+            this.state = 1;
+            this.findClosestWithAStarStateProtected((value) => {return value instanceof Pig && value.gender !== tmpGnd});
         }
 
         if (this.target) {
-            if (this.mode == 0) {
+            if (this.state == 0) {
                 this.executePath(
                     () => {
-                        if (this.target.applyDamage(15)) {
-                            this.hunger -= 10;
+                        if (this.target.applyDamage(6)) {
+                            this.hunger -= 20;
                             if (this.hunger < 0) {
                                 this.hunger = 0
-                            }
-                            ;
+                            };
+
                             this.target = null;
                         }
                     },
@@ -643,10 +651,10 @@ class Pig extends ObjectBases.MovableObjectBase {
                     },
                     true
                 );
-            } else if (this.mode == 1) {
+            } else if (this.state == 1) {
                 this.executePath(
                     () => {
-                        if (this.target !== null) {
+                        if (this.target != null) {
                             this.spawn();
                             this.target.hunger += 35;
                         }
@@ -673,8 +681,8 @@ class Pig extends ObjectBases.MovableObjectBase {
     spawn() {
         const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
 
-        const newPig = new Pig(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
+            const newPig = new Pig(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
             world.instantiateObject(newPig);
             this.hunger += 40;
         }
@@ -686,8 +694,13 @@ class Wolf extends ObjectBases.MovableObjectBase {
         super(pos, rotation, material);
         this.health = 250;
         this.speed = 0.04;
-        this.hunger = 50;
         this.selectable = true;
+
+        this.hunger = 50;
+        this.getsHungryByTime = true;
+        this.hungerIncreasePerFrame = 0.04;
+        this.hungerToStarve = 100;
+        this.hungerDamage = 4;
 
         this.gender = 0;
         if (Math.random() < 0.5) {
@@ -736,8 +749,8 @@ class Wolf extends ObjectBases.MovableObjectBase {
     spawn() {
         const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0,0,1).applyEuler(this.getRot()));
 
-        const newWolf = new Wolf(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
+            const newWolf = new Wolf(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
             world.instantiateObject(newWolf);
             this.hunger += 40;
         }
@@ -751,7 +764,7 @@ class Wolf extends ObjectBases.MovableObjectBase {
     hunt() {
         this.idleCount = 0;
         if (this.target == null) {
-            this.findClosestWithAStar((value) => {
+            this.findClosestWithAStarStateProtected((value) => {
                 return value instanceof Pig
             });
         }
@@ -759,7 +772,7 @@ class Wolf extends ObjectBases.MovableObjectBase {
         if (this.target) {
             this.executePath(
                 () => {
-                    if (this.target !== null) {
+                    if (this.target != null) {
                         if (this.target.applyDamage(50)) {
                             this.hunger -= 20;
                             if (this.hunger < 0) {
@@ -798,7 +811,7 @@ class Wolf extends ObjectBases.MovableObjectBase {
         this.idleCount = 0;
         const thisGender = this.gender;
         if (this.target == null) {
-            this.findClosestWithAStar((value) => {
+            this.findClosestWithAStarStateProtected((value) => {
                 return value instanceof Wolf && thisGender !== value.gender
             });
         }
@@ -806,7 +819,7 @@ class Wolf extends ObjectBases.MovableObjectBase {
         if (this.target) {
             this.executePath(
                 () => {
-                    if (this.target !== null) {
+                    if (this.target != null) {
                         this.spawn();
                         this.target.hunger += 35;
                     }
@@ -938,8 +951,8 @@ class Squirrel extends ObjectBases.MovableObjectBase {
     planting() {
         const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(0, 0, 1).applyEuler(this.getRot()));
 
-        const newTree = new Tree(neighbourPos, new THREE.Vector3(), Materials.treeMaterial);
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
+            const newTree = new Tree(neighbourPos, new THREE.Vector3(), Materials.treeMaterial);
             world.instantiateObjectOnGrid(newTree);
         }
 

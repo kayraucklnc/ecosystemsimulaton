@@ -22,6 +22,14 @@ document.getElementById("templateList").addEventListener("change", () => {
     templateChange()
 });
 
+document.getElementById("timescale-slider").addEventListener("change", () => {
+    simulationSpeedChange();
+});
+
+document.getElementById("stop-sim-button").addEventListener("click", () => {
+    simulationToggle();
+});
+
 function simulationToggle() {
     document.getElementById("stop-sim-button").innerText = isSimActive ? "Start Simulation" : "Pause Simulation";
     isSimActive = !isSimActive;

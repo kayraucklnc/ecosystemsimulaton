@@ -12,7 +12,8 @@ class WorldObjectBase {
         this.setRot(rotation);
     }
 
-    onDelete() {}
+    onDelete() {
+    }
 
     getPos() {
         return this.mesh.position;
@@ -64,9 +65,12 @@ class LivingObjectBase extends WorldObjectBase {
         this.health = null;
         this.hasDied = false;
 
+        this.hunger = 0;
+        this.getsHungryByTime = false;
+
         this.hungerIncreasePerFrame = 0.25;
         this.hungerToStarve = 100;
-        this.hungerDamage = 1;
+        this.hungerDamage = 5;
     }
 
     //Returns if object is dead after damage.
@@ -79,6 +83,15 @@ class LivingObjectBase extends WorldObjectBase {
         return false;
     };
 
+    changeHungerBy(amount) {
+        this.hunger += amount;
+
+        if (this.hunger >= this.hungerToStarve) {
+            this.hunger = this.hungerToStarve;
+        }
+        this.hunger = Math.max(0, this.hunger);
+    }
+
     die() {
         if (!this.hasDied) {
             world.deleteObject(this);
@@ -88,12 +101,12 @@ class LivingObjectBase extends WorldObjectBase {
 
     update() {
         super.update();
-        if (this.hunger != null) {
-            this.hunger += this.hungerIncreasePerFrame;
-            if (this.hunger >= this.hungerToStarve) {
-                this.hunger = this.hungerToStarve;
-                this.applyDamage(this.hungerDamage);
-            }
+        if (this.getsHungryByTime) {
+            this.changeHungerBy(this.hungerIncreasePerFrame);
+        }
+
+        if (this.hunger >= this.hungerToStarve) {
+            this.applyDamage(this.hungerDamage);
         }
     }
 }
@@ -105,8 +118,6 @@ class MovableObjectBase extends LivingObjectBase {
 
         this.findingPathParallel = false;
 
-        this.worker = new Worker("./js/util/AStar.js", {type: "module"});
-
         this.path = [];
         this.pathLines = [];
         this.pathColor = world.getRandomColor();
@@ -114,7 +125,7 @@ class MovableObjectBase extends LivingObjectBase {
         this.lastPos = pos;
         this.movement = 0.0;
 
-        this.lastClosestCheckFrame = 0;
+        this.lastClosestCheckFrame = -frameCount;
         this.lastClosest = null;
         this.closestCheckFrequency = 50;
     }
@@ -129,6 +140,11 @@ class MovableObjectBase extends LivingObjectBase {
         this.cleanLines();
     }
 
+    updateLines() {
+        world.scene.remove(this.pathLines[0]);
+        this.pathLines.shift();
+    }
+
     cleanLines() {
         this.pathLines.forEach((pL) => {
             world.scene.remove(pL);
@@ -137,21 +153,24 @@ class MovableObjectBase extends LivingObjectBase {
     }
 
     createLines(path) {
-        this.cleanLines();
+        this.updateLines();
 
-        if (path != null && path.length > 0) {
-            // let line = world.createLine(this.getPos(), path[path.length - 1], this.pathHeight, this.pathColor);
-            // this.pathLines.push(line);
-            // world.scene.add(line);
+        if (this.pathLines.length == 0) {
+            // console.log(path.length + " - " + this.pathLines.length);
+            if (path != null && path.length > 0) {
+                // let line = world.createLine(this.getPos(), path[path.length - 1], this.pathHeight, this.pathColor);
+                // this.pathLines.push(line);
+                // world.scene.add(line);
 
-            let line = world.createLine(this.getPos(), path[0], this.pathHeight, this.pathColor);
-            this.pathLines.push(line);
-            world.scene.add(line);
-
-            for (let i = 0; i < path.length - 1; i++) {
-                let line = world.createLine(path[i], path[i + 1], this.pathHeight, this.pathColor);
+                let line = world.createLine(this.getPos(), path[0], this.pathHeight, this.pathColor);
                 this.pathLines.push(line);
                 world.scene.add(line);
+
+                for (let i = 0; i < path.length - 1; i++) {
+                    let line = world.createLine(path[i], path[i + 1], this.pathHeight, this.pathColor);
+                    this.pathLines.push(line);
+                    world.scene.add(line);
+                }
             }
         }
     }
@@ -211,41 +230,42 @@ class MovableObjectBase extends LivingObjectBase {
         return movementVector;
     }
 
-    findClosestWithAStar(checkFunc, targetLayer=GridLayer.Surface, movingLayer=GridLayer.Surface) {
+    findClosestWithAStarStateProtected(checkFunc, targetLayer = GridLayer.Surface, movingLayer = GridLayer.Surface) {
+        let startedState = this.state;
         return this.findClosestWithAStarCustom(
             checkFunc,
             (e) => {
-                console.log("FOUND");
-                this.path = world.getPathFromPure2DMatrix(e);
-                let targetPos = this.path.length > 0 ? this.path[this.path.length - 1]: this.getPos();
-                this.target = world.grid.getPos(targetPos, targetLayer);
+                if (this.state == startedState) {
+                    this.path = world.getPathFromPure2DMatrix(e);
+                    let targetPos = this.path.length > 0 ? this.path[this.path.length - 1] : this.getPos();
+                    this.target = world.grid.getPos(targetPos, targetLayer);
+                }
             },
             (e) => {
-                console.log("FAIL");
+                this.path = null;
+                this.target = null;
             }, targetLayer, movingLayer);
     }
 
-    findClosestWithAStarCustom(checkFunc, onFind, onFail, targetLayer=GridLayer.Surface, movingLayer=GridLayer.Surface) {
+    findClosestWithAStar(checkFunc, targetLayer = GridLayer.Surface, movingLayer = GridLayer.Surface) {
+        return this.findClosestWithAStarCustom(
+            checkFunc,
+            (e) => {
+                // console.log("FOUND");
+                this.path = world.getPathFromPure2DMatrix(e);
+                let targetPos = this.path.length > 0 ? this.path[this.path.length - 1] : this.getPos();
+                this.target = world.grid.getPos(targetPos, targetLayer);
+            },
+            (e) => {
+                // console.log("FAIL");
+                this.path = null;
+                this.target = null;
+            }, targetLayer, movingLayer);
+    }
+
+    findClosestWithAStarCustom(checkFunc, onFind, onFail, targetLayer = GridLayer.Surface, movingLayer = GridLayer.Surface) {
         if (!this.findingPathParallel) {
             let that = this;
-            this.worker.onmessage = function (oEvent) {
-                if (oEvent.data == null) {
-                    onFail();
-                } else {
-                    if (oEvent.data.length > 0) {
-                        let iidx = oEvent.data[oEvent.data.length - 1].i;
-                        let jidx = oEvent.data[oEvent.data.length - 1].j;
-
-                        this.lastClosest = world.getPos(world.grid.getIndexPos(iidx, jidx), targetLayer);
-                    } else {
-                        this.lastClosest = world.getPos(that.getPos(), targetLayer);
-                    }
-                    this.lastClosestCheckFrame = frameCount;
-
-                    onFind(oEvent.data);
-                }
-                that.findingPathParallel = false;
-            };
 
             if (frameCount - this.lastClosestCheckFrame < this.closestCheckFrequency) {
                 return this.lastClosest;
@@ -254,18 +274,46 @@ class MovableObjectBase extends LivingObjectBase {
             this.findingPathParallel = true;
             let cloneObjects = [...world.objects];
             let thisPos = this.getPos();
-            cloneObjects = cloneObjects.filter(checkFunc);
+            cloneObjects = cloneObjects.filter((obj) => {
+                return checkFunc(obj) && obj.mesh !== this.mesh;
+            });
             cloneObjects.sort((a, b) => (a.getPos().distanceToSquared(thisPos) > b.getPos().distanceToSquared(thisPos)) ? 1 : -1);
             let toGoIdxs = [];
             for (let i = 0; i < cloneObjects.length; i++) {
                 toGoIdxs.push(world.grid.getGridIndex(cloneObjects[i].getPos()));
             }
 
-            this.worker.postMessage({
+            worker.postMessage({
                 thisPos: world.grid.getGridIndex(thisPos),
                 closestArr: toGoIdxs,
-                matrix: world.getPure2DMatrix(movingLayer)
+                matrix: world.getPure2DMatrix(movingLayer),
+                nowId: that.mesh.id,
             });
+
+            function findWrapper(oEvent) {
+                let nowObj = world.meshIdToObject.get(oEvent.data.nowId);
+                if (nowObj === that) {
+                    if (oEvent.data.path == null) {
+                        onFail();
+                    } else {
+                        if (oEvent.data.path.length > 0) {
+                            let iidx = oEvent.data.path[oEvent.data.path.length - 1].i;
+                            let jidx = oEvent.data.path[oEvent.data.path.length - 1].j;
+
+                            this.lastClosest = world.getPos(world.grid.getIndexPos(iidx, jidx), targetLayer);
+                        } else {
+                            this.lastClosest = world.getPos(nowObj.getPos(), targetLayer);
+                        }
+                        this.lastClosestCheckFrame = frameCount;
+
+                        onFind(oEvent.data.path);
+                    }
+                    nowObj.findingPathParallel = false;
+                    worker.removeEventListener("message", findWrapper);
+                }
+            }
+
+            worker.addEventListener("message", findWrapper);
         }
     }
 

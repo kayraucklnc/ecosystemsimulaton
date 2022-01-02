@@ -1,7 +1,7 @@
 let parameters = {
     plane: {
         scale: 150,
-        gridWidth: 10,
+        gridWidth: 80,
         noiseScale: 0.1,
         persistance: 0.534,
         lacunarity: 1.5,
@@ -18,6 +18,7 @@ let parameters = {
         count: 1.3,
     },
     simulation: {
-        showPaths: true
+        showPaths: true,
+        seed: (Math.random() * 1000.0) + ""
     }
 };

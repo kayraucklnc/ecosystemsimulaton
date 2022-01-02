@@ -26,6 +26,7 @@ class GUI {
         this.gridVisible = terrainFolder.add(parameters.plane, 'gridVisible').name("Grid");
 
         this.showPaths = simulationFolder.add(parameters.simulation, 'showPaths').name("Show Paths");
+        this.seed = simulationFolder.add(parameters.simulation, 'seed').name("Seed");
 
         this.setOnChanges();
     }
@@ -62,6 +63,10 @@ class GUI {
         // this.color.onChange(() => {
         //     this.terrain.changeColor( parameters );
         // });
+
+        this.seed.onChange(() => {
+
+        });
     }
 }
 

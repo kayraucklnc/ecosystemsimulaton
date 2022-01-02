@@ -121,9 +121,9 @@ class MovableObjectBase extends LivingObjectBase {
         this.lastPos = pos;
         this.movement = 0.0;
 
-        this.lastClosestCheckFrame = -frameCount;
+        this.closestCheckFrequency = 50;
+        this.lastClosestCheckFrame = -this.closestCheckFrequency;
         this.lastClosest = null;
-        this.closestCheckFrequency = 100;
     }
 
     onDelete() {
@@ -317,6 +317,8 @@ class MovableObjectBase extends LivingObjectBase {
                 worker.addEventListener("message", findWrapper);
 
             } else {
+                that.lastClosest = null;
+                that.lastClosestCheckFrame = frameCount;
                 that.findingPathParallel = false;
             }
         }

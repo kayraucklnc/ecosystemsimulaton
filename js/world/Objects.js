@@ -307,12 +307,12 @@ class Fox extends ObjectBases.MovableObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 150;
-        this.speed = 0.05;
+        this.speed = 0.04;
         this.selectable = true;
 
-        this.hunger = 30;
+        this.hunger = 40;
         this.getsHungryByTime = true;
-        this.hungerIncreasePerFrame = 0.1;
+        this.hungerIncreasePerFrame = 0.05;
         this.hungerToStarve = 100;
         this.hungerDamage = 1;
 
@@ -361,7 +361,7 @@ class Fox extends ObjectBases.MovableObjectBase {
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
             const newFox = new Fox(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
             world.instantiateObject(newFox);
-            this.hunger += 40;
+            this.changeHungerBy(40);
         }
     }
 
@@ -376,39 +376,34 @@ class Fox extends ObjectBases.MovableObjectBase {
     hunt() {
         if (this.target == null) {
             this.findClosestWithAStarStateProtected((value) => {
-                return value instanceof Rabbit
+                return value instanceof Rabbit || value instanceof Pig;
             });
         }
 
-        if (this.target) {
-            this.executePath(
-                () => {
-                    if (this.target != null) {
-                        if (!this.checkIfNextToTarget(this.target.getPos())) {
-                            this.target = null;
-                            return;
-                        }
-                        if (this.target.applyDamage(20)) {
-                            this.hunger -= 30;
-                            if (this.hunger < 0) {
-                                this.hunger = 0
-                            }
-                            this.target = null;
-                        }
+        this.executePath(
+            () => {
+                if (this.target != null) {
+                    if (!this.checkIfNextToTarget(this.target.getPos())) {
+                        this.target = null;
+                        return;
                     }
-                },
-                () => {
-                    this.target = null;
-                },
-                () => {
-                    this.lookTowardsPath();
-                    if (parameters.simulation.showPaths) {
-                        this.createLines(this.path);
+                    if (this.target.applyDamage(6)) {
+                        this.changeHungerBy(-25);
+                        this.target = null;
                     }
-                },
-                true
-            );
-        }
+                }
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                }
+            },
+            true
+        );
 
         if (this.hunger > 40) {
             this.state = this.foxStates.Hunting;
@@ -425,32 +420,30 @@ class Fox extends ObjectBases.MovableObjectBase {
             });
         }
 
-        if (this.target) {
-            this.executePath(
-                () => {
-                    if (this.target != null) {
-                        if (!this.checkIfNextToTarget(this.target.getPos())) {
-                            this.target = null;
-                            return;
-                        }
+        this.executePath(
+            () => {
+                if (this.target != null) {
+                    if (!this.checkIfNextToTarget(this.target.getPos())) {
+                        this.target = null;
+                        return;
+                    }
 
-                        this.spawn();
-                        this.target.hunger += 35;
-                    }
-                    this.target = null;
-                },
-                () => {
-                    this.target = null;
-                },
-                () => {
-                    this.lookTowardsPath();
-                    if (parameters.simulation.showPaths) {
-                        this.createLines(this.path);
-                    }
-                },
-                true
-            );
-        }
+                    this.spawn();
+                    this.target.changeHungerBy(35);
+                }
+                this.target = null;
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                }
+            },
+            true
+        );
 
         if (this.hunger >= 40) {
             this.state = this.foxStates.Hunting;
@@ -523,36 +516,34 @@ class Rabbit extends ObjectBases.MovableObjectBase {
             });
         }
 
-        if (this.target) {
-            this.executePath(
-                () => {
-                    if (this.target != null) {
-                        if (!this.checkIfNextToTarget(this.target.getPos())) {
-                            this.target = null;
-                            return;
-                        }
-
-                        this.spawn();
-                        this.target.changeHungerBy(5);
+        this.executePath(
+            () => {
+                if (this.target != null) {
+                    if (!this.checkIfNextToTarget(this.target.getPos())) {
                         this.target = null;
-                    }
-                },
-                () => {
-                    this.target = null;
-                },
-                () => {
-                    this.lookTowardsPath();
-                    if (parameters.simulation.showPaths) {
-                        this.createLines(this.path);
+                        return;
                     }
 
-                    this.findClosestWithAStarStateProtected((value) => {
-                        return value instanceof Rabbit && thisGender !== value.gender;
-                    });
-                },
-                true
-            );
-        }
+                    this.spawn();
+                    this.target.changeHungerBy(5);
+                    this.target = null;
+                }
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                }
+
+                this.findClosestWithAStarStateProtected((value) => {
+                    return value instanceof Rabbit && thisGender !== value.gender;
+                });
+            },
+            true
+        );
 
         if (this.hunger > 60 || (this.target != null && this.target.hunger > 70)) {
             this.state = this.rabbitStates.Grazing;
@@ -567,33 +558,31 @@ class Rabbit extends ObjectBases.MovableObjectBase {
             }, GridLayer.Ground);
         }
 
-        if (this.target) {
-            this.executePath(
-                () => {
-                    if (this.target != null) {
-                        if (!this.checkIfNextToTarget(this.target.getPos())) {
-                            this.target = null;
-                            return;
-                        }
+        this.executePath(
+            () => {
+                if (this.target != null) {
+                    if (!this.checkIfNextToTarget(this.target.getPos())) {
+                        this.target = null;
+                        return;
+                    }
 
-                        if (this.target.applyDamage(2)) {
-                            this.changeHungerBy(-40);
-                            this.target = null;
-                        }
+                    if (this.target.applyDamage(2)) {
+                        this.changeHungerBy(-40);
+                        this.target = null;
                     }
-                },
-                () => {
-                    this.target = null;
-                },
-                () => {
-                    this.lookTowardsPath();
-                    if (parameters.simulation.showPaths) {
-                        this.createLines(this.path);
-                    }
-                },
-                true
-            );
-        }
+                }
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                }
+            },
+            true
+        );
 
         if (this.hunger < 15 && Math.random() > 0.5) {
             this.state = this.rabbitStates.Mating;
@@ -653,57 +642,55 @@ class Pig extends ObjectBases.MovableObjectBase {
             });
         }
 
-        if (this.target) {
-            if (this.state == 0) {
-                this.executePath(
-                    () => {
+        if (this.state == 0) {
+            this.executePath(
+                () => {
+                    if (this.target == null || !this.checkIfNextToTarget(this.target.getPos())) {
+                        this.target = null;
+                        return;
+                    }
+
+                    if (this.target.applyDamage(2)) {
+                        this.changeHungerBy(-40);
+                        this.target = null;
+                    }
+                },
+                () => {
+                    this.target = null;
+                },
+                () => {
+                    this.lookTowardsPath();
+                    if (parameters.simulation.showPaths) {
+                        this.createLines(this.path);
+                    }
+                },
+                true
+            );
+        } else if (this.state == 1) {
+            this.executePath(
+                () => {
+                    if (this.target != null) {
                         if (!this.checkIfNextToTarget(this.target.getPos())) {
                             this.target = null;
                             return;
                         }
 
-                        if (this.target.applyDamage(2)) {
-                            this.changeHungerBy(-40);
-                            this.target = null;
-                        }
-                    },
-                    () => {
-                        this.target = null;
-                    },
-                    () => {
-                        this.lookTowardsPath();
-                        if (parameters.simulation.showPaths) {
-                            this.createLines(this.path);
-                        }
-                    },
-                    true
-                );
-            } else if (this.state == 1) {
-                this.executePath(
-                    () => {
-                        if (this.target != null) {
-                            if (!this.checkIfNextToTarget(this.target.getPos())) {
-                                this.target = null;
-                                return;
-                            }
-
-                            this.spawn();
-                            this.target.hunger += 35;
-                        }
-                        this.target = null;
-                    },
-                    () => {
-                        this.target = null;
-                    },
-                    () => {
-                        this.lookTowardsPath();
-                        if (parameters.simulation.showPaths) {
-                            this.createLines(this.path);
-                        }
-                    },
-                    true
-                );
-            }
+                        this.spawn();
+                        this.target.changeHungerBy(30);
+                    }
+                    this.target = null;
+                },
+                () => {
+                    this.target = null;
+                },
+                () => {
+                    this.lookTowardsPath();
+                    if (parameters.simulation.showPaths) {
+                        this.createLines(this.path);
+                    }
+                },
+                true
+            );
         }
 
     }
@@ -714,7 +701,7 @@ class Pig extends ObjectBases.MovableObjectBase {
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
             const newPig = new Pig(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
             world.instantiateObject(newPig);
-            this.hunger += 40;
+            this.changeHungerBy(40);
         }
     }
 }
@@ -728,9 +715,9 @@ class Wolf extends ObjectBases.MovableObjectBase {
 
         this.hunger = 50;
         this.getsHungryByTime = true;
-        this.hungerIncreasePerFrame = 0.06;
+        this.hungerIncreasePerFrame = 0.04;
         this.hungerToStarve = 100;
-        this.hungerDamage = 3;
+        this.hungerDamage = 2;
 
         this.gender = 0;
         if (Math.random() < 0.5) {
@@ -780,7 +767,7 @@ class Wolf extends ObjectBases.MovableObjectBase {
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
             const newWolf = new Wolf(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
             world.instantiateObject(newWolf);
-            this.hunger += 40;
+            this.changeHungerBy(40);
         }
     }
 
@@ -799,33 +786,31 @@ class Wolf extends ObjectBases.MovableObjectBase {
             });
         }
 
-        if (this.target) {
-            this.executePath(
-                () => {
-                    if (this.target != null) {
-                        if (!this.checkIfNextToTarget(this.target.getPos())) {
-                            this.target = null;
-                            return;
-                        }
+        this.executePath(
+            () => {
+                if (this.target != null) {
+                    if (!this.checkIfNextToTarget(this.target.getPos())) {
+                        this.target = null;
+                        return;
+                    }
 
-                        if (this.target.applyDamage(15)) {
-                            this.changeHungerBy(-20);
-                            this.target = null;
-                        }
+                    if (this.target.applyDamage(5)) {
+                        this.changeHungerBy(-25);
+                        this.target = null;
                     }
-                },
-                () => {
-                    this.target = null;
-                },
-                () => {
-                    this.lookTowardsPath();
-                    if (parameters.simulation.showPaths) {
-                        this.createLines(this.path);
-                    }
-                },
-                true
-            );
-        }
+                }
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                }
+            },
+            true
+        );
 
         if (this.hunger > 40) {
             this.state = this.wolfStates.Hunting;
@@ -843,32 +828,30 @@ class Wolf extends ObjectBases.MovableObjectBase {
             });
         }
 
-        if (this.target) {
-            this.executePath(
-                () => {
-                    if (this.target != null) {
-                        if (!this.checkIfNextToTarget(this.target.getPos())) {
-                            this.target = null;
-                            return;
-                        }
+        this.executePath(
+            () => {
+                if (this.target != null) {
+                    if (!this.checkIfNextToTarget(this.target.getPos())) {
+                        this.target = null;
+                        return;
+                    }
 
-                        this.spawn();
-                        this.target.hunger += 35;
-                    }
-                    this.target = null;
-                },
-                () => {
-                    this.target = null;
-                },
-                () => {
-                    this.lookTowardsPath();
-                    if (parameters.simulation.showPaths) {
-                        this.createLines(this.path);
-                    }
-                },
-                true
-            );
-        }
+                    this.spawn();
+                    this.target.changeHungerBy(35);
+                }
+                this.target = null;
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                }
+            },
+            true
+        );
 
         if (this.hunger >= 40) {
             this.state = this.wolfStates.Hunting;
@@ -955,21 +938,19 @@ class Squirrel extends ObjectBases.MovableObjectBase {
             return;
         }
 
-        if (this.target) {
-            this.executePath(
-                () => {
+        this.executePath(
+            () => {
+                this.targetPos = null;
+                this.switchState(this.squirrelStates.Planting);
+            },
+            () => {
+                this.path = AStar.findPath(this.getPos(), this.targetPos);
+                if (!this.path || this.path.length == 1) {
                     this.targetPos = null;
-                    this.switchState(this.squirrelStates.Planting);
-                },
-                () => {
-                    this.path = AStar.findPath(this.getPos(), this.targetPos);
-                    if (!this.path || this.path.length == 1) {
-                        this.targetPos = null;
-                        return;
-                    }
-                }, null, false
-            )
-        }
+                    return;
+                }
+            }, null, false
+        )
     }
 
     running() {
@@ -1033,13 +1014,11 @@ class Human extends ObjectBases.MovableObjectBase {
 
         this.huntingDamage = 15 * aggressiveness;
         this.hungerChangeOnHunt = -20 * aggressiveness;
-
     }
 
     update() {
         super.update();
 
-        console.log(this.mesh.id + " - " + this.hunger + " / " + this.target);
         switch (this.state) {
             case this.humanStates.Idle:
                 this.idle();
@@ -1063,7 +1042,7 @@ class Human extends ObjectBases.MovableObjectBase {
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
             const newHuman = new Human(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
             world.instantiateObject(newHuman);
-            this.hunger += 35;
+            this.changeHungerBy(35);
         }
     }
 
@@ -1089,33 +1068,31 @@ class Human extends ObjectBases.MovableObjectBase {
             }
         }
 
-        if (this.target) {
-            this.executePath(
-                () => {
-                    if (this.target != null) {
-                        if (!this.checkIfNextToTarget(this.target.getPos())) {
-                            this.target = null;
-                            return;
-                        }
+        this.executePath(
+            () => {
+                if (this.target != null) {
+                    if (!this.checkIfNextToTarget(this.target.getPos())) {
+                        this.target = null;
+                        return;
+                    }
 
-                        if (this.target.applyDamage(this.huntingDamage)) {
-                            this.changeHungerBy(this.hungerChangeOnHunt);
-                            this.target = null;
-                        }
+                    if (this.target.applyDamage(this.huntingDamage)) {
+                        this.changeHungerBy(this.hungerChangeOnHunt);
+                        this.target = null;
                     }
-                },
-                () => {
-                    this.target = null;
-                },
-                () => {
-                    this.lookTowardsPath();
-                    if (parameters.simulation.showPaths) {
-                        this.createLines(this.path);
-                    }
-                },
-                true
-            );
-        }
+                }
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                }
+            },
+            true
+        );
 
         if (this.hunger < 25) {
             this.state = this.humanStates.Mating;
@@ -1131,32 +1108,30 @@ class Human extends ObjectBases.MovableObjectBase {
             });
         }
 
-        if (this.target) {
-            this.executePath(
-                () => {
-                    if (this.target != null) {
-                        if (!this.checkIfNextToTarget(this.target.getPos())) {
-                            this.target = null;
-                            return;
-                        }
+        this.executePath(
+            () => {
+                if (this.target != null) {
+                    if (!this.checkIfNextToTarget(this.target.getPos())) {
+                        this.target = null;
+                        return;
+                    }
 
-                        this.spawn();
-                        this.target.hunger += 35;
-                    }
-                    this.target = null;
-                },
-                () => {
-                    this.target = null;
-                },
-                () => {
-                    this.lookTowardsPath();
-                    if (parameters.simulation.showPaths) {
-                        this.createLines(this.path);
-                    }
-                },
-                true
-            );
-        }
+                    this.spawn();
+                    this.target.changeHungerBy(35);
+                }
+                this.target = null;
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                }
+            },
+            true
+        );
 
         if (this.hunger >= 40) {
             this.state = this.humanStates.Hunting;

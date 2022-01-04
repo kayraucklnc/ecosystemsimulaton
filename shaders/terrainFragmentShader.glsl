@@ -150,6 +150,8 @@ void main() {
         break;
     }
 
+    gl_FragColor = vec4(terrainColor, 1.);
+
     vec4 addedLights = vec4(0.0,
     0.0,
     0.0,
@@ -170,11 +172,10 @@ void main() {
     }
     #endif
 
-    addedLights = max(vec4(0.3), addedLights);
+    addedLights = max(vec4(0.1), addedLights);
     addedLights = min(vec4(1.5), addedLights);
 
-    gl_FragColor = vec4(terrainColor, 1.) * addedLights;
-
+    gl_FragColor.xyz = (gl_FragColor * addedLights).xyz;
 
     //--------- Fog -------------
     float depth = gl_FragCoord.z / gl_FragCoord.w;
@@ -185,6 +186,7 @@ void main() {
     fogFactor = (1.0 - clamp(fogFactor, 0.0, 1.0));
 
     gl_FragColor = mix(gl_FragColor, vec4(fogColor, gl_FragColor.w), fogFactor);
-
     //-----------------------
+
+
 }

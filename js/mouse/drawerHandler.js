@@ -32,6 +32,21 @@ class DrawerHandler {
                             case "squirrel":
                                 element = new Objects.Squirrel(intersectPoint, new THREE.Vector3(0, 0), Materials.squirrelMaterial);
                                 break;
+                            case "wolf":
+                                element = new Objects.Wolf(intersectPoint, new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+                                break;
+                            case "pig":
+                                element = new Objects.Pig(intersectPoint, new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+                                break;
+                            case "fox":
+                                element = new Objects.Fox(intersectPoint, new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+                                break;
+                            case "rabbit":
+                                element = new Objects.Rabbit(intersectPoint, new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+                                break;
+                            case "grass":
+                                element = new Objects.Grass(intersectPoint, new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+                                break;
                         }
                         world.instantiateObject(element, true);
                     }

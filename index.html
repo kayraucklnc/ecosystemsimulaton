@@ -55,6 +55,12 @@
 
         <div name="bottom-aligner" style="display: inline-block;height:100%;vertical-align: bottom;width: 0px;"></div>
 
+        <div style="text-align: center;padding-bottom: 2%;">
+            <div style="font-size: 16pt; color: aliceblue">Human Aggressiveness</div>
+            <input style="width: 95%;" type="range" min="0.1" max="50.0"
+                   value="1.0" step="0.1" class="slider" id="aggressiveness-slider">
+        </div>
+
         <div style="text-align: center;">
             <input type="checkbox" id="brush"><label style="color: white" for="brush">Brush</label>
             <input type="checkbox" id="eraser"><label style="color: white" for="eraser">Eraser</label>
@@ -63,8 +69,12 @@
             <select name="brushElements" id="brushElements" class="list-choice" style="width: 100%">
                 <option value="human">Human</option>
                 <option value="wall">Wall</option>
-                <option value="squirrel">Squirrel</option>
                 <option value="tree">Tree</option>
+                <option value="pig">Pig</option>
+                <option value="fox">Fox</option>
+                <option value="wolf">Wolf</option>
+                <option value="rabbit">Rabbit</option>
+                <option value="grass">Grass</option>
             </select>
         </div>
 

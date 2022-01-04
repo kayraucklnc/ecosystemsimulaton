@@ -1,7 +1,7 @@
 let parameters = {
     plane: {
         scale: 150,
-        gridWidth: 80,
+        gridWidth: 120,
         noiseScale: 0.1,
         persistance: 0.534,
         lacunarity: 1.5,
@@ -19,6 +19,7 @@ let parameters = {
     },
     simulation: {
         showPaths: true,
-        seed: (Math.random() * 1000.0) + ""
+        seed: (Math.random() * 1000.0) + "",
+        humanAggressiveness: 1.0
     }
 };

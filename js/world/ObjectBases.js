@@ -85,11 +85,7 @@ class LivingObjectBase extends WorldObjectBase {
 
     changeHungerBy(amount) {
         this.hunger += amount;
-
-        if (this.hunger >= this.hungerToStarve) {
-            this.hunger = this.hungerToStarve;
-        }
-        this.hunger = Math.max(0, this.hunger);
+        this.hunger = Math.max(0, Math.min(this.hungerToStarve, this.hunger));
     }
 
     die() {
@@ -125,9 +121,9 @@ class MovableObjectBase extends LivingObjectBase {
         this.lastPos = pos;
         this.movement = 0.0;
 
-        this.lastClosestCheckFrame = -frameCount;
+        this.closestCheckFrequency = 50;
+        this.lastClosestCheckFrame = -this.closestCheckFrequency;
         this.lastClosest = null;
-        this.closestCheckFrequency = 100;
     }
 
     onDelete() {
@@ -245,6 +241,7 @@ class MovableObjectBase extends LivingObjectBase {
                 if (this.state == startedState) {
                     this.path = null;
                     this.target = null;
+
                 }
             }, targetLayer, movingLayer);
     }
@@ -320,6 +317,8 @@ class MovableObjectBase extends LivingObjectBase {
                 worker.addEventListener("message", findWrapper);
 
             } else {
+                that.lastClosest = null;
+                that.lastClosestCheckFrame = frameCount;
                 that.findingPathParallel = false;
             }
         }
@@ -390,7 +389,7 @@ class MovableObjectBase extends LivingObjectBase {
 
     update() {
         super.update();
-        if (!parameters.simulation.showPaths) {
+        if (!parameters.simulation.showPaths || this.target == null) {
             this.cleanLines();
         }
     }

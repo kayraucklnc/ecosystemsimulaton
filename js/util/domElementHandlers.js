@@ -39,6 +39,16 @@ function simulationSpeedChange() {
     simulation.timeScale = document.getElementById("timescale-slider").value;
 }
 
+document.getElementById("aggressiveness-slider").addEventListener("change", () => {
+    parameters.simulation.humanAggressiveness = document.getElementById("aggressiveness-slider").value;
+
+    world.objects.forEach((obj) => {
+        if (obj instanceof Objects.Human) {
+            obj.updateAccordingToAggressiveness();
+        }
+    })
+});
+
 function brushChange() {
     if (document.getElementById("brush").checked) {
         document.getElementById("eraser").checked = false;

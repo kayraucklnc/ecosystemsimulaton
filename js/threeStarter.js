@@ -88,7 +88,7 @@ function createInitControls(camera, renderer) {
 }
 
 function createWater() {
-    let waterGeometry = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale).translate(0, 0, -0.34 * parameters.plane.heightMultiplier);
+    let waterGeometry = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale, 400, 400).translate(0, 0, -0.34 * parameters.plane.heightMultiplier);
     water = new Water(
         waterGeometry,
         {
@@ -111,7 +111,7 @@ function createWater() {
 }
 
 function createCustomWater() {
-    let customWaterGeo = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale).translate(0, 0, parameters.plane.waterHeight * parameters.plane.heightMultiplier).rotateX(-Math.PI / 2);
+    let customWaterGeo = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale, 400, 400).translate(0, 0, parameters.plane.waterHeight * parameters.plane.heightMultiplier).rotateX(-Math.PI / 2);
     // water.material.uniforms.size = 500.0;
     const material = Materials.customWaterMaterial3;
     water = new THREE.Mesh(customWaterGeo, material);

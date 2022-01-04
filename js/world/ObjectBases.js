@@ -7,6 +7,8 @@ class WorldObjectBase {
         this.material = material;
 
         this.selectable = false;
+        this.overrideRot = true;
+
 
         this.setPos(pos);
         this.setRot(rotation);
@@ -138,7 +140,7 @@ class MovableObjectBase extends LivingObjectBase {
     onDelete() {
         super.onDelete();
         this.cleanLines();
-        
+
         if (this.worker) {
             this.worker.terminate();
 
@@ -187,7 +189,7 @@ class MovableObjectBase extends LivingObjectBase {
         projZAxis.y = world.grid.terrain.getHeight(new THREE.Vector2(projZAxis.x, projZAxis.z));
         projZAxis.sub(this.getPos());
         // world.scene.add(world.createLine(this.getPos(), new THREE.Vector3().addVectors(projZAxis, this.getPos())));
-        // world.scene.add(world.createLine(this.getPos(), new THREE.Vector3().addVectors(projMovement, this.getPos()), 0,"#ff0000"));
+        // world.scene.add(world.createLine(this.getPos(), new THREE.Vector3().addVectors(projMovement, this.getPos()), 0, "#ff0000"));
         let angleInRad = this.myAngleTo(projZAxis, projMovement, world.getNormalVector(this.getPos()));
         this.mesh.rotateY(angleInRad);
     }

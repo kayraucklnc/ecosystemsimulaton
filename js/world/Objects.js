@@ -1312,6 +1312,14 @@ class House extends ObjectBases.WorldLargeObject {
 
         this.setPos(pos);
         this.setRot(rotation);
+        world.fixObjectPos(this);
+        this.overrideRot = false;
+
+        this.mesh.rotateY(Math.sign(Math.random() - 0.5) * 1.57 / 2);
+    }
+
+    update() {
+        super.update();
     }
 }
 

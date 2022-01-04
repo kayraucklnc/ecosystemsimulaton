@@ -2,6 +2,7 @@ import * as THREE from "../library/three.js-r135/build/three.module.js";
 
 let vShader;
 let vShaderWave;
+let vShaderWave2;
 let fShader;
 let terrainFShader;
 let customWaterFShader;
@@ -29,6 +30,7 @@ let terrainFShaderAlt = null;
 function createAllMaterials() {
     vShader = shaders["vertexShader"];
     vShaderWave = shaders["waveVertexShader"];
+    vShaderWave2 = shaders["waveVertexShader2"];
     fShader = shaders["fragmentShader"];
     terrainFShader = shaders["terrainFragmentShader"];
     sunFShader = shaders["sunFragmentShader"];
@@ -48,7 +50,6 @@ function createAllMaterials() {
             fogColor: {value: new THREE.Color(0x61757d)},
             fogDensity: {type: "f", value: 0.014},
             u_time: {type: "f", value: 0},
-            v_time: {type: "f", value: 0},
         }
     ]);
     planeMatUniforms.groundNormalMap.value = textures.dirtNormalMap.texture;
@@ -83,7 +84,7 @@ function createAllMaterials() {
 
     customWaterMaterial3 = new THREE.ShaderMaterial({
         uniforms: planeMatUniforms,
-        vertexShader: vShaderWave,
+        vertexShader: vShaderWave2,
         fragmentShader: customWaterFShader3,
         side: THREE.DoubleSide,
         lights: true,

@@ -35,6 +35,11 @@
 [ Yiğit ] diğer classları implement ediyo.
 [ İrem ] Terrain Generation daha detaylı olmalı. (Şu videodaki gibi: https://www.youtube.com/watch?v=wbpMiKiSKm8&list=PLFt_AvWsXl0eBW2EiBtl_sxmDtSgZBxB3&index=1).
 [ İrem ] Load/Save template.
+[ Safa ] Grid üstündeki objeler diğerinden farklı bir objenin altında olsun.
+[ Safa ] make grass passable
+[ Safa ] Major optimizations.
+[ Safa ] Objelerin boyutlarını ayarla.
+[ Safa ] Işık açıp kapatma.
 
 
 --- OnGoing ---
@@ -45,8 +50,7 @@
 [ Safa ] Her obje farklı classta.
 [ Safa ] Hayvanların parametrelerini parametersa koyma.
 [ Safa ] Pigle aynı bir cow.
-[ Safa ] Işık açıp kapatma.
-[ Safa ] Shader değiştirme.
+[ Kayra ] Shader değiştirme.
 [ İrem ] Alternative water shader.
 
 

@@ -44,7 +44,7 @@ class World {
         return (Math.random() * (max - min) + min);
     }
 
-    getPure2DMatrix(layer=GridLayer.Surface) {
+    getPure2DMatrix(layer = GridLayer.Surface) {
         if (frameCount - this.lastPureMatrixCreatedFrame < 2) {
             return this.lastPureMatrix;
         }
@@ -133,7 +133,7 @@ class World {
         return this.grid.getPos(neighbourPos, layer);
     }
 
-    fixObjectPos(object, withPos=true) {
+    fixObjectPos(object, withPos = true) {
         let gridCenter = null;
         if (withPos) {
             gridCenter = this.grid.getGridPos(object.getPos());
@@ -159,7 +159,7 @@ class World {
         }
         let newPos = (new THREE.Vector3().copy(gridCenter));
         object.setPos(newPos);
-        if (!(object instanceof Objects.Wall)) {
+        if (object.overrideRot) {
             let normal = this.getNormalVector(gridCenter);
             var up = new THREE.Vector3(0, 1, 0);
             object.mesh.quaternion.setFromUnitVectors(up, normal.clone());

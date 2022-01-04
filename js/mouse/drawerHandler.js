@@ -17,7 +17,7 @@ class DrawerHandler {
             if (intersects[0] != null) {
                 let intersectPoint = intersects[0].point;
                 if (drawMode.brush) {
-                    if(!world.getPos(intersectPoint)){
+                    if (!world.getPos(intersectPoint)) {
                         let element;
                         switch (document.getElementById("brushElements").value) {
                             case "wall":
@@ -47,12 +47,15 @@ class DrawerHandler {
                             case "grass":
                                 element = new Objects.Grass(intersectPoint, new THREE.Vector3(0, 0), Materials.squirrelMaterial);
                                 break;
+                            case "house":
+                                element = new Objects.House(intersectPoint, new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+                                break;
                         }
                         world.instantiateObject(element, true);
                     }
                 } else if (drawMode.eraser) {
                     let object = world.getPos(intersectPoint);
-                    if(object){
+                    if (object) {
                         world.deleteObject(object);
                     }
                 }

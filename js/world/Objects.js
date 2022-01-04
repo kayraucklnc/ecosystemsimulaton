@@ -1007,7 +1007,7 @@ class Human extends ObjectBases.MovableObjectBase {
         this.idleCount = 0;
 
         this.treeCutCount = 0;
-        this.neededTreeToBuildAHouse = 10;
+        this.neededTreeToBuildAHouse = 1;
 
         this.updateAccordingToAggressiveness();
     }
@@ -1168,7 +1168,7 @@ class Human extends ObjectBases.MovableObjectBase {
                         let targetPos = this.path.length > 0 ? this.path[this.path.length - 1] : this.getPos();
                         this.target = targetPos;
                     }
-                },(e) => {
+                }, (e) => {
                     if (this.state == startedState) {
                         this.path = null;
                         this.target = null;
@@ -1217,6 +1217,7 @@ class Wall extends ObjectBases.WorldLargeObject {
 
         const cube = new THREE.BoxGeometry(world.getCellSize(), 0.8, world.getCellSize()).translate(0, 0.3, 0);
         this.mesh = new THREE.Mesh(cube, material);
+        this.overrideRot = false;
 
         this.setPos(pos);
         this.setRot(rotation);
@@ -1240,6 +1241,14 @@ class House extends ObjectBases.WorldObjectBase {
 
         this.setPos(pos);
         this.setRot(rotation);
+        world.fixObjectPos(this);
+        this.overrideRot = false;
+
+        this.mesh.rotateY(Math.sign(Math.random() - 0.5) * 1.57 / 2);
+    }
+
+    update() {
+        super.update();
     }
 }
 

@@ -195,8 +195,8 @@ onmessage = function (oEvent) {
         closest = closestArr[i];
 
         let path = findPath(oEvent.data.thisPos, closestArr[i]);
+        closestPath = path;
         if (path != null) {
-            closestPath = path;
             break;
         }
     }

@@ -41,6 +41,7 @@ function drawthechart() {
         data.addColumn('number', 'Grass');
         data.addColumn('number', 'Rabbit');
         data.addColumn('number', 'Fox');
+        data.addColumn('number', 'Cow');
         updateData();
         updateOptions();
         // Set chart options
@@ -63,7 +64,7 @@ function drawthechart() {
             if (data.Wf.length >= dataCount) {
                 data.removeRows(0, 1);
             };
-            let rows = [[" ", datamap.get("Human"), datamap.get("Squirrel"), datamap.get("Tree"), datamap.get("Wolf"), datamap.get("Pig"),datamap.get("Grass"),datamap.get("Rabbit"), datamap.get("Fox")]];
+            let rows = [[" ", datamap.get("Human"), datamap.get("Squirrel"), datamap.get("Tree"), datamap.get("Wolf"), datamap.get("Pig"),datamap.get("Grass"),datamap.get("Rabbit"), datamap.get("Fox"), datamap.get("Cow")]];
             // let rows = [[" ", perlin.get(2, frameCount/100), perlin.get(3.86, frameCount/150), perlin.get(3.86, frameCount/80)]];
             data.addRows(rows);
         }

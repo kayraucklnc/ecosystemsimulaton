@@ -160,6 +160,11 @@ function createTestSceneElements(scene) {
         world.instantiateObject(pigObject);
     }
 
+    // for (let i = 0; i < 170; i++) {
+    //     let cowObject = new Objects.Cow(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
+    //     world.instantiateObject(cowObject);
+    // }
+
     for (let i = 0; i < 120; i++) {
         let wolfObject = new Objects.Wolf(new THREE.Vector3((Math.random() - 0.5) * parameters.plane.scale, 0, (Math.random() - 0.5) * parameters.plane.scale), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
         world.instantiateObject(wolfObject);

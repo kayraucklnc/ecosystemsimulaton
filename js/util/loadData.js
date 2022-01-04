@@ -36,19 +36,40 @@ function loadObjectMeshes(resolve) {
     meshPromises.push(new Promise((resolve, reject) => {
         loadObject(resolve, "house.glb")
     }));
+    meshPromises.push(new Promise((resolve, reject) => {
+        loadObject(resolve, "house2.glb")
+    }));
+    meshPromises.push(new Promise((resolve, reject) => {
+        loadObject(resolve, "tree2.glb")
+    }));
+    meshPromises.push(new Promise((resolve, reject) => {
+        loadObject(resolve, "tree3.glb")
+    }));
+    meshPromises.push(new Promise((resolve, reject) => {
+        loadObject(resolve, "human2.glb")
+    }));
+    meshPromises.push(new Promise((resolve, reject) => {
+        loadObject(resolve, "cow.glb")
+    }));
 
     Promise.all(meshPromises).then((mesh) => {
-        meshes.tree = mesh[0];
-        meshes.human = mesh[1];
-        meshes.grass = mesh[2];
-        meshes.wheat = mesh[3];
-        meshes.pig = mesh[4];
-        meshes.wolf = mesh[5];
-        meshes.rabbit = mesh[6];
-        meshes.fox = mesh[7];
-        meshes.eagle = mesh[8];
-        meshes.stockpile = mesh[9];
-        meshes.house = mesh[10];
+        meshes["tree"] = mesh[0];
+        meshes["human"] = mesh[1];
+        meshes["grass"] = mesh[2];
+        meshes["wheat"] = mesh[3];
+        meshes["pig"] = mesh[4];
+        meshes["wolf"] = mesh[5];
+        meshes["rabbit"] = mesh[6];
+        meshes["fox"] = mesh[7];
+        meshes["eagle"] = mesh[8];
+        meshes["stockpile"] = mesh[9];
+        meshes["house"] = mesh[10];
+        meshes["house2"] = mesh[11];
+        meshes["tree2"] = mesh[12];
+        meshes["tree3"] = mesh[13];
+        meshes["human2"] = mesh[14];
+        meshes["cow"] = mesh[15];
+
         resolve();
     });
 }

@@ -28,7 +28,7 @@ function skybox() {
     skyUniforms['mieDirectionalG'].value = 0.8;
 
     const parameters = {
-        elevation: 1,
+        elevation: 0,
         azimuth: 200
     };
 
@@ -43,8 +43,6 @@ function skybox() {
     sky.material.uniforms['sunPosition'].value.copy(sun);
 
     world.scene.environment = pmremGenerator.fromScene(sky).texture;
-
-
 }
 
 function createInitScene() {
@@ -121,6 +119,8 @@ function createCustomWater() {
 }
 
 function createTestSceneElements(scene) {
+    Math.seedrandom(parameters.simulation.seed);
+
     // let treeObject = new Objects.Grass(new THREE.Vector3(-20, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
     // world.instantiateObject(treeObject);
     // let humanObject = new Objects.Rabbit(new THREE.Vector3(20, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);

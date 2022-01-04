@@ -24,6 +24,7 @@ let lightIndicatorMaterial = null;
 let customWaterMaterial = null;
 let customWaterMaterial2 = null;
 let customWaterMaterial3 = null;
+let terrainFShaderAlt = null;
 
 function createAllMaterials() {
     vShader = shaders["vertexShader"];
@@ -34,6 +35,7 @@ function createAllMaterials() {
     customWaterFShader = shaders["customWaterShader"];
     customWaterFShader2 = shaders["customWaterShader2"];
     customWaterFShader3 = shaders["customWaterShader3"];
+    terrainFShaderAlt = shaders["terrainFragmentShaderAlt"];
 
     let planeMatUniforms = THREE.UniformsUtils.merge([
         THREE.UniformsLib["lights"],

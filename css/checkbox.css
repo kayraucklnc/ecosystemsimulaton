@@ -1,7 +1,3 @@
-input {
-    display: none;
-}
-
 label {
     font-size: 24px;
     color: #bfbfbf;
@@ -24,14 +20,17 @@ label:before {
     border: 10px solid #fff;
     transition: border .3s ease;
 }
+.checkbox {
+    display: none;
+}
 
-input:checked + label:before {
+.checkbox:checked + label:before {
     border-color: #fff;
     border-width: 2px;
 }
-input + label {
+.checkbox + label {
     transition: color .4s ease;
 }
-input:checked + label {
+.checkbox:checked + label {
     color: #5D5D5D;
 }

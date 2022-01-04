@@ -11,6 +11,7 @@ class World {
         this.scene = scene;
         // scene.fog = new THREE.FogExp2(0xFFFFFF, 0.09);
         this.objects = [];
+        this.fillerObjects = [];
         this.lights = [];
 
         this.grid = grid;
@@ -25,6 +26,9 @@ class World {
 
         this.gridParent = new THREE.Object3D();
         this.parentObject.add(this.gridParent);
+
+        this.lastPureMatrixCreatedFrame = -1;
+        this.lastPureMatrix = null;
     }
 
     getRandomColor() {
@@ -40,19 +44,26 @@ class World {
         return (Math.random() * (max - min) + min);
     }
 
-    getPure2DMatrix(layer = GridLayer.Surface) {
+    getPure2DMatrix(layer=GridLayer.Surface) {
+        if (frameCount - this.lastPureMatrixCreatedFrame < 2) {
+            return this.lastPureMatrix;
+        }
+
         let matrix2d = [];
         for (let i = 0; i < world.grid.matrix[layer].length; i++) {
             let temp = [];
-            for (let j = 0; j < world.grid.matrix[2][i].length; j++) {
-                if (world.grid.matrix[2][i][j] != null) {
-                    temp.push(world.grid.matrix[2][i][j].constructor.name);
+            for (let j = 0; j < world.grid.matrix[layer][i].length; j++) {
+                if (world.grid.matrix[layer][i][j] != null) {
+                    temp.push(world.grid.matrix[layer][i][j].constructor.name);
                 } else {
                     temp.push(null);
                 }
             }
             matrix2d.push(temp)
         }
+
+        this.lastPureMatrixCreatedFrame = frameCount;
+        this.lastPureMatrix = matrix2d;
         return matrix2d;
     }
 
@@ -122,8 +133,30 @@ class World {
         return this.grid.getPos(neighbourPos, layer);
     }
 
-    fixObjectPos(object) {
-        let gridCenter = this.grid.getGridPos(object.getPos());
+    fixObjectPos(object, withPos=true) {
+        let gridCenter = null;
+        if (withPos) {
+            gridCenter = this.grid.getGridPos(object.getPos());
+        } else {
+            let layer = this.grid.getObjectLayer(object);
+            if (layer instanceof Array) {
+                layer = layer[0];
+            }
+            let mx = this.grid.matrix[layer];
+            for (let i = 0; i < mx.length; i++) {
+                for (let j = 0; j < mx[i].length; j++) {
+                    if (mx[i][j] === object) {
+                        gridCenter = this.grid.getIndexPos(i, j);
+                        break;
+                    }
+                }
+                if (gridCenter != null) break;
+            }
+
+            if (gridCenter == null) {
+                return;
+            }
+        }
         let newPos = (new THREE.Vector3().copy(gridCenter));
         object.setPos(newPos);
         if (!(object instanceof Objects.Wall)) {
@@ -199,7 +232,13 @@ class World {
         }
 
         this.gridParent.add(object.mesh);
-        this.objects.push(object);
+        let objectList;
+        if (object instanceof Objects.FillerObject || object instanceof Objects.LargeFillerObject) {
+            objectList = this.fillerObjects;
+        } else {
+            objectList = this.objects;
+        }
+        objectList.push(object);
 
         this.meshIdToObject.set(object.mesh.id, object);
 
@@ -265,10 +304,15 @@ class World {
             }
         }
 
-        const indexOf = this.objects.indexOf(object);
+        let objectList;
+        if (object instanceof Objects.FillerObject || object instanceof Objects.LargeFillerObject) {
+            objectList = this.fillerObjects;
+        } else {
+            objectList = this.objects;
+        }
+        const indexOf = objectList.indexOf(object);
         if (indexOf != -1) {
-            this.objects.splice(indexOf, 1);
-
+            objectList.splice(indexOf, 1);
         }
 
         if (this.isObjectOnGrid(object)) {
@@ -277,7 +321,6 @@ class World {
         } else {
             this.generalParent.remove(object.mesh);
         }
-
 
         this.meshIdToObject.delete(object.mesh.id);
 

@@ -85,11 +85,7 @@ class LivingObjectBase extends WorldObjectBase {
 
     changeHungerBy(amount) {
         this.hunger += amount;
-
-        if (this.hunger >= this.hungerToStarve) {
-            this.hunger = this.hungerToStarve;
-        }
-        this.hunger = Math.max(0, this.hunger);
+        this.hunger = Math.max(0, Math.min(this.hungerToStarve, this.hunger));
     }
 
     die() {
@@ -125,19 +121,19 @@ class MovableObjectBase extends LivingObjectBase {
         this.lastPos = pos;
         this.movement = 0.0;
 
-        this.lastClosestCheckFrame = -frameCount;
-        this.lastClosest = null;
         this.closestCheckFrequency = 50;
+        this.lastClosestCheckFrame = -this.closestCheckFrequency;
+        this.lastClosest = null;
     }
 
     onDelete() {
         super.onDelete();
-
+        this.cleanLines();
+        
         if (this.worker) {
             this.worker.terminate();
-        }
 
-        this.cleanLines();
+        }
     }
 
     updateLines() {
@@ -242,8 +238,11 @@ class MovableObjectBase extends LivingObjectBase {
                 }
             },
             (e) => {
-                this.path = null;
-                this.target = null;
+                if (this.state == startedState) {
+                    this.path = null;
+                    this.target = null;
+
+                }
             }, targetLayer, movingLayer);
     }
 
@@ -268,7 +267,7 @@ class MovableObjectBase extends LivingObjectBase {
             let that = this;
 
             if (frameCount - this.lastClosestCheckFrame < this.closestCheckFrequency) {
-                return this.lastClosest;
+                return;
             }
 
             this.findingPathParallel = true;
@@ -283,37 +282,45 @@ class MovableObjectBase extends LivingObjectBase {
                 toGoIdxs.push(world.grid.getGridIndex(cloneObjects[i].getPos()));
             }
 
-            worker.postMessage({
-                thisPos: world.grid.getGridIndex(thisPos),
-                closestArr: toGoIdxs,
-                matrix: world.getPure2DMatrix(movingLayer),
-                nowId: that.mesh.id,
-            });
+            if (toGoIdxs.length != 0) {
+                worker.postMessage({
+                    thisPos: world.grid.getGridIndex(thisPos),
+                    closestArr: toGoIdxs,
+                    matrix: world.getPure2DMatrix(movingLayer),
+                    nowId: that.mesh.id,
+                });
 
-            function findWrapper(oEvent) {
-                let nowObj = world.meshIdToObject.get(oEvent.data.nowId);
-                if (nowObj === that) {
-                    if (oEvent.data.path == null) {
-                        onFail();
-                    } else {
-                        if (oEvent.data.path.length > 0) {
-                            let iidx = oEvent.data.path[oEvent.data.path.length - 1].i;
-                            let jidx = oEvent.data.path[oEvent.data.path.length - 1].j;
-
-                            this.lastClosest = world.getPos(world.grid.getIndexPos(iidx, jidx), targetLayer);
+                function findWrapper(oEvent) {
+                    if (that.mesh.id == oEvent.data.nowId) {
+                        worker.removeEventListener("message", findWrapper);
+                        if (oEvent.data.path == null) {
+                            onFail();
+                            that.lastClosest = null;
                         } else {
-                            this.lastClosest = world.getPos(nowObj.getPos(), targetLayer);
+                            if (oEvent.data.path.length > 0) {
+                                let iidx = oEvent.data.path[oEvent.data.path.length - 1].i;
+                                let jidx = oEvent.data.path[oEvent.data.path.length - 1].j;
+
+                                that.lastClosest = world.getPos(world.grid.getIndexPos(iidx, jidx), targetLayer);
+                            } else {
+                                that.lastClosest = world.getPos(that.getPos(), targetLayer);
+                            }
+
+                            onFind(oEvent.data.path);
                         }
-                        this.lastClosestCheckFrame = frameCount;
 
-                        onFind(oEvent.data.path);
+                        that.lastClosestCheckFrame = frameCount;
+                        that.findingPathParallel = false;
                     }
-                    nowObj.findingPathParallel = false;
-                    worker.removeEventListener("message", findWrapper);
                 }
-            }
 
-            worker.addEventListener("message", findWrapper);
+                worker.addEventListener("message", findWrapper);
+
+            } else {
+                that.lastClosest = null;
+                that.lastClosestCheckFrame = frameCount;
+                that.findingPathParallel = false;
+            }
         }
     }
 
@@ -382,6 +389,9 @@ class MovableObjectBase extends LivingObjectBase {
 
     update() {
         super.update();
+        if (!parameters.simulation.showPaths || this.target == null) {
+            this.cleanLines();
+        }
     }
 }
 

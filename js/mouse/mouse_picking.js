@@ -23,8 +23,8 @@ export class MousePicker {
 
         this.dragControls = null;
 
-        window.addEventListener("pointerup", mouse_up);
-        window.addEventListener('pointermove', mouse_move);
+        this.renderer.domElement.addEventListener("pointerup", mouse_up);
+        this.renderer.domElement.addEventListener('pointermove', mouse_move);
 
         this.isActive = true;
     }

@@ -4,6 +4,8 @@
     <link rel="stylesheet" href="css/sliderStyle.css">
     <link rel="stylesheet" href="css/button.css">
     <link rel="stylesheet" href="css/selection.css">
+    <link rel="stylesheet" href="css/divider.css">
+    <link rel="stylesheet" href="css/checkbox.css">
     <title>Ecosystem Simulation</title>
 </head>
 <!--Load the AJAX API-->
@@ -14,11 +16,13 @@
 
 <body style="margin: 0; overflow: hidden">
 <script src="js/library/stats.min.js"></script>
+<script src="js/library/seedrandom-released/seedrandom.min.js"></script>
 <script src="js/util/loadData.js" type="module"></script>
 <script src="/js/app.js"></script>
 <script type="module" src="/js/threeStarter.js"></script>
 <script src="js/util/perlinNoise.js"></script>
 <script type="module" src="js/util/domElementHandlers.js"></script>
+<script type="module" src="js/util/lightAddRemove.js"></script>
 <script src="js/util/chartDrawer.js"></script>
 <!--<script src="js/util/AStar.js" type="module"></script>-->
 <script src="js/parameters.js"></script>
@@ -31,51 +35,115 @@
 <script src="js/world/ObjectBases.js" type="module"></script>
 <script src="js/world/Objects.js" type="module"></script>
 <script src="js/world/Materials.js" type="module"></script>
-<script src="js/library/seedrandom-released/seedrandom.min.js"></script>
 
 <div id="holder" style="display: flex; background-color: black; flex-direction: row; justify-content: flex-end;">
-    <div style="background-color: black" id="leftBar">
-        <div style="background-color: black" id="chartHolder">
-        </div>
-        <div>
-            <div style="text-align: center; padding: 10px">
-                <div style="font-size: 18pt; color: aliceblue">Timescale</div>
-                <input style="width: 100%;" type="range" min="0.1" max="200"
-                       value="20" step="0.1" class="slider" id="timescale-slider">
-            </div>
-            <div style="text-align: center; padding: 10px">
-                <button class="button" style="font-size: 20pt" id="stop-sim-button">Pause
-                    Simulation
-                </button>
-            </div>
+    <div style="background-color: black;display: flex;flex-direction: column;width: 340px;" id="leftBar">
+        <div style="background-color: black" id="chartHolder"></div>
+
+        <div name="bottom-aligner" style="display: inline-block;height:100%;vertical-align: bottom;width: 0px;"></div>
+        <div style="text-align: center;padding-bottom: 4%;">
+            <div style="font-size: 18pt; color: aliceblue">Timescale</div>
+            <input style="width: 95%;" type="range" min="0.1" max="200"
+                   value="20" step="0.1" class="slider" id="timescale-slider">
+            <button class="button" style="font-size: 20pt" id="stop-sim-button">
+                Pause Simulation
+            </button>
         </div>
     </div>
 
     <div style="background-color: black" id="midBar"></div>
 
-    <div style="background-color: black; width: 320px; margin-top: 200px" id="rightBar">
-        <div style="text-align: center; margin: 15px">
-            <input type="checkbox" id="brush"><label style="color: white" for="brush">Brush</label>
-            <input type="checkbox" id="eraser"><label style="color: white" for="eraser">Eraser</label>
+    <div style="background-color: black;display: flex;flex-direction: column;width: 320px;margin-top: 200px" id="rightBar">
+
+        <div name="bottom-aligner" style="display: inline-block;height:100%;vertical-align: bottom;width: 0px;"></div>
+
+        <div style="text-align: center;padding: 10px; padding-bottom: 14px;">
+            <div style="font-size: 16pt; color: aliceblue; width:100%; margin-bottom: 3px;">Pathfinding Algorithm</div>
+            <select name="pathfindingAlgorithm" id="pathfindingAlgorithm" class="list-choice" style="width: 100%">
+                <option value="astar">A Star</option>
+                <option value="dijkstra">Dijkstra</option>
+            </select>
         </div>
-        <select name="brushElements" id="brushElements" class="list-choice" style="width: 100%">
-            <option value="human">Human</option>
-            <option value="wall">Wall</option>
-            <option value="squirrel">Squirrel</option>
-            <option value="tree">Tree</option>
-        </select>
 
-        <select name="templateElements" id="templateList" class="list-choice" style="width: 100%">
-            <option value="Template1">Template 1</option>
-            <option value="Template2">Template 2</option>
-            <option value="Template3">Template 3</option>
-            <option value="Template4">Template 4</option>
-        </select>
+        <div name="shader dropdowns">
+            <div style="text-align: center;display: flex; flex-direction: row;">
+                <div style="font-size: 14pt; color: aliceblue; width:100%; margin-right: 8px;">Terrain Shaders</div>
+                <div style="font-size: 14pt; color: aliceblue; width:100%;">Water Shaders</div>
+            </div>
 
-        <button id='saveButton' class="btn" style="font-size: 14pt"><i class="fa fa-download"></i> Save Template
-        </button>
-        <input id='fileid' type='file' hidden/>
-        <input id='loadButton' type='button' value='Load Template' style="font-size : 19px"/>
+            <div style="text-align: center;padding-bottom: 12px;padding-left: 10px;padding-right: 10px;display: flex; flex-direction: row;">
+                <select name="terrainShaders" id="terrainShaders" class="list-choice" style="width: 100%; margin-right: 8px">
+                    <option value="naturalShader">Natural Shader</option>
+                    <option value="alternativeShader">Alternative Shader</option>
+                </select>
+
+                <select name="waterShaders" id="waterShaders" class="list-choice" style="width: 100%">
+                    <option value="toonShader">Toon Shader</option>
+                    <option value="turbulance">Turbulance</option>
+                    <option value="cuteShader">Cute Shader</option>
+                </select>
+            </div>
+        </div>
+
+        <div name="divider">
+            <hr class="solid">
+        </div>
+
+        <div style="text-align: center;padding-bottom: 2%; padding-top: 3%;">
+            <div style="font-size: 16pt; color: aliceblue">Human Aggressiveness</div>
+            <input style="width: 95%;" type="range" min="0.5" max="500.0"
+                   value="1.0" step="0.1" class="slider" id="aggressiveness-slider">
+        </div>
+
+        <div name="divider">
+            <hr class="solid">
+        </div>
+
+        <div style="text-align: center;">
+            <input type="checkbox" class="checkbox" id="brush"><label style="color: white" for="brush">Brush</label>
+            <input type="checkbox" class="checkbox" id="eraser"><label style="color: white" for="eraser">Eraser</label>
+        </div>
+        <div style="text-align: center;padding: 10px;">
+            <select name="brushElements" id="brushElements" class="list-choice" style="width: 100%">
+                <option value="human">Human</option>
+                <option value="wall">Wall</option>
+                <option value="tree">Tree</option>
+                <option value="pig">Pig</option>
+                <option value="fox">Fox</option>
+                <option value="wolf">Wolf</option>
+                <option value="rabbit">Rabbit</option>
+                <option value="grass">Grass</option>
+            </select>
+        </div>
+
+        <div style="text-align: center;padding: 10px;">
+            <div style="padding-bottom: 8px;">
+                <select name="templateElements" id="templateList" class="list-choice" style="width: 100%">
+                    <option value="Template1">Template 1</option>
+                    <option value="Template2">Template 2</option>
+                    <option value="Template3">Template 3</option>
+                    <option value="Template4">Template 4</option>
+                </select>
+            </div>
+
+            <button id='saveButton' class="btn" style="font-size: 14pt"><i class="fa fa-download"></i> Save Template
+            </button>
+            <input id='fileid' type='file' hidden/>
+            <input id='loadButton' type='button' value='Load Template' style="font-size : 19px; display: inline-grid;"/>
+        </div>
+
+        <div name="divider">
+            <hr class="solid">
+        </div>
+
+        <div style="text-align: center;padding: 10px;display: flex;flex-direction: row;">
+            <button class="button addLightButton" style="font-size: 15pt;margin-right: 3px;" id="add-light-button">
+                Add Light
+            </button>
+            <button class="button removeLightButton" style="font-size: 15pt;margin-left: 3px;" id="remove-light-button">
+                Remove Light
+            </button>
+        </div>
 
     </div>
 </div>

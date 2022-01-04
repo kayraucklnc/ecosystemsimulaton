@@ -5,7 +5,10 @@ struct PointLight {
     vec3 position;
     float distance;
 };
+
+#if NUM_POINT_LIGHTS > 0
 uniform PointLight pointLights[NUM_POINT_LIGHTS];
+#endif
 
 varying vec3 vNormal;
 varying vec3 vPosition;
@@ -31,7 +34,6 @@ float rand(vec2 co) {
 }
 
 //-----------------------
-//    SAFA AL SANA RANDOM LIBRARY BABYSU
 vec3 random3(vec3 c) {
     float j = 4096.0*sin(dot(c, vec3(17.0, 59.4, 15.0)));
     vec3 r;
@@ -148,10 +150,14 @@ void main() {
         break;
     }
 
+    gl_FragColor = vec4(terrainColor, 1.);
+
     vec4 addedLights = vec4(0.0,
     0.0,
     0.0,
     1.0);
+
+    #if NUM_POINT_LIGHTS > 0
     for (int l = 0; l < NUM_POINT_LIGHTS; l++) {
         vec3 distanceVec = vPosition - pointLights[l].position;
         distanceVec = distanceVec * 2.0;
@@ -164,11 +170,12 @@ void main() {
 
         addedLights.rgb += clamp(dot(-lightDirection, norm), 0.0, 1.0) * (pointLights[l].color * attuanation);
     }
-    addedLights = max(vec4(0.3), addedLights);
+    #endif
+
+    addedLights = max(vec4(0.1), addedLights);
     addedLights = min(vec4(1.5), addedLights);
 
-    gl_FragColor = vec4(terrainColor, 1.) * addedLights;
-
+    gl_FragColor.xyz = (gl_FragColor * addedLights).xyz;
 
     //--------- Fog -------------
     float depth = gl_FragCoord.z / gl_FragCoord.w;
@@ -179,6 +186,7 @@ void main() {
     fogFactor = (1.0 - clamp(fogFactor, 0.0, 1.0));
 
     gl_FragColor = mix(gl_FragColor, vec4(fogColor, gl_FragColor.w), fogFactor);
-
     //-----------------------
+
+
 }

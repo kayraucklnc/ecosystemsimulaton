@@ -27,8 +27,8 @@ let simulation = {
 };
 let chartSettings = {
     chartSize: {
-        width: 320,
-        height: innerHeight * 0.82,
+        width: 340,
+        height: innerHeight * 0.80,
     },
     viewWindow: {
         max: 200,

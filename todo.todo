@@ -40,16 +40,16 @@
 [ Safa ] Major optimizations.
 [ Safa ] Objelerin boyutlarını ayarla.
 [ Safa ] Işık açıp kapatma.
+[ Safa ] Pigle aynı bir cow.
+[ Safa ] Grassları treelere bağlama.
 
 
 --- OnGoing ---
 [ Yiğit ] Alternative terrain shader.
 [ Yiğit ] Obje shaderlarını ve emissionları düzeltme
 [ Yiğit ] Implement bird
-[ Safa ] Grassları treelere bağlama.
 [ Safa ] Her obje farklı classta.
 [ Safa ] Hayvanların parametrelerini parametersa koyma.
-[ Safa ] Pigle aynı bir cow.
 [ Kayra ] Shader değiştirme.
 [ İrem ] Alternative water shader.
 

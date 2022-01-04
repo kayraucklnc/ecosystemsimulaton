@@ -2,41 +2,42 @@ import {GLTFLoader} from "../library/three.js-r135/examples/jsm/loaders/GLTFLoad
 import * as THREE from "../library/three.js-r135/build/three.module.js";
 
 function loadObjectMeshes(resolve) {
-    let treePromise = new Promise((resolve, reject) => {
+    let meshPromises = [];
+    meshPromises.push(new Promise((resolve, reject) => {
         loadObject(resolve, "tree.glb");
-    });
-    let humanPromise = new Promise((resolve, reject) => {
+    }));
+    meshPromises.push(new Promise((resolve, reject) => {
         loadObject(resolve, "human.glb");
-    });
-    let grassPromise = new Promise((resolve, reject) => {
+    }));
+    meshPromises.push(new Promise((resolve, reject) => {
         loadObject(resolve, "grass.glb");
-    });
-    let wheatPromise = new Promise((resolve, reject) => {
+    }));
+    meshPromises.push(new Promise((resolve, reject) => {
         loadObject(resolve, "wheat.glb");
-    });
-    let pigPromise = new Promise((resolve, reject) => {
+    }));
+    meshPromises.push(new Promise((resolve, reject) => {
         loadObject(resolve, "pig.glb");
-    });
-    let wolfPromise = new Promise((resolve, reject) => {
+    }));
+    meshPromises.push(new Promise((resolve, reject) => {
         loadObject(resolve, "wolf.glb");
-    });
-    let rabbitPromise = new Promise((resolve, reject) => {
+    }));
+    meshPromises.push(new Promise((resolve, reject) => {
         loadObject(resolve, "rabbit.glb");
-    });
-    let foxPromise = new Promise((resolve, reject) => {
+    }));
+    meshPromises.push(new Promise((resolve, reject) => {
         loadObject(resolve, "fox.glb");
-    });
-    let eaglePromise = new Promise((resolve, reject) => {
+    }));
+    meshPromises.push(new Promise((resolve, reject) => {
         loadObject(resolve, "eagle.glb");
-    });
-    let stockpilePromise = new Promise((resolve, reject) => {
+    }));
+    meshPromises.push(new Promise((resolve, reject) => {
         loadObject(resolve, "stockpile.glb");
-    });
-    let housePromise = new Promise((resolve, reject) => {
+    }));
+    meshPromises.push(new Promise((resolve, reject) => {
         loadObject(resolve, "house.glb")
-    })
+    }));
 
-    Promise.all([treePromise, humanPromise, grassPromise, wheatPromise, pigPromise, wolfPromise, rabbitPromise, foxPromise, eaglePromise, stockpilePromise, housePromise]).then((mesh) => {
+    Promise.all(meshPromises).then((mesh) => {
         meshes.tree = mesh[0];
         meshes.human = mesh[1];
         meshes.grass = mesh[2];

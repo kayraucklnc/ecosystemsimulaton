@@ -1,5 +1,7 @@
+precision mediump float;
+
 attribute vec4 tangent;
-uniform float v_time;
+uniform float u_time;
 
 varying vec2 vUv;
 varying vec3 vNormal;
@@ -50,7 +52,6 @@ vec3 voronoi2(in vec3 x)
 void main() {
     vUv = uv;
     worldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
-    vNormal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
     vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
     // Normal Mapping
     vTangent = tangent.xyz;
@@ -59,16 +60,21 @@ void main() {
 
 
     //    ----------- gl_pos ---------------
-    float scale = 0.02;
+    float scale = 2.2;
     vec3 color = vec3(0.);
-
-    vec3 c = voronoi2(vec3(worldPosition.xz * scale, 0));
+    vec3 c = voronoi2(vec3(worldPosition.xz * scale, u_time / 2.0));
     c = vec3(length(c.x));
-
     // isolines
-    color = c.x*(0.5 + 0.2*sin(120.0*c.x + v_time * -2.0))*vec3(1.0);
-
-    vec3 offset =  vec3(0.0, sin(color.x)*0.4, 0.0);
+    color = c.x*(0.5 + 0.05*sin(10.0*c.x + u_time * -6.0))*vec3(1.0);
+    vec3 offset =  vec3(0.0, sin(color.x)*0.85, 0.0);
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position + offset, 1.0);
+
+
+    vec3 t_normal = (transpose(inverse(mat4(1.0, 0.0, 0.0, 0.0,
+    0.0, 1.0, 0.0, offset.y,
+    0.0, 0.0, 1.0, 0.0,
+    0.0, 0.0, 0.0, 1))) * vec4(normal, 1.0)).xyz;
+
+    vNormal = (modelViewMatrix * vec4(t_normal, 0.0)).xyz;
     //    ----------- gl_pos ---------------
 }

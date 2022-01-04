@@ -117,6 +117,7 @@ function loadShaders(resolve) {
     let fileNames = [
         "vertexShader.glsl",
         "waveVertexShader.glsl",
+        "waveVertexShader2.glsl",
         "fragmentShader.glsl",
         "terrainFragmentShader.glsl",
         "sunFragmentShader.glsl",

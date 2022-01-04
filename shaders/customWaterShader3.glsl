@@ -117,6 +117,8 @@ void main() {
     0.0,
     0.0,
     1.0);
+
+    #if NUM_POINT_LIGHTS > 0
     for (int l = 0; l < NUM_POINT_LIGHTS; l++) {
         vec3 distanceVec = vPosition - pointLights[l].position;
         distanceVec = distanceVec * 2.0;
@@ -129,8 +131,10 @@ void main() {
 
         addedLights.rgb += clamp(dot(-lightDirection, norm), 0.0, 1.0) * (pointLights[l].color * attuanation);
     }
+        #endif
+
     addedLights = max(vec4(0.3), addedLights);
-    addedLights = min(vec4(1.5), addedLights);
+    addedLights = min(vec4(1), addedLights);
     //----------- Lights -----------------
 
 
@@ -167,7 +171,7 @@ void main() {
         color = mix(color, color + normalize(color) * 0.1, 1.0-length(color));
     }
 
-    gl_FragColor = vec4(color + 0.1, 1.);
+    gl_FragColor = vec4(color + 0.1, 1.) * addedLights;
     //    --------------------- Shader
 
 

@@ -163,7 +163,7 @@ class Tree extends ObjectBases.LivingObjectBase {
 
         this.mesh = null;
         let scaleFactor = 1.0;
-        switch(Math.floor(Math.random() * 3)) {
+        switch (Math.floor(Math.random() * 3)) {
             case 0:
                 this.mesh = meshes.tree.clone();
                 scaleFactor = 0.35 * world.getCellSize();
@@ -725,6 +725,7 @@ class Pig extends ObjectBases.MovableObjectBase {
 
 class Cow extends Pig {
     static rotated = false;
+
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
 
@@ -1020,6 +1021,7 @@ class Squirrel extends ObjectBases.MovableObjectBase {
 class Human extends ObjectBases.MovableObjectBase {
     static treeCutCount = 0;
     static neededTreeToBuildAHouse = 10;
+
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
@@ -1034,7 +1036,7 @@ class Human extends ObjectBases.MovableObjectBase {
 
         this.mesh = null;
         let scaleFactor = 1.0;
-        switch(Math.floor(Math.random() * 2)) {
+        switch (Math.floor(Math.random() * 2)) {
             case 0:
                 this.mesh = meshes.human.clone();
                 scaleFactor = 0.04 * world.getCellSize();
@@ -1228,7 +1230,7 @@ class Human extends ObjectBases.MovableObjectBase {
                         let targetPos = this.path.length > 0 ? this.path[this.path.length - 1] : this.getPos();
                         this.target = targetPos;
                     }
-                },(e) => {
+                }, (e) => {
                     if (this.state == startedState) {
                         this.path = null;
                         this.target = null;
@@ -1296,7 +1298,7 @@ class House extends ObjectBases.WorldLargeObject {
 
         this.mesh = null;
         let scaleFactor = 1.0;
-        switch(Math.floor(Math.random() * 2)) {
+        switch (Math.floor(Math.random() * 2)) {
             case 0:
                 this.mesh = meshes.house.clone();
                 scaleFactor = 0.09 * world.getCellSize();
@@ -1312,6 +1314,14 @@ class House extends ObjectBases.WorldLargeObject {
 
         this.setPos(pos);
         this.setRot(rotation);
+        world.fixObjectPos(this);
+        this.overrideRot = false;
+
+        this.mesh.rotateY(Math.floor(Math.random() * 4) * 1.57);
+    }
+
+    update() {
+        super.update();
     }
 }
 

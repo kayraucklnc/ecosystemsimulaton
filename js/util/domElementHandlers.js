@@ -30,6 +30,34 @@ document.getElementById("stop-sim-button").addEventListener("click", () => {
     simulationToggle();
 });
 
+document.getElementById("waterShaders").addEventListener("change", () => {
+    waterShaderChange();
+});
+
+document.getElementById("terrainShaders").addEventListener("change", () => {
+    terrainShaderChange();
+});
+
+
+function waterShaderChange() {
+    switch (document.getElementById("waterShaders").value) {
+        case "toonShader":
+            water.material = Materials.customWaterMaterial2;
+            break;
+        case "turbulance":
+            water.material = Materials.customWaterMaterial3;
+            break;
+        case "cuteShader":
+            water.material = Materials.customWaterMaterial;
+            break;
+    }
+    // water.material =
+}
+
+function terrainShaderChange() {
+
+}
+
 function simulationToggle() {
     document.getElementById("stop-sim-button").innerText = isSimActive ? "Start Simulation" : "Pause Simulation";
     isSimActive = !isSimActive;

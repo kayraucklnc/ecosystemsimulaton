@@ -66,7 +66,7 @@ void main() {
     c = vec3(length(c.x));
 
     // isolines
-    color = c.x*(0.5 + 0.2*sin(90.0*c.x + v_time * -5.0))*vec3(1.0);
+    color = c.x*(0.5 + 0.2*sin(120.0*c.x + v_time * -2.0))*vec3(1.0);
 
     vec3 offset =  vec3(0.0, sin(color.x)*0.4, 0.0);
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position + offset, 1.0);

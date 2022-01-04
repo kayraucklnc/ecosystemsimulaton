@@ -1,4 +1,4 @@
-import * as THREE from "../library/three.js-r135/build/three.module.js";
+import * as THREE from "https://cdn.skypack.dev/three@0.135.0/build/three.module.js";
 
 Object.assign(THREE.PlaneBufferGeometry.prototype, {
     toGrid: function() {

@@ -1,4 +1,4 @@
-import * as THREE from "../library/three.js-r135/build/three.module.js";
+import * as THREE from "https://cdn.skypack.dev/three@0.135.0/build/three.module.js";
 import * as ObjectBases from "./ObjectBases.js";
 import * as Materials from "./Materials.js";
 import * as AStar from "../util/AStar.js";

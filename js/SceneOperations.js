@@ -1,11 +1,11 @@
-import * as THREE from "../../ecosystemsimulaton/js/library/three.js-r135/build/three.module.js";
+import * as THREE from "https://cdn.skypack.dev/three@0.135.0/build/three.module.js";
 import {skyboxMaterial} from "../../ecosystemsimulaton/js/world/Materials.js";
 import {World} from "../../ecosystemsimulaton/js/world/World.js";
 import * as Grid from "../../ecosystemsimulaton/js/world/Grid.js";
 import {MousePicker} from "../../ecosystemsimulaton/js/mouse/mouse_picking.js";
 import * as Objects from "../../ecosystemsimulaton/js/world/Objects.js";
 import * as Materials from "../../ecosystemsimulaton/js/world/Materials.js";
-import {OrbitControls} from "../../ecosystemsimulaton/js/library/three.js-r135/examples/jsm/controls/OrbitControls.js";
+import {OrbitControls} from "https://cdn.skypack.dev/three@0.135.0/examples/jsm/controls/OrbitControls.js";
 
 function createInitScene() {
     Math.seedrandom(parameters.simulation.seed);

@@ -1,4 +1,3 @@
-import * as THREE from "../library/three.js-r135/build/three.module.js";
 import {PriorityQueue} from "../library/datastructures-js/priority-queue/priorityQueue.js";
 
 onmessage = function (oEvent) {

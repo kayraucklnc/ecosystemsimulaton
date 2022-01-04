@@ -49,6 +49,15 @@ class WorldObjectBase {
         }
     }
 
+    myAngleTo(u, v, normal) {
+        let angle = Math.acos(new THREE.Vector3().copy(u).normalize().dot(new THREE.Vector3().copy(v).normalize()));
+        let cross = new THREE.Vector3().crossVectors(u, v);
+        if (new THREE.Vector3().copy(normal).normalize().dot(new THREE.Vector3().copy(cross).normalize()) < 0) { // Or > 0
+            angle = -angle;
+        }
+        return angle;
+    }
+
     update() {
     }
 
@@ -169,15 +178,6 @@ class MovableObjectBase extends LivingObjectBase {
                 }
             }
         }
-    }
-
-    myAngleTo(u, v, normal) {
-        let angle = Math.acos(new THREE.Vector3().copy(u).normalize().dot(new THREE.Vector3().copy(v).normalize()));
-        let cross = new THREE.Vector3().crossVectors(u, v);
-        if (new THREE.Vector3().copy(normal).normalize().dot(new THREE.Vector3().copy(cross).normalize()) < 0) { // Or > 0
-            angle = -angle;
-        }
-        return angle;
     }
 
     lookTowardsPath() {
@@ -319,6 +319,46 @@ class MovableObjectBase extends LivingObjectBase {
             } else {
                 that.lastClosest = null;
                 that.lastClosestCheckFrame = frameCount;
+                that.findingPathParallel = false;
+            }
+        }
+    }
+
+    findPath(targetPos, onFind, onFail, targetLayer = GridLayer.Surface, movingLayer = GridLayer.Surface) {
+        if (!this.findingPathParallel) {
+            let that = this;
+
+            this.findingPathParallel = true;
+            let thisPos = this.getPos();
+
+            if (world.checkIfInGrid(targetPos)) {
+                let toGoIndex = world.grid.getGridIndex(targetPos);
+                let toGoIdxs = [];
+                toGoIdxs.push(toGoIndex);
+
+                worker.postMessage({
+                    thisPos: world.grid.getGridIndex(thisPos),
+                    closestArr: toGoIdxs,
+                    matrix: world.getPure2DMatrix(movingLayer),
+                    nowId: that.mesh.id,
+                });
+
+                function findWrapper(oEvent) {
+                    if (that.mesh.id == oEvent.data.nowId) {
+                        worker.removeEventListener("message", findWrapper);
+                        if (oEvent.data.path == null) {
+                            onFail();
+                        } else {
+                            onFind(oEvent.data.path);
+                        }
+
+                        that.findingPathParallel = false;
+                    }
+                }
+
+                worker.addEventListener("message", findWrapper);
+
+            } else {
                 that.findingPathParallel = false;
             }
         }

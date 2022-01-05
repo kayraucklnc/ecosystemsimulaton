@@ -1,4 +1,4 @@
-precision mediump float;
+/*precision mediump float;
 
 struct PointLight {
     vec3 color;
@@ -26,14 +26,40 @@ uniform float maxTerrainHeight;
 
 uniform vec3 fogColor;
 uniform float fogDensity;
+uniform float u_time;*/
+precision mediump float;
+
+struct PointLight {
+    vec3 color;
+    vec3 position;
+    float distance;
+};
+uniform PointLight pointLights[NUM_POINT_LIGHTS];
+
+varying vec3 vNormal;
+varying vec3 vPosition;
+uniform vec3 color;
+varying vec2 vUv;
+varying vec3 vTangent;
+
+varying vec3 worldPosition;
+varying mat3 TBN;
+
+uniform vec3 fogColor;
+uniform float fogDensity;
 uniform float u_time;
 
-float rand(vec2 co) {
-    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+const float F3 =  0.3333333;
+const float G3 =  0.1666667;
+
+vec3 hash(vec3 x){
+    x = vec3(dot(x, vec3(127.1, 311.7, 74.7)),
+    dot(x, vec3(269.5, 183.3, 246.1)),
+    dot(x, vec3(113.5, 271.9, 124.6)));
+
+    return fract(sin(x)*43758.5453123);
 }
 
-//-----------------------
-//    SAFA AL SANA RANDOM LIBRARY BABYSU
 vec3 random3(vec3 c) {
     float j = 4096.0*sin(dot(c, vec3(17.0, 59.4, 15.0)));
     vec3 r;
@@ -45,8 +71,6 @@ vec3 random3(vec3 c) {
     return r-0.5;
 }
 
-const float F3 =  0.3333333;
-const float G3 =  0.1666667;
 float snoise(vec3 p) {
 
     vec3 s = floor(p + dot(p, vec3(F3)));
@@ -80,75 +104,39 @@ float snoise(vec3 p) {
 
     return dot(d, vec4(52.0));
 }
-//-----------------------
+
+//baslnagc
+float random (in vec2 _st) {
+    return fract(sin(dot(_st.xy,
+    vec2(12.9898, 78.233)))*
+    43758.5453123);
+}
+
+float noise (in vec2 _st) {
+    vec2 i = floor(_st);
+    vec2 f = fract(_st);
+
+    // Four corners in 2D of a tile
+    float a = random(i);
+    float b = random(i + vec2(1.0, 0.0));
+    float c = random(i + vec2(0.0, 1.0));
+    float d = random(i + vec2(1.0, 1.0));
+
+    vec2 u = f * f * (3.0 - 2.0 * f);
+
+    return mix(a, b, u.x) +
+    (c - a)* u.y * (1.0 - u.x) +
+    (d - b) * u.x * u.y;
+}
+//sonucc
+
 
 void main() {
-    int terrainType;
-    vec3 terrainColor;
-    float height = float(worldPosition.y) / float(maxTerrainHeight);
-    float perlinOne = (snoise(vec3(vUv, 1.0) * 150.0));
-    float perlinTwo = (snoise(vec3(vUv, 1.0) * 10.0));
-    float heightWithRandMinor = height - perlinOne * 0.05;
-    float heightWithRandMajor = heightWithRandMinor - perlinTwo * 0.3;
-    if (heightWithRandMinor < -0.28) {
-        terrainType = 1;
-    } else if (heightWithRandMajor < -0.2) {
-        terrainType = 4;
-    } else if (heightWithRandMajor < 0.1) {
-        terrainType = 2;
-    } else if (heightWithRandMajor < 0.2) {
-        terrainType = 6;
-    } else if (heightWithRandMajor < 0.3) {
-        terrainType = 5;
-    } else if (heightWithRandMajor < 0.49) {
-        terrainType = 0;
-    } else {
-        terrainType = 3;
-    }
+    vec3 p =  worldPosition;
 
-    vec3 norm;
-
-    norm = texture2D(groundNormalMap, vUv * repeatFactor).rgb;
-    norm = vec3(1.0 - norm.r, 1.0 - norm.g, norm.b);
-    norm = norm * 2.0 - 1.0;
-    norm = normalize(TBN * norm);
-
-
-    //    float perlin = snoise(vec3(vUv, 1.0) * 20.0) + 0.5;
-    //    float perlintwox = snoise(vec3(vUv, 1.0) * 200.0) + 0.5;
-    //    float result = perlin + perlintwox / 5.0;
-    //    if (heightWithRand < 0.4 && result < 0.25) { // Dirt
-    //        terrainType = 0;
-    //    }
-
-    switch (terrainType) {
-        case 0:// Dirt
-        terrainColor = vec3(0.21568627451, 0.17254901961, 0.14509803922);
-        break;
-        case 1:// Sand
-        terrainColor = vec3(0.97647058824, 0.84705882353, 0.51764705882);
-        break;
-        case 2:// Ground
-        terrainColor = vec3(0.06666666667, 0.48627450980, 0.07450980392);
-        break;
-        case 3:// Snow
-        terrainColor = vec3(0.87450980392, 0.90980392157, 0.94117647059);
-        break;
-        case 4:// Light Grass
-        terrainColor = vec3(0.38431372549, 0.57647058824, 0.09019607843);
-        break;
-        case 5:// Dark Mud
-        terrainColor = vec3(0.12941176471, 0.12941176471, 0.12941176471);
-        break;
-        case 6:// Dark Grass
-        terrainColor = vec3(0.13333333333, 0.27843137255, 0.14509803922);
-        break;
-    }
-
-    vec4 addedLights = vec4(0.0,
-    0.0,
-    0.0,
-    1.0);
+    //----------- Lights -----------------
+    vec3 norm = vNormal;
+    vec4 addedLights = vec4(0.0, 0.0, 0.0, 1.0);
     #if NUM_POINT_LIGHTS > 0
     for (int l = 0; l < NUM_POINT_LIGHTS; l++) {
         vec3 distanceVec = vPosition - pointLights[l].position;
@@ -162,23 +150,55 @@ void main() {
 
         addedLights.rgb += clamp(dot(-lightDirection, norm), 0.0, 1.0) * (pointLights[l].color * attuanation);
     }
-    #endif
+        #endif
 
     addedLights = max(vec4(0.3), addedLights);
     addedLights = min(vec4(1.5), addedLights);
 
-    gl_FragColor = vec4(terrainColor, 1.) * addedLights;
+    //baslancg
+    float time = u_time * 0.5 + 23.0;
+    vec2 uv = p.xz * 0.04;
 
+    #ifdef SHOW_TILING
+    vec2 pr = mod(uv*6.28318530718*2.0,6.28318530718)-250.0;
+    #else
+    vec2 pr = mod(uv*6.28318530718,6.28318530718)-250.0;
+    #endif
+    vec2 i = vec2(pr);
+    float c = 1.0;
+    float inten = 0.005;
+
+    for (int n = 0; n < 5; n++)
+    {
+        float t = time * (1.0 - (3.5 / float(n+1)));
+        i = pr + vec2(cos(t - i.x) + sin(t + i.y), sin(t - i.y) + cos(t + i.x));
+        c += 1.0/length(vec2(pr.x / (sin(i.x+t)/inten),pr.y / (cos(i.y+t)/inten)));
+    }
+    c /= float(5);
+    c = 1.17-pow(c, 1.4);
+    vec3 clr = vec3(pow(abs(c), 8.0));
+    clr = clamp(clr + vec3(0.0, 0.35, 0.5), 0.0, 1.0);
+
+    #ifdef SHOW_TILING
+    vec2 pixel = 2.0 / (0.2, 0.2);
+    uv *= 2.0;
+
+    float f = floor(mod(u_time * 0.5, 2.0)); 	// Flash value.
+    vec2 first = step(pixel, uv) * f;		   	// Rule out first screen pixels and flash.
+    uv  = step(fract(uv) * 5.0, pixel) * 0.2;				// Add one line of pixels per tile.
+    clr = mix(clr, vec3(1.0, 1.0, 0.0), (uv.x + uv.y) * first.x * first.y); // Yellow line
+
+    #endif
+    gl_FragColor = vec4(clr, 1.0);
+    //sonucc
 
     //--------- Fog -------------
     float depth = gl_FragCoord.z / gl_FragCoord.w;
-
     const float LOG2 = 1.442695;
     float fogNoise = snoise(worldPosition*0.05 + vec3(u_time/1.5, 0, 0)) + 1.0;
     float fogFactor = exp2(- fogDensity * fogDensity * depth * depth * LOG2 * fogNoise);
     fogFactor = (1.0 - clamp(fogFactor, 0.0, 1.0));
-
     gl_FragColor = mix(gl_FragColor, vec4(fogColor, gl_FragColor.w), fogFactor);
 
-    //-----------------------
 }
+

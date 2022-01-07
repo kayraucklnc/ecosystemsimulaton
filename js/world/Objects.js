@@ -262,6 +262,10 @@ class Grass extends ObjectBases.LivingObjectBase {
 
         this.setPos(pos);
         this.setRot(rotation);
+
+        world.fixObjectPos(this);
+        this.overrideRot = false;
+        this.mesh.rotateY(Math.floor(Math.random() * 4) * 1.57);
     }
 
     update() {

@@ -1,9 +1,6 @@
 import * as THREE from "../../ecosystemsimulaton/js/library/three.js-r135/build/three.module.js";
 import {OrbitControls} from "../../ecosystemsimulaton/js/library/three.js-r135/examples/jsm/controls/OrbitControls.js";
 import {Water} from '../../ecosystemsimulaton/js/library/three.js-r135/examples/jsm/objects/Water.js';
-import {Sky} from '../../ecosystemsimulaton/js/library/three.js-r135/examples/jsm/objects/Sky.js';
-
-
 import {World} from "../../ecosystemsimulaton/js/world/World.js";
 import * as Objects from "../../ecosystemsimulaton/js/world/Objects.js";
 import * as Grid from "../../ecosystemsimulaton/js/world/Grid.js";
@@ -14,42 +11,9 @@ import {skyboxMaterial} from "../../ecosystemsimulaton/js/world/Materials.js";
 
 
 function skybox() {
-    /*let sun;
-    sun = new THREE.Vector3();
-
-    const sky = new Sky();
-    sky.scale.setScalar(10000);
-    world.scene.add(sky);
-
-    const skyUniforms = sky.material.uniforms;
-
-    skyUniforms['turbidity'].value = 20;
-    skyUniforms['rayleigh'].value = 4;
-    skyUniforms['mieCoefficient'].value = 0.005;
-    skyUniforms['mieDirectionalG'].value = 0.8;
-
-    const parameters = {
-        elevation: 0,
-        azimuth: 200
-    };
-
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-
-
-    const phi = THREE.MathUtils.degToRad(90 - parameters.elevation);
-    const theta = THREE.MathUtils.degToRad(parameters.azimuth);
-
-    sun.setFromSphericalCoords(1, phi, theta);
-
-    sky.material.uniforms['sunPosition'].value.copy(sun);
-
-    world.scene.environment = pmremGenerator.fromScene(sky).texture;*/
-
     let skyboxGeo = new THREE.BoxGeometry(1000, 1000, 1000);
     let skybox = new THREE.Mesh(skyboxGeo, skyboxMaterial);
     world.scene.add(skybox);
-
-
 }
 
 function createInitScene() {

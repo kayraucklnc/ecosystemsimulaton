@@ -189,6 +189,10 @@ class Tree extends ObjectBases.LivingObjectBase {
 
         this.setPos(pos);
         this.setRot(rotation);
+
+        world.fixObjectPos(this);
+        this.overrideRot = false;
+        this.mesh.rotateY(Math.random() * 3.14);
     }
 
     update() {
@@ -1314,9 +1318,9 @@ class House extends ObjectBases.WorldLargeObject {
 
         this.setPos(pos);
         this.setRot(rotation);
+
         world.fixObjectPos(this);
         this.overrideRot = false;
-
         this.mesh.rotateY(Math.floor(Math.random() * 4) * 1.57);
     }
 

@@ -128,6 +128,78 @@ function loadTextures(resolve) {
         });
     }));
 
+    texturePromises.push(new Promise((resolve, reject) => {
+        const loader = new THREE.TextureLoader();
+        loader.crossOrigin = "";
+        loader.load("textures/Daylight Box_Front.bmp", (texture) => {
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            textures.skybox_ft = {
+                texture: texture,
+            }
+            resolve(texture);
+        });
+    }));
+
+    texturePromises.push(new Promise((resolve, reject) => {
+        const loader = new THREE.TextureLoader();
+        loader.crossOrigin = "";
+        loader.load("textures/Daylight Box_Back.bmp", (texture) => {
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            textures.skybox_bk = {
+                texture: texture,
+            }
+            resolve(texture);
+        });
+    }));
+
+    texturePromises.push(new Promise((resolve, reject) => {
+        const loader = new THREE.TextureLoader();
+        loader.crossOrigin = "";
+        loader.load("textures/Daylight Box_Top.bmp", (texture) => {
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            textures.skybox_up = {
+                texture: texture,
+            }
+            resolve(texture);
+        });
+    }));
+
+    texturePromises.push(new Promise((resolve, reject) => {
+        const loader = new THREE.TextureLoader();
+        loader.crossOrigin = "";
+        loader.load("textures/Daylight Box_Bottom.bmp", (texture) => {
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            textures.skybox_dn = {
+                texture: texture,
+            }
+            resolve(texture);
+        });
+    }));
+
+    texturePromises.push(new Promise((resolve, reject) => {
+        const loader = new THREE.TextureLoader();
+        loader.crossOrigin = "";
+        loader.load("textures/Daylight Box_Right.bmp", (texture) => {
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            textures.skybox_rt = {
+                texture: texture,
+            }
+            resolve(texture);
+        });
+    }));
+
+    texturePromises.push(new Promise((resolve, reject) => {
+        const loader = new THREE.TextureLoader();
+        loader.crossOrigin = "";
+        loader.load("textures/Daylight Box_Left.bmp", (texture) => {
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            textures.skybox_lf = {
+                texture: texture,
+            }
+            resolve(texture);
+        });
+    }));
+
     Promise.all(texturePromises).then((texture) => {
         resolve();
     });

@@ -25,8 +25,8 @@ let lightIndicatorMaterial = null;
 let customWaterMaterial = null;
 let customWaterMaterial2 = null;
 let customWaterMaterial3 = null;
-let terrainFShaderAlt = null;
 let skyboxMaterial = [];
+let terrainFShaderAlt = null;
 
 function createAllMaterials() {
     vShader = shaders["vertexShader"];

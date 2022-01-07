@@ -62,7 +62,13 @@ let meshes = {
 let textures = {
     dirtNormalMap: null,
     snowNormalMap: null,
-    perlinNoiseMap: null
+    perlinNoiseMap: null,
+    skybox_ft: null,
+    skybox_bk: null,
+    skybox_up: null,
+    skybox_dn: null,
+    skybox_rt: null,
+    skybox_lf: null
 }
 
 let shaders = {}

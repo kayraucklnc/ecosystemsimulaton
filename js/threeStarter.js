@@ -10,10 +10,11 @@ import * as Grid from "../../ecosystemsimulaton/js/world/Grid.js";
 import {MousePicker} from "../../ecosystemsimulaton/js/mouse/mouse_picking.js";
 import * as Materials from "../../ecosystemsimulaton/js/world/Materials.js";
 import * as DataLoader from "../../ecosystemsimulaton/js/util/loadData.js";
+import {skyboxMaterial} from "../../ecosystemsimulaton/js/world/Materials.js";
 
 
 function skybox() {
-    let sun;
+    /*let sun;
     sun = new THREE.Vector3();
 
     const sky = new Sky();
@@ -42,7 +43,11 @@ function skybox() {
 
     sky.material.uniforms['sunPosition'].value.copy(sun);
 
-    world.scene.environment = pmremGenerator.fromScene(sky).texture;
+    world.scene.environment = pmremGenerator.fromScene(sky).texture;*/
+
+    let skyboxGeo = new THREE.BoxGeometry(1000, 1000, 1000);
+    let skybox = new THREE.Mesh(skyboxGeo, skyboxMaterial);
+    world.scene.add(skybox);
 
 
 }
@@ -121,10 +126,10 @@ function createCustomWater() {
 }
 
 function createTestSceneElements(scene) {
-    // let treeObject = new Objects.Tree(new THREE.Vector3(-35, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
-    // world.instantiateObject(treeObject);
-    // let humanObject = new Objects.Human(new THREE.Vector3(35, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);
-    // world.instantiateObject(humanObject);
+     let treeObject = new Objects.Tree(new THREE.Vector3(-35, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
+     world.instantiateObject(treeObject);
+     let humanObject = new Objects.Human(new THREE.Vector3(35, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);
+     world.instantiateObject(humanObject);
     // let squirrelObject = new Objects.Squirrel(new THREE.Vector3(6,0,0), new THREE.Vector3(0, 0), Materials.squirrelMaterial);
     // world.instantiateObject(squirrelObject);
     //

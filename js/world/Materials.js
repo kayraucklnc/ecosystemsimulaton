@@ -24,6 +24,7 @@ let lightIndicatorMaterial = null;
 let customWaterMaterial = null;
 let customWaterMaterial2 = null;
 let customWaterMaterial3 = null;
+let skyboxMaterial = [];
 
 function createAllMaterials() {
     vShader = shaders["vertexShader"];
@@ -159,6 +160,16 @@ function createAllMaterials() {
         side: THREE.DoubleSide,
         lights: true,
     });
+
+    skyboxMaterial.push(new THREE.MeshBasicMaterial( { map: textures.skybox_ft.texture}));
+    skyboxMaterial.push(new THREE.MeshBasicMaterial( { map: textures.skybox_bk.texture}));
+    skyboxMaterial.push(new THREE.MeshBasicMaterial( { map: textures.skybox_up.texture}));
+    skyboxMaterial.push(new THREE.MeshBasicMaterial( { map: textures.skybox_dn.texture}));
+    skyboxMaterial.push(new THREE.MeshBasicMaterial( { map: textures.skybox_lf.texture}));
+    skyboxMaterial.push(new THREE.MeshBasicMaterial( { map: textures.skybox_rt.texture}));
+
+    for (let k = 0; k < 6; k++)
+        skyboxMaterial[k].side = THREE.BackSide;
 }
 
 export {
@@ -173,4 +184,5 @@ export {
     customWaterMaterial,
     customWaterMaterial2,
     customWaterMaterial3,
+    skyboxMaterial
 };

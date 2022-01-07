@@ -58,29 +58,6 @@ function createInitControls(camera, renderer) {
     return orbitControls;
 }
 
-function createWater() {
-    let waterGeometry = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale, 400, 400).translate(0, 0, -0.34 * parameters.plane.heightMultiplier);
-    water = new Water(
-        waterGeometry,
-        {
-            textureWidth: 512,
-            textureHeight: 512,
-            waterNormals: new THREE.TextureLoader().load('textures/waternormals.jpg', function (texture) {
-                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            }),
-            sunDirection: new THREE.Vector3(),
-            sunColor: 0xffffff,
-            waterColor: 0x44d4eb,
-            distortionScale: 5.0,
-            fog: world.scene.fog !== undefined
-        }
-    );
-    // water.material.uniforms.size = 500.0;
-    water.rotation.x = -Math.PI / 2;
-
-    world.scene.add(water);
-}
-
 function createCustomWater() {
     let customWaterGeo = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale, 400, 400).translate(0, 0, parameters.plane.waterHeight * parameters.plane.heightMultiplier).rotateX(-Math.PI / 2);
     // water.material.uniforms.size = 500.0;
@@ -158,7 +135,6 @@ function createTestSceneElements(scene) {
     let lightSphereObject = new Objects.LightIndicator(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.lightIndicatorMaterial, pointLight);
     world.instantiateObject(lightSphereObject, false);
 
-    // createWater();
     createCustomWater();
     return {terrainObject};
 }

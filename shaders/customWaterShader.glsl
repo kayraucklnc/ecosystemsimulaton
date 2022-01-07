@@ -156,8 +156,8 @@ void main() {
     addedLights = min(vec4(1.5), addedLights);
 
     //baslancg
-    float time = u_time * 0.5 + 23.0;
-    vec2 uv = p.xz * 0.04;
+    float time = u_time * 0.2 + 23.0;
+    vec2 uv = p.xz * 0.08;
 
     #ifdef SHOW_TILING
     vec2 pr = mod(uv*6.28318530718*2.0,6.28318530718)-250.0;

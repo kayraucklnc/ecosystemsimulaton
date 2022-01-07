@@ -1,15 +1,27 @@
 import * as THREE from "../library/three.js-r135/build/three.module.js";
 import {LightIndicator} from "../world/Objects.js";
 import * as Materials from "../world/Materials.js";
+import {skyboxMaterial} from "../world/Materials.js";
 
 document.getElementById("add-light-button").addEventListener("click", () => {
     console.log("Add light");
     addLight();
+
+    if (world.lights.length == 1) {
+        for (let k = 0; k < 6; k++)
+            skyboxMaterial[k].color = new THREE.Color(1, 1, 1);
+    }
 });
 
 document.getElementById("remove-light-button").addEventListener("click", () => {
     console.log("Remove light");
     removeLight();
+
+    if (world.lights.length == 0) {
+        let moonLight = 0.2;
+        for (let k = 0; k < 6; k++)
+            skyboxMaterial[k].color = new THREE.Color(moonLight, moonLight, moonLight);
+    }
 });
 
 function addLight() {
@@ -22,6 +34,10 @@ function addLight() {
 }
 
 function removeLight() {
+    if (mousePicker.pickedObject == null) {
+        return;
+    }
+
     let object = world.getObjectOfMesh(mousePicker.pickedObject);
     if (mousePicker.pickedObject != null && object instanceof LightIndicator) {
         let light = object.light;

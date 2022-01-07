@@ -22,7 +22,6 @@ class GUI {
         this.lacunarity = terrainFolder.add(parameters.plane, 'lacunarity', 0, 4).name("Lacunarity");
         this.smoothness = terrainFolder.add(parameters.plane, 'smoothness', 0, 4).name("Smoothness");
         this.persistance = terrainFolder.add(parameters.plane, 'persistance', 0, 1, 0.001).name("Persistance");
-        this.color = terrainFolder.addColor(parameters.plane, 'color').name("Surface Color");
         this.gridVisible = terrainFolder.add(parameters.plane, 'gridVisible').name("Grid");
 
         this.showPaths = simulationFolder.add(parameters.simulation, 'showPaths').name("Show Paths");
@@ -60,9 +59,6 @@ class GUI {
         this.gridVisible.onChange(() => {
             world.grid.setGridVisible( parameters.plane.gridVisible );
         });
-        // this.color.onChange(() => {
-        //     this.terrain.changeColor( parameters );
-        // });
 
         this.seed.onChange(() => {
 

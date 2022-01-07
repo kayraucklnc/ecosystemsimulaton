@@ -29,7 +29,7 @@ void main() {
 
         addedLights.rgb += clamp(dot(-lightDirection, vNormal), 0.0, 1.0) * (pointLights[l].color * attuanation);
     }
-    #endif
+        #endif
 
     addedLights = max(vec4(0.3), addedLights);
     addedLights = min(vec4(1.5), addedLights);

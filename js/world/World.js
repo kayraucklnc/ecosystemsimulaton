@@ -104,6 +104,12 @@ class World {
         return object._onLayer != null;
     }
 
+    cameraLookDir() {
+        let vector = new THREE.Vector3(0, 0, -1);
+        vector.applyEuler(camera.rotation, camera.rotation.order);
+        return vector;
+    }
+
     getCellSize() {
         return this.grid.cellSize;
     }

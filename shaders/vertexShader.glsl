@@ -4,6 +4,7 @@ varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vPosition;
 varying vec3 vTangent;
+varying vec3 u_norm;
 
 varying vec3 worldPosition;
 varying mat3 TBN;

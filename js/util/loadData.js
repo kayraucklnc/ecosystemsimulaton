@@ -213,10 +213,13 @@ function loadShaders(resolve) {
         "waveVertexShader2.glsl",
         "fragmentShader.glsl",
         "terrainFragmentShader.glsl",
+        "terrainFragmentShader2.glsl",
+        "terrainFragmentShader3.glsl",
         "sunFragmentShader.glsl",
         "customWaterShader.glsl",
         "customWaterShader2.glsl",
         "customWaterShader3.glsl",
+        "customWaterShader4.glsl",
         "terrainFragmentShaderAlt.glsl"
     ];
 

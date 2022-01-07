@@ -44,23 +44,36 @@ document.getElementById("pathfindingAlgorithm").addEventListener("change", () =>
 
 function waterShaderChange() {
     switch (document.getElementById("waterShaders").value) {
+        case "cuteShader":
+            water.material = Materials.customWaterMaterial;
+            break;
         case "toonShader":
             water.material = Materials.customWaterMaterial2;
             break;
         case "turbulance":
             water.material = Materials.customWaterMaterial3;
             break;
-        case "cuteShader":
-            water.material = Materials.customWaterMaterial;
+        case "caustics":
+            water.material = Materials.customWaterMaterial4;
             break;
     }
 }
 
 function terrainShaderChange() {
-
+    switch (document.getElementById("terrainShaders").value) {
+        case "naturalShader":
+            terrainObject.mesh.material = Materials.planeCustomMat;
+            break;
+        case "frensel":
+            terrainObject.mesh.material = Materials.planeCustomMat2;
+            break;
+        case "third":
+            terrainObject.mesh.material = Materials.planeCustomMat3;
+            break;
+    }
 }
 
-function  pathfindingChange() {
+function pathfindingChange() {
     switch (document.getElementById("pathfindingAlgorithm").value) {
         case "astar":
             worker.terminate();

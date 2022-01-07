@@ -1,0 +1,137 @@
+precision mediump float;
+
+struct PointLight {
+    vec3 color;
+    vec3 position;
+    float distance;
+};
+
+#if NUM_POINT_LIGHTS > 0
+uniform PointLight pointLights[NUM_POINT_LIGHTS];
+#endif
+
+varying vec3 vNormal;
+varying vec3 vPosition;
+uniform vec3 color;
+
+uniform vec3 camDir;
+varying vec3 u_norm;
+
+
+varying vec2 vUv;
+varying vec3 vTangent;
+
+varying vec3 worldPosition;
+varying mat3 TBN;
+
+uniform float repeatFactor;
+uniform sampler2D groundNormalMap;
+uniform sampler2D snowNormalMap;
+uniform sampler2D perlinMap;
+uniform float maxTerrainHeight;
+
+uniform vec3 fogColor;
+uniform float fogDensity;
+uniform float u_time;
+
+float rand(vec2 co) {
+    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+//-----------------------
+vec3 random3(vec3 c) {
+    float j = 4096.0*sin(dot(c, vec3(17.0, 59.4, 15.0)));
+    vec3 r;
+    r.z = fract(512.0*j);
+    j *= .125;
+    r.x = fract(512.0*j);
+    j *= .125;
+    r.y = fract(512.0*j);
+    return r-0.5;
+}
+
+const float F3 =  0.3333333;
+const float G3 =  0.1666667;
+float snoise(vec3 p) {
+
+    vec3 s = floor(p + dot(p, vec3(F3)));
+    vec3 x = p - s + dot(s, vec3(G3));
+
+    vec3 e = step(vec3(0.0), x - x.yzx);
+    vec3 i1 = e*(1.0 - e.zxy);
+    vec3 i2 = 1.0 - e.zxy*(1.0 - e);
+
+    vec3 x1 = x - i1 + G3;
+    vec3 x2 = x - i2 + 2.0*G3;
+    vec3 x3 = x - 1.0 + 3.0*G3;
+
+    vec4 w, d;
+
+    w.x = dot(x, x);
+    w.y = dot(x1, x1);
+    w.z = dot(x2, x2);
+    w.w = dot(x3, x3);
+
+    w = max(0.6 - w, 0.0);
+
+    d.x = dot(random3(s), x);
+    d.y = dot(random3(s + i1), x1);
+    d.z = dot(random3(s + i2), x2);
+    d.w = dot(random3(s + 1.0), x3);
+
+    w *= w;
+    w *= w;
+    d *= w;
+
+    return dot(d, vec4(52.0));
+}
+//-----------------------
+
+void main() {
+    vec3 norm;
+
+    norm = texture2D(groundNormalMap, vUv * repeatFactor).rgb;
+    norm = vec3(1.0 - norm.r, 1.0 - norm.g, norm.b);
+    norm = norm * 2.0 - 1.0;
+    norm = normalize(TBN * norm);
+
+    vec4 addedLights = vec4(0.0,
+    0.0,
+    0.0,
+    1.0);
+
+    #if NUM_POINT_LIGHTS > 0
+    for (int l = 0; l < NUM_POINT_LIGHTS; l++) {
+        vec3 distanceVec = vPosition - pointLights[l].position;
+        distanceVec = distanceVec * 2.0;
+        float lightDistance = float(pointLights[l].distance);
+        vec3 lightDirection = normalize(distanceVec);
+        float attuanation = 0.0;
+        if (lightDistance >= length(distanceVec)){
+            attuanation = pow((1.0 - (length(distanceVec) / lightDistance)), 2.0);
+        }
+
+        addedLights.rgb += clamp(dot(-lightDirection, norm), 0.0, 1.0) * (pointLights[l].color * attuanation);
+    }
+        #endif
+
+    addedLights = max(vec4(0.1), addedLights);
+    addedLights = min(vec4(1.5), addedLights);
+
+
+    //    gl_FragColor.xyz = vec3(angle);
+
+
+    //--------- Fog -------------
+    //    float depth = gl_FragCoord.z / gl_FragCoord.w;
+    //
+    //    const float LOG2 = 1.442695;
+    //    float fogNoise = snoise(worldPosition*0.05 + vec3(u_time/1.5, 0, 0)) + 1.0;
+    //    float fogFactor = exp2(- fogDensity * fogDensity * depth * depth * LOG2 * fogNoise);
+    //    fogFactor = (1.0 - clamp(fogFactor, 0.0, 1.0));
+    //
+    //    gl_FragColor = mix(gl_FragColor, vec4(fogColor, gl_FragColor.w), fogFactor);
+    //-----------------------
+
+
+}

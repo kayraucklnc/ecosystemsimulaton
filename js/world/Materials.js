@@ -5,9 +5,12 @@ let vShaderWave;
 let vShaderWave2;
 let fShader;
 let terrainFShader;
+let terrainFShader2;
+let terrainFShader3;
 let customWaterFShader;
 let customWaterFShader2;
 let customWaterFShader3;
+let customWaterFShader4;
 
 let sunFShader;
 
@@ -17,6 +20,8 @@ const planeMat = new THREE.MeshPhongMaterial({
     flatShading: THREE.FlatShading,
 });
 let planeCustomMat = null;
+let planeCustomMat2 = null;
+let planeCustomMat3 = null;
 let treeMaterial = null;
 let humanMaterial = null;
 let wallMaterial = null;
@@ -25,6 +30,7 @@ let lightIndicatorMaterial = null;
 let customWaterMaterial = null;
 let customWaterMaterial2 = null;
 let customWaterMaterial3 = null;
+let customWaterMaterial4 = null;
 let skyboxMaterial = [];
 let terrainFShaderAlt = null;
 
@@ -34,10 +40,13 @@ function createAllMaterials() {
     vShaderWave2 = shaders["waveVertexShader2"];
     fShader = shaders["fragmentShader"];
     terrainFShader = shaders["terrainFragmentShader"];
+    terrainFShader2 = shaders["terrainFragmentShader2"];
+    terrainFShader3 = shaders["terrainFragmentShader3"];
     sunFShader = shaders["sunFragmentShader"];
     customWaterFShader = shaders["customWaterShader"];
     customWaterFShader2 = shaders["customWaterShader2"];
     customWaterFShader3 = shaders["customWaterShader3"];
+    customWaterFShader4 = shaders["customWaterShader4"];
     terrainFShaderAlt = shaders["terrainFragmentShaderAlt"];
 
     let planeMatUniforms = THREE.UniformsUtils.merge([
@@ -51,6 +60,7 @@ function createAllMaterials() {
             fogColor: {value: new THREE.Color(0x61757d)},
             fogDensity: {type: "f", value: 0.014},
             u_time: {type: "f", value: 0},
+            camDir: {value: [0, 0, 0]},
         }
     ]);
     planeMatUniforms.groundNormalMap.value = textures.dirtNormalMap.texture;
@@ -60,6 +70,24 @@ function createAllMaterials() {
         uniforms: planeMatUniforms,
         vertexShader: vShader,
         fragmentShader: terrainFShader,
+        side: THREE.DoubleSide,
+        lights: true,
+        fog: true,
+    });
+
+    planeCustomMat2 = new THREE.ShaderMaterial({
+        uniforms: planeMatUniforms,
+        vertexShader: vShader,
+        fragmentShader: terrainFShader2,
+        side: THREE.DoubleSide,
+        lights: true,
+        fog: true,
+    });
+
+    planeCustomMat3 = new THREE.ShaderMaterial({
+        uniforms: planeMatUniforms,
+        vertexShader: vShader,
+        fragmentShader: terrainFShader3,
         side: THREE.DoubleSide,
         lights: true,
         fog: true,
@@ -87,6 +115,15 @@ function createAllMaterials() {
         uniforms: planeMatUniforms,
         vertexShader: vShaderWave2,
         fragmentShader: customWaterFShader3,
+        side: THREE.DoubleSide,
+        lights: true,
+        fog: true,
+    });
+
+    customWaterMaterial4 = new THREE.ShaderMaterial({
+        uniforms: planeMatUniforms,
+        vertexShader: vShaderWave2,
+        fragmentShader: customWaterFShader4,
         side: THREE.DoubleSide,
         lights: true,
         fog: true,
@@ -164,12 +201,12 @@ function createAllMaterials() {
         lights: true,
     });
 
-    skyboxMaterial.push(new THREE.MeshBasicMaterial( { map: textures.skybox_ft.texture}));
-    skyboxMaterial.push(new THREE.MeshBasicMaterial( { map: textures.skybox_bk.texture}));
-    skyboxMaterial.push(new THREE.MeshBasicMaterial( { map: textures.skybox_up.texture}));
-    skyboxMaterial.push(new THREE.MeshBasicMaterial( { map: textures.skybox_dn.texture}));
-    skyboxMaterial.push(new THREE.MeshBasicMaterial( { map: textures.skybox_lf.texture}));
-    skyboxMaterial.push(new THREE.MeshBasicMaterial( { map: textures.skybox_rt.texture}));
+    skyboxMaterial.push(new THREE.MeshBasicMaterial({map: textures.skybox_ft.texture}));
+    skyboxMaterial.push(new THREE.MeshBasicMaterial({map: textures.skybox_bk.texture}));
+    skyboxMaterial.push(new THREE.MeshBasicMaterial({map: textures.skybox_up.texture}));
+    skyboxMaterial.push(new THREE.MeshBasicMaterial({map: textures.skybox_dn.texture}));
+    skyboxMaterial.push(new THREE.MeshBasicMaterial({map: textures.skybox_lf.texture}));
+    skyboxMaterial.push(new THREE.MeshBasicMaterial({map: textures.skybox_rt.texture}));
 
     for (let k = 0; k < 6; k++)
         skyboxMaterial[k].side = THREE.BackSide;
@@ -183,9 +220,12 @@ export {
     treeMaterial,
     planeMat,
     planeCustomMat,
+    planeCustomMat2,
+    planeCustomMat3,
     wallMaterial,
     customWaterMaterial,
     customWaterMaterial2,
     customWaterMaterial3,
+    customWaterMaterial4,
     skyboxMaterial
 };

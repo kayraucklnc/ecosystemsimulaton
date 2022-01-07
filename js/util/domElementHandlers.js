@@ -54,7 +54,6 @@ function waterShaderChange() {
             water.material = Materials.customWaterMaterial;
             break;
     }
-    // water.material =
 }
 
 function terrainShaderChange() {

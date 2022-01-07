@@ -61,9 +61,11 @@ function terrainShaderChange() {
 function  pathfindingChange() {
     switch (document.getElementById("pathfindingAlgorithm").value) {
         case "astar":
+            worker.terminate();
             worker = new Worker("./js/util/AStar.js", {type: "module"});
             break;
         case "dijkstra":
+            worker.terminate();
             worker = new Worker("./js/util/Dijkstra.js", {type: "module"});
             break;
     }

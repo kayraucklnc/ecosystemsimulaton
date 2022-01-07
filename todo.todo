@@ -32,25 +32,24 @@
 [ Kayra ] Water shader2.
 [ Kayra ] Skybox.
 [ Yiğit ] Objelerin modellerini bulup düzeltme.
-[ Yiğit ] diğer classları implement ediyo.
 [ İrem ] Terrain Generation daha detaylı olmalı. (Şu videodaki gibi: https://www.youtube.com/watch?v=wbpMiKiSKm8&list=PLFt_AvWsXl0eBW2EiBtl_sxmDtSgZBxB3&index=1).
 [ İrem ] Load/Save template.
 [ Safa ] Grid üstündeki objeler diğerinden farklı bir objenin altında olsun.
 [ Safa ] make grass passable
 [ Safa ] Major optimizations.
+[ Yiğit - Safa ] Tree - Human - Squirrel - Fox - House   Human Fox ve Tree öldürüyor, ev yapıyor. Squirrel ağaçla çoğalıyor, ağaç dikiyor. Fox Squirrel yiyor. (Şimdilik)
 [ Safa ] Objelerin boyutlarını ayarla.
 [ Safa ] Işık açıp kapatma.
 [ Safa ] Pigle aynı bir cow.
 [ Safa ] Grassları treelere bağlama.
 [ Kayra ] Shader değiştirme.
 [ Kayra ] Water Shader - (Bump Mapping ile) ve Water Plane
-[ Yiğit - Safa ] Tree - Human - Squirrel - Fox - House   Human Fox ve Tree öldürüyor, ev yapıyor. Squirrel ağaçla çoğalıyor, ağaç dikiyor. Fox Squirrel yiyor. (Şimdilik)
-
+[ İrem ] Alternative Water Shader 1
 
 --- OnGoing ---
 [ Yiğit ] Alternative terrain shader.
 [ Safa ] Hayvanların parametrelerini parametersa koyma.
-[ İrem ] Alternative water shader.
+[ İrem ] Alternative water shader 2.
 
 
 --- TO DO ---

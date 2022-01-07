@@ -234,6 +234,7 @@ class MovableObjectBase extends LivingObjectBase {
             checkFunc,
             (e) => {
                 if (this.state == startedState) {
+                    this.cleanLines();
                     this.path = world.getPathFromPure2DMatrix(e);
                     let targetPos = this.path.length > 0 ? this.path[this.path.length - 1] : this.getPos();
                     this.target = world.grid.getPos(targetPos, targetLayer);
@@ -241,6 +242,7 @@ class MovableObjectBase extends LivingObjectBase {
             },
             (e) => {
                 if (this.state == startedState) {
+                    this.cleanLines();
                     this.path = null;
                     this.target = null;
 
@@ -253,12 +255,14 @@ class MovableObjectBase extends LivingObjectBase {
             checkFunc,
             (e) => {
                 // console.log("FOUND");
+                this.cleanLines();
                 this.path = world.getPathFromPure2DMatrix(e);
                 let targetPos = this.path.length > 0 ? this.path[this.path.length - 1] : this.getPos();
                 this.target = world.grid.getPos(targetPos, targetLayer);
             },
             (e) => {
                 // console.log("FAIL");
+                this.cleanLines();
                 this.path = null;
                 this.target = null;
             }, targetLayer, movingLayer);
@@ -370,6 +374,7 @@ class MovableObjectBase extends LivingObjectBase {
     executePath(onReach, onStuck, onMove = () => {
     }, hasTargetOnDest = false) {
         if (this.path == null) {
+            this.cleanLines();
             onStuck();
             return;
         }
@@ -431,7 +436,7 @@ class MovableObjectBase extends LivingObjectBase {
 
     update() {
         super.update();
-        if (!parameters.simulation.showPaths || this.target == null) {
+        if (!parameters.simulation.showPaths) {
             this.cleanLines();
         }
     }

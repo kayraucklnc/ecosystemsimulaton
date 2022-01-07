@@ -2,6 +2,7 @@ import * as THREE from "../library/three.js-r135/build/three.module.js";
 import * as Objects from "../world/Objects.js"
 import {GridLayer} from "./Grid.js";
 import * as ObjectBases from "../world/ObjectBases.js";
+import {LivingObjectBase} from "../world/ObjectBases.js";
 
 class World {
     static maxLivingType = null;
@@ -292,7 +293,7 @@ class World {
 
         let pos = object.getPos();
         let objectLayer = this.grid.getObjectLayer(object);
-        if (this.grid.checkIfInGrid(pos) && objectLayer) {
+        if (this.grid.checkIfInGrid(pos) && objectLayer != null) {
             let deleteOnLayers = [];
             if (objectLayer instanceof Array) {
                 deleteOnLayers = objectLayer;

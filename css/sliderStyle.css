@@ -3,6 +3,7 @@
 }
 
 .slider {
+    display: inline-grid;
     -webkit-appearance: none;
     margin-top: 10px;
     margin-bottom: 30px;

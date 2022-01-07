@@ -7,6 +7,8 @@ class WorldObjectBase {
         this.material = material;
 
         this.selectable = false;
+        this.overrideRot = true;
+
 
         this.setPos(pos);
         this.setRot(rotation);
@@ -47,6 +49,15 @@ class WorldObjectBase {
         if (this.mesh != null) {
             this.mesh.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
         }
+    }
+
+    myAngleTo(u, v, normal) {
+        let angle = Math.acos(new THREE.Vector3().copy(u).normalize().dot(new THREE.Vector3().copy(v).normalize()));
+        let cross = new THREE.Vector3().crossVectors(u, v);
+        if (new THREE.Vector3().copy(normal).normalize().dot(new THREE.Vector3().copy(cross).normalize()) < 0) { // Or > 0
+            angle = -angle;
+        }
+        return angle;
     }
 
     update() {
@@ -129,7 +140,7 @@ class MovableObjectBase extends LivingObjectBase {
     onDelete() {
         super.onDelete();
         this.cleanLines();
-        
+
         if (this.worker) {
             this.worker.terminate();
 
@@ -171,15 +182,6 @@ class MovableObjectBase extends LivingObjectBase {
         }
     }
 
-    myAngleTo(u, v, normal) {
-        let angle = Math.acos(new THREE.Vector3().copy(u).normalize().dot(new THREE.Vector3().copy(v).normalize()));
-        let cross = new THREE.Vector3().crossVectors(u, v);
-        if (new THREE.Vector3().copy(normal).normalize().dot(new THREE.Vector3().copy(cross).normalize()) < 0) { // Or > 0
-            angle = -angle;
-        }
-        return angle;
-    }
-
     lookTowardsPath() {
         //Align its look around itself
         let projMovement = new THREE.Vector3().subVectors(this.getPos(), this.lastPos).projectOnPlane(world.getNormalVector(this.getPos())).normalize().multiplyScalar(world.getCellSize() / 2);
@@ -187,7 +189,7 @@ class MovableObjectBase extends LivingObjectBase {
         projZAxis.y = world.grid.terrain.getHeight(new THREE.Vector2(projZAxis.x, projZAxis.z));
         projZAxis.sub(this.getPos());
         // world.scene.add(world.createLine(this.getPos(), new THREE.Vector3().addVectors(projZAxis, this.getPos())));
-        // world.scene.add(world.createLine(this.getPos(), new THREE.Vector3().addVectors(projMovement, this.getPos()), 0,"#ff0000"));
+        // world.scene.add(world.createLine(this.getPos(), new THREE.Vector3().addVectors(projMovement, this.getPos()), 0, "#ff0000"));
         let angleInRad = this.myAngleTo(projZAxis, projMovement, world.getNormalVector(this.getPos()));
         this.mesh.rotateY(angleInRad);
     }
@@ -319,6 +321,46 @@ class MovableObjectBase extends LivingObjectBase {
             } else {
                 that.lastClosest = null;
                 that.lastClosestCheckFrame = frameCount;
+                that.findingPathParallel = false;
+            }
+        }
+    }
+
+    findPath(targetPos, onFind, onFail, targetLayer = GridLayer.Surface, movingLayer = GridLayer.Surface) {
+        if (!this.findingPathParallel) {
+            let that = this;
+
+            this.findingPathParallel = true;
+            let thisPos = this.getPos();
+
+            if (world.checkIfInGrid(targetPos)) {
+                let toGoIndex = world.grid.getGridIndex(targetPos);
+                let toGoIdxs = [];
+                toGoIdxs.push(toGoIndex);
+
+                worker.postMessage({
+                    thisPos: world.grid.getGridIndex(thisPos),
+                    closestArr: toGoIdxs,
+                    matrix: world.getPure2DMatrix(movingLayer),
+                    nowId: that.mesh.id,
+                });
+
+                function findWrapper(oEvent) {
+                    if (that.mesh.id == oEvent.data.nowId) {
+                        worker.removeEventListener("message", findWrapper);
+                        if (oEvent.data.path == null) {
+                            onFail();
+                        } else {
+                            onFind(oEvent.data.path);
+                        }
+
+                        that.findingPathParallel = false;
+                    }
+                }
+
+                worker.addEventListener("message", findWrapper);
+
+            } else {
                 that.findingPathParallel = false;
             }
         }

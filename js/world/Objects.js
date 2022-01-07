@@ -161,8 +161,24 @@ class Tree extends ObjectBases.LivingObjectBase {
 
         this.spawnPos = null;
 
-        this.mesh = meshes.tree.clone();
-        let scaleFactor = 0.35 * world.getCellSize();
+        this.mesh = null;
+        let scaleFactor = 1.0;
+        switch (Math.floor(Math.random() * 3)) {
+            case 0:
+                this.mesh = meshes.tree.clone();
+                scaleFactor = 0.35 * world.getCellSize();
+                break;
+            case 1:
+                this.mesh = meshes.tree2.clone();
+                scaleFactor = 0.015 * world.getCellSize();
+                break;
+            case 2:
+                this.mesh = meshes.tree3.clone();
+                scaleFactor = 0.4 * world.getCellSize();
+                break;
+        }
+        let randomScale = (Math.random() * (1.3 - 0.7) + 0.7).toFixed(4);
+        scaleFactor *= randomScale;
         this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
         this.ticker = 0;
@@ -596,7 +612,6 @@ class Pig extends ObjectBases.MovableObjectBase {
         super(pos, rotation, material);
         this.health = 200;
         this.speed = 0.03;
-        this.selectable = true;
         this.state = 0;
         this.stateTick = 0;
         this.target = null;
@@ -618,6 +633,8 @@ class Pig extends ObjectBases.MovableObjectBase {
         this.setRot(rotation);
 
         let scaleFactor = 3.0 * world.getCellSize();
+        let randomScale = (Math.random() * (1.1 - 0.9) + 0.9).toFixed(4);
+        scaleFactor *= randomScale;
         this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
     }
 
@@ -701,6 +718,38 @@ class Pig extends ObjectBases.MovableObjectBase {
         if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
             const newPig = new Pig(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
             world.instantiateObject(newPig);
+            this.changeHungerBy(40);
+        }
+    }
+}
+
+class Cow extends Pig {
+    static rotated = false;
+
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
+
+        this.mesh = meshes.cow.clone();
+        if (!Cow.rotated) {
+            Cow.rotated = true;
+            this.mesh.geometry.rotateX(90.0 * 3.14 / 180.0);
+        }
+        this.setPos(pos);
+        this.setRot(rotation);
+
+        let scaleFactor = 0.038 * world.getCellSize();
+        let randomScale = (Math.random() * (1.1 - 0.9) + 0.9).toFixed(4);
+        scaleFactor *= randomScale;
+
+        this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
+    }
+
+    spawn() {
+        const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5));
+
+        if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
+            const newCow = new Cow(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
+            world.instantiateObject(newCow);
             this.changeHungerBy(40);
         }
     }
@@ -970,6 +1019,9 @@ class Squirrel extends ObjectBases.MovableObjectBase {
 }
 
 class Human extends ObjectBases.MovableObjectBase {
+    static treeCutCount = 0;
+    static neededTreeToBuildAHouse = 10;
+
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
@@ -982,8 +1034,20 @@ class Human extends ObjectBases.MovableObjectBase {
         this.hungerToStarve = 100;
         this.hungerDamage = 2;
 
-        this.mesh = meshes.human.clone();
-        let scaleFactor = 0.04 * world.getCellSize();
+        this.mesh = null;
+        let scaleFactor = 1.0;
+        switch (Math.floor(Math.random() * 2)) {
+            case 0:
+                this.mesh = meshes.human.clone();
+                scaleFactor = 0.04 * world.getCellSize();
+                break;
+            case 1:
+                this.mesh = meshes.human2.clone();
+                scaleFactor = 0.0045 * world.getCellSize();
+                break;
+        }
+        let randomScale = (Math.random() * (1.1 - 0.9) + 0.9).toFixed(4);
+        scaleFactor *= randomScale;
         this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
         this.gender = 0;
@@ -996,7 +1060,8 @@ class Human extends ObjectBases.MovableObjectBase {
         this.humanStates = {
             Idle: 0,
             Hunting: 1,
-            Mating: 2
+            Mating: 2,
+            HouseBuilding: 3
         }
 
         this.setPos(pos);
@@ -1028,6 +1093,9 @@ class Human extends ObjectBases.MovableObjectBase {
                 break;
             case this.humanStates.Mating:
                 this.mate();
+                break;
+            case this.humanStates.HouseBuilding:
+                this.housebuilding();
                 break;
         }
         if (this.health <= 0) {
@@ -1077,6 +1145,15 @@ class Human extends ObjectBases.MovableObjectBase {
                     }
 
                     if (this.target.applyDamage(this.huntingDamage)) {
+                        if (this.target instanceof Tree) {
+                            Human.treeCutCount += 1;
+
+                            if (Human.treeCutCount >= Human.neededTreeToBuildAHouse) {
+                                Human.treeCutCount = 0;
+                                this.state = this.humanStates.HouseBuilding;
+                            }
+                        }
+
                         this.changeHungerBy(this.hungerChangeOnHunt);
                         this.target = null;
                     }
@@ -1138,6 +1215,62 @@ class Human extends ObjectBases.MovableObjectBase {
             this.target = null;
         }
     }
+
+    housebuilding() {
+        this.treeCutCount = 0;
+
+        if (this.target == null) {
+            const randomPoint = new THREE.Vector3((Math.random() - 0.5) * 5, 0, (Math.random() - 0.5) * 5).add(this.getPos());
+            if (world.grid.checkIfInGrid(randomPoint) && !world.checkPos(randomPoint)) {
+                this.target = world.getCellCenter(randomPoint);
+                let startedState = this.state;
+                this.findPath(this.target, (e) => {
+                    if (this.state == startedState) {
+                        this.path = world.getPathFromPure2DMatrix(e);
+                        let targetPos = this.path.length > 0 ? this.path[this.path.length - 1] : this.getPos();
+                        this.target = targetPos;
+                    }
+                }, (e) => {
+                    if (this.state == startedState) {
+                        this.path = null;
+                        this.target = null;
+
+                    }
+                });
+            }
+        }
+
+        this.executePath(
+            () => {
+                if (this.target != null) {
+                    const neighbourPos = world.getNeighbourPos(this.getPos(), new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5));
+
+                    if (world.grid.checkIfInGrid(neighbourPos) && !world.checkPos(neighbourPos)) {
+                        const newHouse = new House(neighbourPos, new THREE.Vector3(), Materials.squirrelMaterial);
+                        world.instantiateObject(newHouse);
+                    }
+                }
+
+                this.state = this.humanStates.Idle;
+                this.target = null;
+            },
+            () => {
+                this.target = null;
+            },
+            () => {
+                this.lookTowardsPath();
+                if (parameters.simulation.showPaths) {
+                    this.createLines(this.path);
+                }
+            },
+            false
+        );
+
+        if (this.hunger >= 80) {
+            this.state = this.humanStates.Hunting;
+            this.target = null;
+        }
+    }
 }
 
 class Wall extends ObjectBases.WorldLargeObject {
@@ -1157,9 +1290,39 @@ class Wall extends ObjectBases.WorldLargeObject {
     }
 }
 
-class House extends ObjectBases.WorldObjectBase {
+class House extends ObjectBases.WorldLargeObject {
     //TODO: implement house class, each one costs a certain amount of wood (taken from stockpile or from human inventory), humans need houses to survive
     //a house will be placed in a random location within a 5x5 "reserved" area of the grid, the rest of the area will be used for wheat farms
+    constructor(pos, rotation, material) {
+        super(pos, rotation, material);
+
+        this.mesh = null;
+        let scaleFactor = 1.0;
+        switch (Math.floor(Math.random() * 2)) {
+            case 0:
+                this.mesh = meshes.house.clone();
+                scaleFactor = 0.09 * world.getCellSize();
+                break;
+            case 1:
+                this.mesh = meshes.house2.clone();
+                scaleFactor = 0.7 * world.getCellSize();
+                break;
+        }
+        let randomScale = (Math.random() * (1.1 - 0.9) + 0.9).toFixed(4);
+        scaleFactor *= randomScale;
+        this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
+
+        this.setPos(pos);
+        this.setRot(rotation);
+        world.fixObjectPos(this);
+        this.overrideRot = false;
+
+        this.mesh.rotateY(Math.floor(Math.random() * 4) * 1.57);
+    }
+
+    update() {
+        super.update();
+    }
 }
 
 class Stockpile extends ObjectBases.WorldObjectBase {
@@ -1197,9 +1360,11 @@ export {
     Fox,
     Rabbit,
     Pig,
+    Cow,
     Wolf,
     Squirrel,
     Wall,
+    House,
     FillerObject,
     LargeFillerObject
 };

@@ -46,17 +46,6 @@ let canvasSize = {
 };
 
 let meshes = {
-    tree: null,
-    human: null,
-    grass: null,
-    wheat: null,
-    pig: null,
-    wolf: null,
-    rabbit: null,
-    fox: null,
-    eagle: null,
-    stockpile: null,
-    house: null
 }
 
 let textures = {

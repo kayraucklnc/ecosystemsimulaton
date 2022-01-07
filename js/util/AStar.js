@@ -190,14 +190,15 @@ onmessage = function (oEvent) {
 
     let closest = null;
     let closestPath = null;
+    if(closestArr != null) {
+        for (let i = 0; i < Math.min(15, closestArr.length); i++) {
+            closest = closestArr[i];
 
-    for (let i = 0; i < Math.min(15, closestArr.length); i++) {
-        closest = closestArr[i];
-
-        let path = findPath(oEvent.data.thisPos, closestArr[i]);
-        if (path != null) {
-            closestPath = path;
-            break;
+            let path = findPath(oEvent.data.thisPos, closestArr[i]);
+            if (path != null) {
+                closestPath = path;
+                break;
+            }
         }
     }
     postMessage({path: closestPath, nowId: oEvent.data.nowId});

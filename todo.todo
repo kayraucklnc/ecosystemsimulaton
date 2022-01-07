@@ -42,15 +42,12 @@
 [ Safa ] Işık açıp kapatma.
 [ Safa ] Pigle aynı bir cow.
 [ Safa ] Grassları treelere bağlama.
+[ Kayra ] Shader değiştirme.
 
 
 --- OnGoing ---
 [ Yiğit ] Alternative terrain shader.
-[ Yiğit ] Obje shaderlarını ve emissionları düzeltme
-[ Yiğit ] Implement bird
-[ Safa ] Her obje farklı classta.
 [ Safa ] Hayvanların parametrelerini parametersa koyma.
-[ Kayra ] Shader değiştirme.
 [ İrem ] Alternative water shader.
 
 
@@ -62,3 +59,8 @@
 [ Yiğit ] Switch object mesh according to entity status (i.e. idle vs moving)
 [ Yiğit ] Move object properties such as hunger to parameters.js
 [ ] Tree - Human - Squirrel - Fox - House   Human Fox ve Tree öldürüyor, ev yapıyor. Squirrel ağaçla çoğalıyor, ağaç dikiyor. Fox Squirrel yiyor. (Şimdilik)
+
+--- Cancelled ---
+[ Yiğit ] Implement bird
+[ Yiğit ] Obje shaderlarını ve emissionları düzeltme
+[ Safa ] Her obje farklı classta.

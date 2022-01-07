@@ -38,6 +38,9 @@ document.getElementById("terrainShaders").addEventListener("change", () => {
     terrainShaderChange();
 });
 
+document.getElementById("pathfindingAlgorithm").addEventListener("change", () => {
+    pathfindingChange();
+});
 
 function waterShaderChange() {
     switch (document.getElementById("waterShaders").value) {

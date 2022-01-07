@@ -1,6 +1,5 @@
 import * as THREE from "../../ecosystemsimulaton/js/library/three.js-r135/build/three.module.js";
 import {OrbitControls} from "../../ecosystemsimulaton/js/library/three.js-r135/examples/jsm/controls/OrbitControls.js";
-import {Water} from '../../ecosystemsimulaton/js/library/three.js-r135/examples/jsm/objects/Water.js';
 import {World} from "../../ecosystemsimulaton/js/world/World.js";
 import * as Objects from "../../ecosystemsimulaton/js/world/Objects.js";
 import * as Grid from "../../ecosystemsimulaton/js/world/Grid.js";

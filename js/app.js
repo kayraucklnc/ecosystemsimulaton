@@ -6,6 +6,7 @@ let terrainObject;
 let frameCount = 0;
 
 let worker = new Worker("./js/util/AStar.js", {type: "module"});
+//let worker2 = new Worker("./js/util/Dijkstra.js", {type: "module"});
 
 let raycaster;
 let orbitControls = null;

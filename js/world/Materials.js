@@ -3,6 +3,7 @@ import * as THREE from "../library/three.js-r135/build/three.module.js";
 let vShader;
 let vShaderWave;
 let vShaderWave2;
+let terrainVertexAlt;
 let fShader;
 let terrainFShader;
 let terrainFShader2;
@@ -22,6 +23,7 @@ const planeMat = new THREE.MeshPhongMaterial({
 let planeCustomMat = null;
 let planeCustomMat2 = null;
 let planeCustomMat3 = null;
+let planeAltMat = null;
 let treeMaterial = null;
 let humanMaterial = null;
 let wallMaterial = null;
@@ -48,6 +50,8 @@ function createAllMaterials() {
     customWaterFShader3 = shaders["customWaterShader3"];
     customWaterFShader4 = shaders["customWaterShader4"];
     terrainFShaderAlt = shaders["terrainFragmentShaderAlt"];
+    terrainVertexAlt = shaders["terrainVertexShaderAlt"];
+
 
     let planeMatUniforms = THREE.UniformsUtils.merge([
         THREE.UniformsLib["lights"],
@@ -90,6 +94,17 @@ function createAllMaterials() {
         side: THREE.DoubleSide,
         lights: true,
         fog: true,
+    });
+
+    planeAltMat = new THREE.ShaderMaterial({
+        uniforms: planeMatUniforms,
+        vertexShader: terrainVertexAlt,
+        fragmentShader: terrainFShaderAlt,
+        side: THREE.DoubleSide,
+        lights: true,
+        fog: false,
+        vertexColors: true,
+        wireframe: false,
     });
 
     customWaterMaterial = new THREE.ShaderMaterial({
@@ -221,6 +236,7 @@ export {
     planeCustomMat,
     planeCustomMat2,
     planeCustomMat3,
+    planeAltMat,
     wallMaterial,
     customWaterMaterial,
     customWaterMaterial2,

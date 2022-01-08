@@ -60,7 +60,6 @@ function createAllMaterials() {
             fogColor: {value: new THREE.Color(0x61757d)},
             fogDensity: {type: "f", value: 0.014},
             u_time: {type: "f", value: 0},
-            camDir: {value: [0, 0, 0]},
         }
     ]);
     planeMatUniforms.groundNormalMap.value = textures.dirtNormalMap.texture;

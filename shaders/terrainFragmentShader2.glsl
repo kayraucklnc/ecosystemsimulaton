@@ -14,10 +14,6 @@ varying vec3 vNormal;
 varying vec3 vPosition;
 uniform vec3 color;
 
-uniform vec3 camDir;
-varying vec3 u_norm;
-
-
 varying vec2 vUv;
 varying vec3 vTangent;
 
@@ -33,6 +29,10 @@ uniform float maxTerrainHeight;
 uniform vec3 fogColor;
 uniform float fogDensity;
 uniform float u_time;
+
+varying vec3 camPos;
+varying vec3 u_norm;
+
 
 float rand(vec2 co) {
     return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
@@ -87,13 +87,133 @@ float snoise(vec3 p) {
 }
 //-----------------------
 
+//void main() {
+//    vec3 norm;
+//
+//    norm = texture2D(groundNormalMap, vUv * repeatFactor).rgb;
+//    norm = vec3(1.0 - norm.r, 1.0 - norm.g, norm.b);
+//    norm = norm * 2.0 - 1.0;
+//    norm = normalize(TBN * norm);
+//
+//    vec4 addedLights = vec4(0.0,
+//    0.0,
+//    0.0,
+//    1.0);
+//
+//    #if NUM_POINT_LIGHTS > 0
+//    for (int l = 0; l < NUM_POINT_LIGHTS; l++) {
+//        vec3 distanceVec = vPosition - pointLights[l].position;
+//        distanceVec = distanceVec * 2.0;
+//        float lightDistance = float(pointLights[l].distance);
+//        vec3 lightDirection = normalize(distanceVec);
+//        float attuanation = 0.0;
+//        if (lightDistance >= length(distanceVec)){
+//            attuanation = pow((1.0 - (length(distanceVec) / lightDistance)), 2.0);
+//        }
+//
+//        addedLights.rgb += clamp(dot(-lightDirection, norm), 0.0, 1.0) * (pointLights[l].color * attuanation);
+//    }
+//        #endif
+//
+//    addedLights = max(vec4(0.1), addedLights);
+//    addedLights = min(vec4(1.5), addedLights);
+//
+//
+//
+//
+//    float frensel = 0.0;
+//    vec3 camdir = -normalize(-camPos + worldPosition);
+//    float harsh = 0.3;
+//    if (dot(u_norm, camdir) < harsh){
+//        frensel = mix(1.0, 0.0, dot(u_norm, camdir) / harsh);
+//    };
+//
+//    gl_FragColor.xyz = vec3(frensel);
+//
+//
+//    //--------- Fog -------------
+//    //    float depth = gl_FragCoord.z / gl_FragCoord.w;
+//    //
+//    //    const float LOG2 = 1.442695;
+//    //    float fogNoise = snoise(worldPosition*0.05 + vec3(u_time/1.5, 0, 0)) + 1.0;
+//    //    float fogFactor = exp2(- fogDensity * fogDensity * depth * depth * LOG2 * fogNoise);
+//    //    fogFactor = (1.0 - clamp(fogFactor, 0.0, 1.0));
+//    //
+//    //    gl_FragColor = mix(gl_FragColor, vec4(fogColor, gl_FragColor.w), fogFactor);
+//    //-----------------------
+//
+//
+//}
+
 void main() {
+    int terrainType;
+    vec3 terrainColor;
+    float height = float(worldPosition.y) / float(maxTerrainHeight);
+    float perlinOne = (snoise(vec3(vUv, 1.0) * 150.0));
+    float perlinTwo = (snoise(vec3(vUv, 1.0) * 10.0));
+    float heightWithRandMinor = height - perlinOne * 0.05;
+    float heightWithRandMajor = heightWithRandMinor - perlinTwo * 0.3;
+    if (heightWithRandMinor < -0.28) {
+        terrainType = 1;
+    } else if (heightWithRandMajor < -0.2) {
+        terrainType = 4;
+    } else if (heightWithRandMajor < 0.1) {
+        terrainType = 2;
+    } else if (heightWithRandMajor < 0.2) {
+        terrainType = 6;
+    } else if (heightWithRandMajor < 0.3) {
+        terrainType = 5;
+    } else if (heightWithRandMajor < 0.49) {
+        terrainType = 0;
+    } else {
+        terrainType = 3;
+    }
+
     vec3 norm;
+    /*if (terrainType == 3) {
+        norm = texture2D(snowNormalMap, vUv * 5.0).rgb;
+    } else {
+        norm = texture2D(groundNormalMap, vUv * repeatFactor).rgb;
+    }*/
 
     norm = texture2D(groundNormalMap, vUv * repeatFactor).rgb;
     norm = vec3(1.0 - norm.r, 1.0 - norm.g, norm.b);
     norm = norm * 2.0 - 1.0;
     norm = normalize(TBN * norm);
+
+
+    //    float perlin = snoise(vec3(vUv, 1.0) * 20.0) + 0.5;
+    //    float perlintwox = snoise(vec3(vUv, 1.0) * 200.0) + 0.5;
+    //    float result = perlin + perlintwox / 5.0;
+    //    if (heightWithRand < 0.4 && result < 0.25) { // Dirt
+    //        terrainType = 0;
+    //    }
+
+    switch (terrainType) {
+        case 0:// Dirt
+        terrainColor = vec3(0.21568627451, 0.17254901961, 0.14509803922);
+        break;
+        case 1:// Sand
+        terrainColor = vec3(0.97647058824, 0.84705882353, 0.51764705882);
+        break;
+        case 2:// Ground
+        terrainColor = vec3(0.06666666667, 0.48627450980, 0.07450980392);
+        break;
+        case 3:// Snow
+        terrainColor = vec3(0.87450980392, 0.90980392157, 0.94117647059);
+        break;
+        case 4:// Light Grass
+        terrainColor = vec3(0.38431372549, 0.57647058824, 0.09019607843);
+        break;
+        case 5:// Dark Mud
+        terrainColor = vec3(0.12941176471, 0.12941176471, 0.12941176471);
+        break;
+        case 6:// Dark Grass
+        terrainColor = vec3(0.13333333333, 0.27843137255, 0.14509803922);
+        break;
+    }
+
+    gl_FragColor = vec4(terrainColor, 1.);
 
     vec4 addedLights = vec4(0.0,
     0.0,
@@ -118,19 +238,30 @@ void main() {
     addedLights = max(vec4(0.1), addedLights);
     addedLights = min(vec4(1.5), addedLights);
 
+    gl_FragColor.xyz = (gl_FragColor * addedLights).xyz;
 
-    //    gl_FragColor.xyz = vec3(angle);
 
+    vec3 frensel = gl_FragColor.xyz;
+    vec3 camdir = -normalize(-camPos + worldPosition);
+    float harsh = 0.5;
+    if (dot(u_norm, camdir) < harsh){
+        frensel = mix(vec3(0.94509803922, 0.40392156863, 0.39607843137), gl_FragColor.xyz, smoothstep(0.0, 1.0, dot(u_norm, camdir) / harsh));
+    };
+    if (dot(u_norm, camdir) < harsh / 5.0){
+        frensel = mix(vec3(0.98431372549, 0.78039215686, 0.90980392157), gl_FragColor.xyz, smoothstep(0.0, 1.0, dot(u_norm, camdir) / harsh / 5.0));
+    };
+
+    gl_FragColor.xyz = frensel;
 
     //--------- Fog -------------
-    //    float depth = gl_FragCoord.z / gl_FragCoord.w;
-    //
-    //    const float LOG2 = 1.442695;
-    //    float fogNoise = snoise(worldPosition*0.05 + vec3(u_time/1.5, 0, 0)) + 1.0;
-    //    float fogFactor = exp2(- fogDensity * fogDensity * depth * depth * LOG2 * fogNoise);
-    //    fogFactor = (1.0 - clamp(fogFactor, 0.0, 1.0));
-    //
-    //    gl_FragColor = mix(gl_FragColor, vec4(fogColor, gl_FragColor.w), fogFactor);
+    float depth = gl_FragCoord.z / gl_FragCoord.w;
+
+    const float LOG2 = 1.442695;
+    float fogNoise = snoise(worldPosition*0.05 + vec3(u_time/1.5, 0, 0)) + 1.0;
+    float fogFactor = exp2(- fogDensity * fogDensity * depth * depth * LOG2 * fogNoise);
+    fogFactor = (1.0 - clamp(fogFactor, 0.0, 1.0));
+
+    gl_FragColor = mix(gl_FragColor, vec4(fogColor, gl_FragColor.w), fogFactor);
     //-----------------------
 
 

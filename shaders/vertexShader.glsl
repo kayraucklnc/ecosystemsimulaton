@@ -8,6 +8,9 @@ varying vec3 u_norm;
 
 varying vec3 worldPosition;
 varying mat3 TBN;
+
+varying vec3 camPos;
+
 void main() {
     vUv = uv;
 
@@ -15,6 +18,9 @@ void main() {
 
     vNormal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
     vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
+
+    camPos = inverse(viewMatrix)[3].xyz;
+    u_norm = (modelMatrix * vec4(normal, 1.0)).xyz;
 
     // Normal Mapping
     vTangent = tangent.xyz;

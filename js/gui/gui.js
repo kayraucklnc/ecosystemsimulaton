@@ -62,16 +62,21 @@ class GUI {
             world.grid.setGridVisible(parameters.plane.gridVisible);
         });
 
-        this.seed.onChange(() => {
+        this.seed.onFinishChange(() => {
             console.log("New seed is: " + parameters.simulation.seed);
-        });
-
-        this.enableEntities.onChange(() => {
             if (parameters.simulation.entities) {
                 world.clearObjects();
                 SceneOperations.createTestSceneElements();
             } else {
                 world.clearObjects();
+                terrainObject.changePlaneGeometry(parameters);
+            }
+        });
+
+        this.enableEntities.onChange(() => {
+            world.clearObjects();
+            if (parameters.simulation.entities) {
+                SceneOperations.createTestSceneElements();
             }
         })
     }

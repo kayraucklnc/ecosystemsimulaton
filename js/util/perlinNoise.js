@@ -23,8 +23,12 @@ let perlin = {
     seed: function(){
         this.gradients = {};
         this.memory = {};
+        this.oldSeed = parameters.simulation.seed;
     },
     get: function(x, y) {
+        if (parameters.simulation.seed != this.oldSeed) {
+            this.seed();
+        }
         if (this.memory.hasOwnProperty([x,y]))
             return this.memory[[x,y]];
         let xf = Math.floor(x);

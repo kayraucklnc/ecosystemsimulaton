@@ -125,7 +125,7 @@ class Terrain extends ObjectBases.WorldObjectBase {
         this.material.uniforms["maxTerrainHeight"].value = parameters.plane.heightMultiplier;
 
         if (water) {
-            water.geometry = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale).translate(0, 0, parameters.plane.waterHeight * parameters.plane.heightMultiplier).rotateX(-Math.PI / 2);
+            water.geometry = new THREE.PlaneGeometry(parameters.plane.scale, parameters.plane.scale, 400, 400).translate(0, 0, parameters.plane.waterHeight * parameters.plane.heightMultiplier).rotateX(-Math.PI / 2);
             water.geometry.computeVertexNormals();
             water.geometry.computeTangents();
         }

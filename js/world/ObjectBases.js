@@ -9,9 +9,33 @@ class WorldObjectBase {
         this.selectable = false;
         this.overrideRot = true;
 
-
         this.setPos(pos);
         this.setRot(rotation);
+
+        // setTimeout(this.spawnAnimationStart, 1, this);
+    }
+
+    spawnAnimationStart() {
+        this._inSpawnAnimation = true;
+    }
+
+    deleteAnimationStart() {
+        if(this._inDeleteAnimation) return;
+        if (this._inSpawnAnimation) {
+            if (this._oldStartPos) {
+                this.setPos(this._oldStartPos);
+            }
+            this._inSpawnAnimation = false;
+        }
+
+        this._inDeleteAnimation = true;
+        if (this._deleteTargetPos == null) {
+            this._deleteTargetPos = new THREE.Vector3().copy(this.getPos());
+            let boundingBox = new THREE.Box3().setFromObject(this.mesh);
+            this._sizeVec = new THREE.Vector3();
+            boundingBox.getSize(this._sizeVec);
+            this._deleteTargetPos.y -= this._sizeVec;
+        }
     }
 
     onDelete() {
@@ -61,6 +85,29 @@ class WorldObjectBase {
     }
 
     update() {
+        if (this._inSpawnAnimation) {
+            if(this._oldStartPos == null) {
+                this._oldStartPos = new THREE.Vector3().copy(this.getPos());
+                let boundingBox = new THREE.Box3().setFromObject(this.mesh);
+                this._sizeVec = new THREE.Vector3();
+                boundingBox.getSize(this._sizeVec);
+                this.getPos().add(new THREE.Vector3(0, -this._sizeVec.y, 0));
+            }
+
+            this.getPos().add(new THREE.Vector3(0, 0.2, 0));
+            if (Math.abs(this._oldStartPos.y - this.getPos().y) < 0.15) {
+                this.setPos(this._oldStartPos);
+                this._oldStartPos = null;
+                this._inSpawnAnimation = false;
+            }
+
+        } else if (this._inDeleteAnimation) {
+            this.mesh.position.sub(new THREE.Vector3(0, 0.1, 0));
+            if (Math.abs(this._deleteTargetPos.y - this.getPos().y) < 0.08) {
+                world.deleteObject(this);
+                this._inDeleteAnimation = false;
+            }
+        }
     }
 
     setModel() {
@@ -101,8 +148,10 @@ class LivingObjectBase extends WorldObjectBase {
 
     die() {
         if (!this.hasDied) {
-            world.deleteObject(this);
             this.hasDied = true;
+
+            this.deleteAnimationStart(this);
+            // world.deleteObject(this);
         }
     }
 
@@ -436,7 +485,7 @@ class MovableObjectBase extends LivingObjectBase {
 
     update() {
         super.update();
-        if (!parameters.simulation.showPaths) {
+        if (!parameters.simulation.showPaths || this.target == null) {
             this.cleanLines();
         }
     }

@@ -15,10 +15,6 @@ class Box extends ObjectBases.MovableObjectBase {
         this.setPos(pos);
         this.setRot(rotation);
     }
-
-    update() {
-        super.update();
-    }
 }
 
 class Sphere extends ObjectBases.MovableObjectBase {
@@ -31,10 +27,6 @@ class Sphere extends ObjectBases.MovableObjectBase {
 
         this.setPos(pos);
         this.setRot(rotation);
-    }
-
-    update() {
-        super.update();
     }
 }
 
@@ -145,10 +137,6 @@ class Terrain extends ObjectBases.WorldObjectBase {
             }
         })
     }
-
-    update() {
-        super.update();
-    }
 }
 
 
@@ -193,10 +181,13 @@ class Tree extends ObjectBases.LivingObjectBase {
         world.fixObjectPos(this);
         this.overrideRot = false;
         this.mesh.rotateY(Math.random() * 3.14);
+
+        this.spawnAnimationStart(this);
     }
 
     update() {
         super.update();
+        if (this.hasDied) return;
 
         this.ticker += 1;
         if (this.ticker >= this.nextSpread) {
@@ -266,10 +257,13 @@ class Grass extends ObjectBases.LivingObjectBase {
         world.fixObjectPos(this);
         this.overrideRot = false;
         this.mesh.rotateY(Math.floor(Math.random() * 4) * 1.57);
+
+        this.spawnAnimationStart(this);
     }
 
     update() {
         super.update();
+        if (this.hasDied) return;
 
         this.ticker += 1;
         if (this.ticker >= this.nextSpread) {
@@ -316,14 +310,8 @@ class Wheat extends ObjectBases.LivingObjectBase {
 
         this.setPos(pos);
         this.setRot(rotation);
-    }
 
-    update() {
-        super.update();
-    }
-
-    die() {
-        super.die();
+        this.spawnAnimationStart(this);
     }
 }
 
@@ -361,10 +349,13 @@ class Fox extends ObjectBases.MovableObjectBase {
 
         this.state = this.foxStates.Idle;
         this.idleCount = 0;
+
+        this.spawnAnimationStart(this);
     }
 
     update() {
         super.update();
+        if (this.hasDied) return;
 
         switch (this.state) {
             case this.foxStates.Idle:
@@ -507,10 +498,13 @@ class Rabbit extends ObjectBases.MovableObjectBase {
         let scaleFactor = 5.0 * world.getCellSize();
         this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
         this.state = this.rabbitStates.Grazing;
+
+        this.spawnAnimationStart(this);
     }
 
     update() {
         super.update();
+        if (this.hasDied) return;
 
         switch (this.state) {
             case this.rabbitStates.Mating:
@@ -644,10 +638,13 @@ class Pig extends ObjectBases.MovableObjectBase {
         let randomScale = (Math.random() * (1.1 - 0.9) + 0.9).toFixed(4);
         scaleFactor *= randomScale;
         this.mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
+
+        this.spawnAnimationStart(this);
     }
 
     update() {
         super.update();
+        if (this.hasDied) return;
 
         this.stateTick += 1;
         if (this.health <= 0) {
@@ -797,10 +794,13 @@ class Wolf extends ObjectBases.MovableObjectBase {
 
         this.state = this.wolfStates.Idle;
         this.idleCount = 0;
+
+        this.spawnAnimationStart(this);
     }
 
     update() {
         super.update();
+        if (this.hasDied) return;
 
         switch (this.state) {
             case this.wolfStates.Idle:
@@ -949,10 +949,13 @@ class Squirrel extends ObjectBases.MovableObjectBase {
         this.stateTicker = 0;
 
         this.targetPos = null;
+
+        this.spawnAnimationStart(this);
     }
 
     update() {
         super.update();
+        if (this.hasDied) return;
 
         this.stateTicker++;
         switch (this.state) {
@@ -1079,6 +1082,8 @@ class Human extends ObjectBases.MovableObjectBase {
         this.idleCount = 0;
 
         this.updateAccordingToAggressiveness();
+
+        this.spawnAnimationStart(this);
     }
 
     updateAccordingToAggressiveness() {
@@ -1091,6 +1096,7 @@ class Human extends ObjectBases.MovableObjectBase {
 
     update() {
         super.update();
+        if (this.hasDied) return;
 
         switch (this.state) {
             case this.humanStates.Idle:
@@ -1291,10 +1297,7 @@ class Wall extends ObjectBases.WorldLargeObject {
         this.setPos(pos);
         this.setRot(rotation);
 
-    }
-
-    update() {
-        super.update();
+        this.spawnAnimationStart(this);
     }
 }
 
@@ -1326,10 +1329,8 @@ class House extends ObjectBases.WorldLargeObject {
         world.fixObjectPos(this);
         this.overrideRot = false;
         this.mesh.rotateY(Math.floor(Math.random() * 4) * 1.57);
-    }
 
-    update() {
-        super.update();
+        this.spawnAnimationStart(this);
     }
 }
 

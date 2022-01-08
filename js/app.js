@@ -4,6 +4,7 @@ let world = null;
 let water;
 let terrainObject;
 let frameCount = 0;
+let gui;
 
 let worker = new Worker("./js/util/AStar.js", {type: "module"});
 //let worker2 = new Worker("./js/util/Dijkstra.js", {type: "module"});
@@ -46,8 +47,7 @@ let canvasSize = {
     height: innerHeight,
 };
 
-let meshes = {
-}
+let meshes = {}
 
 let textures = {
     dirtNormalMap: null,

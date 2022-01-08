@@ -20,6 +20,7 @@ let parameters = {
     simulation: {
         showPaths: true,
         seed: (Math.random() * 1000.0) + "",
-        humanAggressiveness: 1.0
+        humanAggressiveness: 1.0,
+        entities: true,
     }
 };

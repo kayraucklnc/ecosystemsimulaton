@@ -217,7 +217,8 @@ function loadShaders(resolve) {
         "customWaterShader.glsl",
         "customWaterShader2.glsl",
         "customWaterShader3.glsl",
-        "terrainFragmentShaderAlt.glsl"
+        "terrainFragmentShaderAlt.glsl",
+        "terrainVertexShaderAlt.glsl"
     ];
 
     let loadShaderPromises = [];

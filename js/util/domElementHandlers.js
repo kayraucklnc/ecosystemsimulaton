@@ -38,6 +38,10 @@ document.getElementById("terrainShaders").addEventListener("change", () => {
     terrainShaderChange();
 });
 
+document.getElementById("pathfindingAlgorithm").addEventListener("change", () => {
+    pathfindingChange();
+});
+
 
 function waterShaderChange() {
     switch (document.getElementById("waterShaders").value) {
@@ -55,7 +59,14 @@ function waterShaderChange() {
 }
 
 function terrainShaderChange() {
-
+    switch (document.getElementById("terrainShaders").value) {
+        case "naturalShader":
+            terrainObject.mesh.material = Materials.planeCustomMat;
+            break;
+        case "alternativeShader":
+            terrainObject.mesh.material = Materials.planeAltMat;
+            break;
+    }
 }
 
 function  pathfindingChange() {

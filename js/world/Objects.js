@@ -40,14 +40,20 @@ class LightIndicator extends ObjectBases.WorldObjectBase {
         const sphereGeometry = new THREE.SphereGeometry(1.3);
         this.mesh = new THREE.Mesh(sphereGeometry, material);
 
-        this.setPos(this.light.position);
+        let lightPos = this.light.position;
+        this.setPos(lightPos);
         this.setRot(rotation);
+
+        this.spotlightTarget = new THREE.Object3D();
+        this.mesh.add(this.spotlightTarget);
+        this.spotlightTarget.position.y -= 10;
+        this.light.target = this.spotlightTarget;
     }
 
     update() {
         super.update();
 
-        if (this.getPos().distanceToSquared(this.light.position) > 0.01) {
+        if (this.getPos().distanceToSquared(this.light.position) > 0.0001) {
             let currentPos = this.getPos();
             this.light.position.set(currentPos.x, currentPos.y, currentPos.z);
         }

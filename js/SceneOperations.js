@@ -44,7 +44,6 @@ function createInitScene() {
     let lightSphereObject = new Objects.LightIndicator(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.lightIndicatorMaterial, spotLight);
     world.instantiateObject(lightSphereObject, false);
 
-
     createCustomWater();
 
     return {scene, camera};

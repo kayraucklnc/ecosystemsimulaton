@@ -103,7 +103,7 @@ class WorldObjectBase {
 
         } else if (this._inDeleteAnimation) {
             this.mesh.position.sub(new THREE.Vector3(0, 0.1, 0));
-            if (Math.abs(this._deleteTargetPos.y - this.getPos().y) < 0.08) {
+            if (Math.abs(this._deleteTargetPos.y - this.getPos().y) < 0.08 || this.getPos().y < -3) {
                 world.deleteObject(this);
                 this._inDeleteAnimation = false;
             }

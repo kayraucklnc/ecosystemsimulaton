@@ -45,7 +45,7 @@ class LightRotationChanger {
         zSlider.addEventListener("change", this.onZChange);
         zSlider.addEventListener("input", this.onZChange);
 
-        // this.currentRotation = {x:lightRot.x, y:lightRot.y, z:lightRot.z};
+        this.currentRotation = {x:lightRot.x, y:lightRot.y, z:lightRot.z};
     }
 
     endListening() {
@@ -70,12 +70,18 @@ class LightRotationChanger {
         let that = pickingEvents._lightRotationChanger;
         let newYValue = document.getElementById("light-y-slider").value;
         that.lightIndicator.getRot().y = newYValue;
+
+        // that.lightIndicator.mesh.rotateOnWorldAxis(new THREE.Vector3(0, 1), newYValue - that.currentRotation.x);
+        // that.currentRotation.x = newYValue;
     }
 
     onZChange() {
         let that = pickingEvents._lightRotationChanger;
         let newZValue = document.getElementById("light-z-slider").value;
         that.lightIndicator.getRot().z = newZValue;
+
+        // that.lightIndicator.mesh.rotateOnWorldAxis(new THREE.Vector3(0,0,1), newZValue - that.currentRotation.z);
+        // that.currentRotation.z = newZValue;
     }
 }
 

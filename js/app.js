@@ -11,7 +11,7 @@ let worker = new Worker("./js/util/AStar.js", {type: "module"});
 
 let raycaster;
 let orbitControls = null;
-let mousePicker = null;
+let mousePicker = null, pickingEvents = null;
 
 let renderer = null;
 

@@ -24,6 +24,26 @@ document.getElementById("remove-light-button").addEventListener("click", () => {
     }
 });
 
+pickingEvents.addPickListener((pickedObject) => {
+    if (pickedObject instanceof LightIndicator) {
+        showLightRotationControls();
+    }
+});
+
+pickingEvents.addFreeListener((freedObject) => {
+    if (freedObject instanceof LightIndicator) {
+        hideLightRotationControls();
+    }
+});
+
+function showLightRotationControls() {
+    document.getElementById("lightSliders").setAttribute("style", "display: flex; flex-direction: row;");
+}
+
+function hideLightRotationControls() {
+    document.getElementById("lightSliders").setAttribute("style", "display: none;");
+}
+
 function addLight() {
     let pointLight = new THREE.PointLight(0xffffff, 1.05, 400);
     pointLight.position.set((Math.random() - 0.5) * parameters.plane.scale / 2, 23 + Math.random() * 4, (Math.random() - 0.5) * parameters.plane.scale / 2);

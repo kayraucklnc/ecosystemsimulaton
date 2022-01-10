@@ -74,9 +74,11 @@ class GUI {
         });
 
         this.enableEntities.onChange(() => {
-            world.clearObjects();
             if (parameters.simulation.entities) {
+                world.clearObjects(true);
                 SceneOperations.createTestSceneElements();
+            } else {
+                world.clearObjects(false);
             }
         })
     }

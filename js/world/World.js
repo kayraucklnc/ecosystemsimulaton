@@ -334,11 +334,13 @@ class World {
         object.onDelete();
     }
 
-    clearObjects() {
+    clearObjects(clearFillers=true) {
         for (let i = this.gridParent.children.length - 1; i >= 0; i--) {
             const o = this.gridParent.children[i];
             const obj = this.getObjectOfMesh(o);
-            this.deleteObject(obj);
+            if (clearFillers || !(obj instanceof Objects.FillerObject || obj instanceof Objects.LargeFillerObject)) {
+                this.deleteObject(obj);
+            }
         }
     }
 
@@ -393,7 +395,7 @@ class World {
                     let gridPos = this.grid.getIndexPos(i, j);
                     let objectAtPos = this.getPos(gridPos, layer);
 
-                    if (resetOld && objectAtPos instanceof Objects.LargeFillerObject) {
+                    if (resetOld && (objectAtPos instanceof Objects.LargeFillerObject || objectAtPos instanceof Objects.FillerObject)) {
                         if (this.getObjectOfMesh(objectAtPos.mesh)) {
                             this.deleteObject(objectAtPos);
                         } else {

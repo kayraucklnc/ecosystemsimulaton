@@ -37,12 +37,13 @@ function createInitScene() {
     world.grid.setTerrain(terrainObject);
     skybox();
 
-    const pointLight = new THREE.PointLight(0xffffff, 0.85, 400);
-    pointLight.position.set(12, 25, 9);
-    world.instantiateLight(pointLight);
+    const spotLight = new THREE.SpotLight(0xffffff, 0.85, 400, 20, 0);
+    spotLight.position.set(12, 25, 9);
+    world.instantiateLight(spotLight);
 
-    let lightSphereObject = new Objects.LightIndicator(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.lightIndicatorMaterial, pointLight);
+    let lightSphereObject = new Objects.LightIndicator(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.lightIndicatorMaterial, spotLight);
     world.instantiateObject(lightSphereObject, false);
+
 
     createCustomWater();
 

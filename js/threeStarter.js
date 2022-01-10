@@ -19,7 +19,6 @@ function threeStarter() {
     // loopStats.showPanel(0);
     // document.body.appendChild(loopStats.dom);
 
-    // To follow an object.
     // let cameraOffset = new THREE.Vector3(0, 4, 4);
     // let followObject = world.objects.filter((x) => {
     //     return x instanceof Objects.Pig;
@@ -32,8 +31,6 @@ function threeStarter() {
 
     function loop() {
         // loopStats.begin();
-
-        // To follow an object. ++
         // if (oldpos.distanceToSquared(followObject.getPos()) > 0.2) {
         //     let moveAmn = new THREE.Vector3().subVectors(followObject.getPos(), oldpos);
         //     camera.position.add(moveAmn);

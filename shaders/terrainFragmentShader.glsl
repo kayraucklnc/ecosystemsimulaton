@@ -1,13 +1,17 @@
 precision mediump float;
 
-struct PointLight {
+struct SpotLight {
     vec3 color;
     vec3 position;
     float distance;
+    vec3 direction;
+    float coneCos;
+//    penumbraCos;
 };
 
-#if NUM_POINT_LIGHTS > 0
-uniform PointLight pointLights[NUM_POINT_LIGHTS];
+
+#if NUM_SPOT_LIGHTS > 0
+uniform SpotLight spotLights[NUM_SPOT_LIGHTS];
 #endif
 
 varying vec3 vNormal;
@@ -152,25 +156,28 @@ void main() {
 
     gl_FragColor = vec4(terrainColor, 1.);
 
-    vec4 addedLights = vec4(0.0,
-    0.0,
-    0.0,
-    1.0);
+    vec4 addedLights = vec4(0.0, 0.0, 0.0, 1.0);
 
-    #if NUM_POINT_LIGHTS > 0
-    for (int l = 0; l < NUM_POINT_LIGHTS; l++) {
-        vec3 distanceVec = vPosition - pointLights[l].position;
+
+    #if NUM_SPOT_LIGHTS > 0
+    for (int l = 0; l < NUM_SPOT_LIGHTS; l++) {
+        vec3 distanceVec = vPosition - spotLights[l].position;
         distanceVec = distanceVec * 2.0;
-        float lightDistance = float(pointLights[l].distance);
+        float lightDistance = float(spotLights[l].distance);
         vec3 lightDirection = normalize(distanceVec);
         float attuanation = 0.0;
         if (lightDistance >= length(distanceVec)){
             attuanation = pow((1.0 - (length(distanceVec) / lightDistance)), 2.0);
         }
 
-        addedLights.rgb += clamp(dot(-lightDirection, norm), 0.0, 1.0) * (pointLights[l].color * attuanation);
+        vec3 surfaceToLightDirection = normalize(distanceVec);
+        vec3 u_lightDirection = spotLights[l].direction;
+        float dotFromDirection = dot(surfaceToLightDirection, -u_lightDirection);
+        if (dotFromDirection >= 0.80) {
+            addedLights.rgb += clamp(dot(-lightDirection, norm), 0.0, 1.0) * (spotLights[l].color * attuanation);
+        }
     }
-    #endif
+        #endif
 
     addedLights = max(vec4(0.1), addedLights);
     addedLights = min(vec4(1.5), addedLights);

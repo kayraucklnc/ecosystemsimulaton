@@ -25,7 +25,7 @@ document.getElementById("remove-light-button").addEventListener("click", () => {
 });
 
 function addLight() {
-    let pointLight = new THREE.PointLight(0xffffff, 1.05, 400);
+    let pointLight = new THREE.SpotLight(0xffffff, 0.85, 400, 20, 0);
     pointLight.position.set((Math.random() - 0.5) * parameters.plane.scale / 2, 23 + Math.random() * 4, (Math.random() - 0.5) * parameters.plane.scale / 2);
     world.instantiateLight(pointLight);
 

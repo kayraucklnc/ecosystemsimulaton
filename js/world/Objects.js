@@ -48,6 +48,12 @@ class LightIndicator extends ObjectBases.WorldObjectBase {
         this.mesh.add(this.spotlightTarget);
         this.spotlightTarget.position.y -= 10;
         this.light.target = this.spotlightTarget;
+
+        this.wires = null;
+        if (parameters.simulation.showSpotlightWires) {
+            this.wires = new THREE.SpotLightHelper(this.light);
+            world.scene.add(this.wires);
+        }
     }
 
     update() {
@@ -57,6 +63,16 @@ class LightIndicator extends ObjectBases.WorldObjectBase {
             let currentPos = this.getPos();
             this.light.position.set(currentPos.x, currentPos.y, currentPos.z);
         }
+
+        if (parameters.simulation.showSpotlightWires && this.wires == null) {
+            this.wires = new THREE.SpotLightHelper(this.light);
+            world.scene.add(this.wires);
+        } else if (!parameters.simulation.showSpotlightWires && this.wires != null) {
+            world.scene.remove(this.wires);
+            this.wires = null;
+        }
+
+        if (this.wires) this.wires.update();
     }
 }
 

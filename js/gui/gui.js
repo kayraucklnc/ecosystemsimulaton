@@ -26,6 +26,7 @@ class GUI {
         this.gridVisible = terrainFolder.add(parameters.plane, 'gridVisible').name("Grid");
 
         this.showPaths = simulationFolder.add(parameters.simulation, 'showPaths').name("Show Paths");
+        this.showPaths = simulationFolder.add(parameters.simulation, 'showSpotlightWires').name("Show Spotlight Wires");
         this.seed = simulationFolder.add(parameters.simulation, 'seed').name("Seed");
         this.enableEntities = simulationFolder.add(parameters.simulation, 'entities').name("Enable Entities");
 

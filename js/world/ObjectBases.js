@@ -20,7 +20,7 @@ class WorldObjectBase {
     }
 
     deleteAnimationStart() {
-        if(this._inDeleteAnimation) return;
+        if (this._inDeleteAnimation) return;
         if (this._inSpawnAnimation) {
             if (this._oldStartPos) {
                 this.setPos(this._oldStartPos);
@@ -86,7 +86,7 @@ class WorldObjectBase {
 
     update() {
         if (this._inSpawnAnimation) {
-            if(this._oldStartPos == null) {
+            if (this._oldStartPos == null) {
                 this._oldStartPos = new THREE.Vector3().copy(this.getPos());
                 let boundingBox = new THREE.Box3().setFromObject(this.mesh);
                 this._sizeVec = new THREE.Vector3();
@@ -95,15 +95,17 @@ class WorldObjectBase {
             }
 
             this.getPos().add(new THREE.Vector3(0, 0.2, 0));
-            if (Math.abs(this._oldStartPos.y - this.getPos().y) < 0.15) {
+            if (Math.abs(this._oldStartPos.y - this.getPos().y) < 0.30) {
                 this.setPos(this._oldStartPos);
                 this._oldStartPos = null;
                 this._inSpawnAnimation = false;
             }
 
-        } else if (this._inDeleteAnimation) {
+        }
+
+        if (this._inDeleteAnimation) {
             this.mesh.position.sub(new THREE.Vector3(0, 0.1, 0));
-            if (Math.abs(this._deleteTargetPos.y - this.getPos().y) < 0.08) {
+            if (Math.abs(this._deleteTargetPos.y - this.getPos().y) < 0.20 || this.getPos().y < -3.20) {
                 world.deleteObject(this);
                 this._inDeleteAnimation = false;
             }

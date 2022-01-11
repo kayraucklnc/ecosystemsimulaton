@@ -14,14 +14,14 @@ struct SpotLight {
 uniform SpotLight spotLights[NUM_SPOT_LIGHTS];
 #endif
 
-varying vec3 vNormal;
-varying vec3 vPosition;
+in vec3 vNormal;
+in vec3 vPosition;
 uniform vec3 color;
-varying vec2 vUv;
-varying vec3 vTangent;
+in vec2 vUv;
+in vec3 vTangent;
 
-varying vec3 worldPosition;
-varying mat3 TBN;
+in vec3 worldPosition;
+in mat3 TBN;
 
 uniform float repeatFactor;
 uniform sampler2D groundNormalMap;

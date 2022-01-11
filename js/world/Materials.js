@@ -68,7 +68,6 @@ function createAllMaterials() {
     planeMatUniforms.perlinMap.value = textures.perlinNoiseMap.texture;
 
     planeMat = new THREE.MeshPhongMaterial({
-        uniforms: planeMatUniforms,
         color: 0x3bdb43,
         side: THREE.DoubleSide,
         flatShading: THREE.FlatShading,

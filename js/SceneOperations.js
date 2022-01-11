@@ -71,6 +71,8 @@ function createTestSceneElements() {
 
     terrainObject.changePlaneGeometry(parameters);
 
+    if (!parameters.simulation.entities) return;
+
     // let treeObject = new Objects.Tree(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0), Materials.treeMaterial);
     // world.instantiateObject(treeObject);
     // let humanObject = new Objects.Rabbit(new THREE.Vector3(20, 0, 0), new THREE.Vector3(0, 0), Materials.humanMaterial);

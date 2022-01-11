@@ -193,16 +193,22 @@ async function openTemplate(fileName) {
 function templateChange() {
     switch (document.getElementById("templateList").value) {
         case "Template1":
-            openTemplate("./templates/1.json");
+            openTemplate("./templates/default_template.json");
             break;
         case "Template2":
-            openTemplate("./templates/2.json");
+            openTemplate("./templates/smaller_default_template.json");
             break;
         case "Template3":
-            openTemplate("./templates/3.json");
+            openTemplate("./templates/human_plains_template.json");
             break;
         case "Template4":
-            openTemplate("./templates/4.json");
+            openTemplate("./templates/wolf_hills_template.json");
+            break;
+        case "Template5":
+            openTemplate("./templates/cow_fjords_template.json");
+            break;
+        case "Template6":
+            openTemplate("./templates/barren_plains_template.json");
             break;
     }
     ;
@@ -222,32 +228,60 @@ function loadFileToMap(parsedData) {
                 if (parsedData.arr[i][j][k] != null) {
                     switch (parsedData.arr[i][j][k]) {
                         case "Wall":
-                            let wallObject = new Objects.Wall(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.wallMaterial);
+                            let wallObject = new Objects.Wall(world.grid.getIndexPos(j, k), new THREE.Vector3(0, 0), Materials.wallMaterial);
                             world.instantiateObject(wallObject);
                             break;
                         case "Human":
-                            let humanObject = new Objects.Human(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.humanMaterial);
+                            let humanObject = new Objects.Human(world.grid.getIndexPos(j, k), new THREE.Vector3(0, 0), Materials.humanMaterial);
                             world.instantiateObject(humanObject);
                             break;
                         case "Tree":
-                            let treeObject = new Objects.Tree(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.treeMaterial);
+                            let treeObject = new Objects.Tree(world.grid.getIndexPos(j, k), new THREE.Vector3(0, 0), Materials.treeMaterial);
                             world.instantiateObject(treeObject);
                             break;
                         case "Pig":
-                            let pigObject = new Objects.Pig(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.treeMaterial);
+                            let pigObject = new Objects.Pig(world.grid.getIndexPos(j, k), new THREE.Vector3(0, 0), Materials.treeMaterial);
                             world.instantiateObject(pigObject);
                             break;
                         case "Wolf":
-                            let wolfObject = new Objects.Wolf(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.treeMaterial);
+                            let wolfObject = new Objects.Wolf(world.grid.getIndexPos(j, k), new THREE.Vector3(0, 0), Materials.treeMaterial);
                             world.instantiateObject(wolfObject);
                             break;
                         case "Rabbit":
-                            let rabbitObject = new Objects.Rabbit(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.treeMaterial);
+                            let rabbitObject = new Objects.Rabbit(world.grid.getIndexPos(j, k), new THREE.Vector3(0, 0), Materials.treeMaterial);
                             world.instantiateObject(rabbitObject);
                             break;
                         case "Grass":
-                            let grassObject = new Objects.Grass(world.grid.getIndexPos(i, j), new THREE.Vector3(0, 0), Materials.treeMaterial);
+                            let grassObject = new Objects.Grass(world.grid.getIndexPos(j, k), new THREE.Vector3(0, 0), Materials.treeMaterial);
                             world.instantiateObject(grassObject);
+                            break;
+                        case "LargeFillerObject":
+                            let fillerObject = new Objects.LargeFillerObject(world.grid.getIndexPos(j, k), new THREE.Vector3(0, 0), Materials.wallMaterial);
+                            world.instantiateObject(fillerObject);
+                            break;
+                        case "Wheat":
+                            let wheatObject = new Objects.Wheat(world.grid.getIndexPos(j,k), new THREE.Vector3(0, 0), Materials.treeMaterial);
+                            world.instantiateObject(wheatObject);
+                            break;
+                        case "Fox":
+                            let foxObject = new Objects.Fox(world.grid.getIndexPos(j,k), new THREE.Vector3(0, 0), Materials.treeMaterial);
+                            world.instantiateObject(foxObject);
+                            break;
+                        case "Cow":
+                            let cowObject = new Objects.Cow(world.grid.getIndexPos(j,k), new THREE.Vector3(0,0), Materials.treeMaterial);
+                            world.instantiateObject(cowObject);
+                            break;
+                        case "Squirrel":
+                            let squirrelObject = new Objects.Squirrel(world.grid.getIndexPos(j,k), new THREE.Vector3(0,0), Materials.treeMaterial);
+                            world.instantiateObject(squirrelObject);
+                            break;
+                        case "House":
+                            let houseObject = new Objects.House(world.grid.getIndexPos(j,k), new THREE.Vector3(0,0), Materials.treeMaterial);
+                            world.instantiateObject(houseObject);
+                            break;
+                        case "FillerObject":
+                            let fillerObject2 = new Objects.FillerObject(world.grid.getIndexPos(j, k), new THREE.Vector3(0, 0), Materials.wallMaterial);
+                            world.instantiateObject(fillerObject2);
                             break;
                     }
                 }

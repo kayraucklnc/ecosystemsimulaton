@@ -37,6 +37,11 @@ float rand(vec2 co) {
     return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
+vec3 rand3(vec3 co) {
+    vec2 newCo = vec2(co.x, co.z);
+    return vec3(rand(newCo), rand(newCo * 2.0), rand(newCo * 3.0));
+}
+
 //-----------------------
 vec3 random3(vec3 c) {
     float j = 4096.0*sin(dot(c, vec3(17.0, 59.4, 15.0)));
@@ -73,10 +78,10 @@ float snoise(vec3 p) {
 
     w = max(0.6 - w, 0.0);
 
-    d.x = dot(random3(s), x);
-    d.y = dot(random3(s + i1), x1);
-    d.z = dot(random3(s + i2), x2);
-    d.w = dot(random3(s + 1.0), x3);
+    d.x = dot(rand3(s), x);
+    d.y = dot(rand3(s + i1), x1);
+    d.z = dot(rand3(s + i2), x2);
+    d.w = dot(rand3(s + 1.0), x3);
 
     w *= w;
     w *= w;

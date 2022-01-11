@@ -57,7 +57,7 @@ vec3 random3(vec3 c) {
 
 const float F3 =  0.3333333;
 const float G3 =  0.1666667;
-float snoise(vec3 p) {
+float snoise(vec3 p, bool useNewMethod) {
 
     vec3 s = floor(p + dot(p, vec3(F3)));
     vec3 x = p - s + dot(s, vec3(G3));
@@ -79,10 +79,17 @@ float snoise(vec3 p) {
 
     w = max(0.6 - w, 0.0);
 
-    d.x = dot(rand3(s), x);
-    d.y = dot(rand3(s + i1), x1);
-    d.z = dot(rand3(s + i2), x2);
-    d.w = dot(rand3(s + 1.0), x3);
+    if (useNewMethod) {
+        d.x = dot(rand3(s), x);
+        d.y = dot(rand3(s + i1), x1);
+        d.z = dot(rand3(s + i2), x2);
+        d.w = dot(rand3(s + 1.0), x3);
+    } else {
+        d.x = dot(random3(s), x);
+        d.y = dot(random3(s + i1), x1);
+        d.z = dot(random3(s + i2), x2);
+        d.w = dot(random3(s + 1.0), x3);
+    }
 
     w *= w;
     w *= w;
@@ -100,8 +107,8 @@ void main() {
     int terrainType;
     vec3 terrainColor;
     float height = float(worldPosition.y) / float(maxTerrainHeight);
-    float perlinOne = (snoise(vec3(vUv, 1.0) * 150.0));
-    float perlinTwo = (snoise(vec3(vUv, 1.0) * 10.0));
+    float perlinOne = snoise(vec3(vUv, 1.0) * 150.0, true);
+    float perlinTwo = snoise(vec3(vUv, 1.0) * 10.0, true);
     float heightWithRandMinor = height - perlinOne * 0.05;
     float heightWithRandMajor = heightWithRandMinor - perlinTwo * 0.3;
     if (heightWithRandMinor < -0.28) {
@@ -186,7 +193,7 @@ void main() {
     float depth = gl_FragCoord.z / gl_FragCoord.w;
 
     const float LOG2 = 1.442695;
-    float fogNoise = snoise(worldPosition*0.05 + vec3(u_time/1.5, 0, 0)) + 1.0;
+    float fogNoise = snoise(worldPosition*0.05 + vec3(u_time/1.5, 0, 0), false) + 1.0;
     float fogFactor = exp2(- fogDensity * fogDensity * depth * depth * LOG2 * fogNoise);
     fogFactor = (1.0 - clamp(fogFactor, 0.0, 1.0));
 

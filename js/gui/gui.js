@@ -18,7 +18,7 @@ class GUI {
 
         this.planeScale = terrainFolder.add(parameters.plane, 'scale', 20, 1500).name("Plane Scale");
         this.heightMultiplier = terrainFolder.add(parameters.plane, 'heightMultiplier', 1, 30).name("Plane Height");
-        this.noiseScale = terrainFolder.add(parameters.plane, 'noiseScale', 0.001, 3).name("Noise Scale");
+        this.noiseScale = terrainFolder.add(parameters.plane, 'noiseScale', 0.0001, 1).name("Noise Scale");
         this.resolution = terrainFolder.add(parameters.plane, 'resolution', 4, 300).name("Resolution");
         this.lacunarity = terrainFolder.add(parameters.plane, 'lacunarity', 0, 4).name("Lacunarity");
         this.smoothness = terrainFolder.add(parameters.plane, 'smoothness', 0, 4).name("Smoothness");

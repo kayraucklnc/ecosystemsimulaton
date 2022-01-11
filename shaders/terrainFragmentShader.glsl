@@ -6,7 +6,7 @@ struct SpotLight {
     float distance;
     vec3 direction;
     float coneCos;
-//    penumbraCos;
+    float penumbraCos;
 };
 
 
@@ -86,6 +86,10 @@ float snoise(vec3 p) {
 }
 //-----------------------
 
+float map(float value, float min1, float max1, float min2, float max2) {
+    return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+}
+
 void main() {
     int terrainType;
     vec3 terrainColor;
@@ -111,24 +115,12 @@ void main() {
     }
 
     vec3 norm;
-    /*if (terrainType == 3) {
-        norm = texture2D(snowNormalMap, vUv * 5.0).rgb;
-    } else {
-        norm = texture2D(groundNormalMap, vUv * repeatFactor).rgb;
-    }*/
 
     norm = texture2D(groundNormalMap, vUv * repeatFactor).rgb;
     norm = vec3(1.0 - norm.r, 1.0 - norm.g, norm.b);
     norm = norm * 2.0 - 1.0;
     norm = normalize(TBN * norm);
 
-
-    //    float perlin = snoise(vec3(vUv, 1.0) * 20.0) + 0.5;
-    //    float perlintwox = snoise(vec3(vUv, 1.0) * 200.0) + 0.5;
-    //    float result = perlin + perlintwox / 5.0;
-    //    if (heightWithRand < 0.4 && result < 0.25) { // Dirt
-    //        terrainType = 0;
-    //    }
 
     switch (terrainType) {
         case 0:// Dirt
@@ -173,8 +165,8 @@ void main() {
         vec3 surfaceToLightDirection = normalize(distanceVec);
         vec3 u_lightDirection = spotLights[l].direction;
         float dotFromDirection = dot(surfaceToLightDirection, -u_lightDirection);
-        if (dotFromDirection >= 0.80) {
-            addedLights.rgb += clamp(dot(-lightDirection, norm), 0.0, 1.0) * (spotLights[l].color * attuanation);
+        if (dotFromDirection >= spotLights[l].coneCos) {
+            addedLights.rgb += mix(vec3(0.0, 0.0, 0.0), dot(-lightDirection, norm) * (spotLights[l].color * attuanation), map(dotFromDirection, spotLights[l].coneCos, 1.0, 0.15, 1.0));
         }
     }
         #endif

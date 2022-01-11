@@ -183,7 +183,7 @@ void main() {
         #endif
 
     addedLights = max(vec4(0.1), addedLights);
-    addedLights = min(vec4(1.5), addedLights);
+    addedLights = min(vec4(1.2), addedLights);
 
     gl_FragColor.xyz = (gl_FragColor * addedLights).xyz;
     //----------- Lights -----------------

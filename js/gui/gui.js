@@ -7,13 +7,13 @@ class GUI {
         this.terrain = null;
 
         const terrainFolder = this.gui.addFolder("Terrain");
-        const cloudsFolder = this.gui.addFolder("Clouds");
         const simulationFolder = this.gui.addFolder("Simulation");
 
-
-        cloudsFolder.add(parameters.clouds, 'thickness', 0.1, 1).name("Thickness");
-        cloudsFolder.add(parameters.clouds, 'size', 0.1, 1).name("Size");
-        cloudsFolder.add(parameters.clouds, 'count', 0.1, 2).name("Count");
+        // Not implemented.
+        // const cloudsFolder = this.gui.addFolder("Clouds");
+        // cloudsFolder.add(parameters.clouds, 'thickness', 0.1, 1).name("Thickness");
+        // cloudsFolder.add(parameters.clouds, 'size', 0.1, 1).name("Size");
+        // cloudsFolder.add(parameters.clouds, 'count', 0.1, 2).name("Count");
 
 
         this.planeScale = terrainFolder.add(parameters.plane, 'scale', 20, 1500).name("Plane Scale");
@@ -26,7 +26,7 @@ class GUI {
         this.gridVisible = terrainFolder.add(parameters.plane, 'gridVisible').name("Grid");
 
         this.showPaths = simulationFolder.add(parameters.simulation, 'showPaths').name("Show Paths");
-        this.showPaths = simulationFolder.add(parameters.simulation, 'showSpotlightWires').name("Show Spotlight Wires");
+        this.showPaths = simulationFolder.add(parameters.simulation, 'showSpotlightWires').name("Light Wires");
         this.seed = simulationFolder.add(parameters.simulation, 'seed').name("Seed");
         this.enableEntities = simulationFolder.add(parameters.simulation, 'entities').name("Enable Entities");
 

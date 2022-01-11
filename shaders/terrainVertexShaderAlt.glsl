@@ -1,8 +1,7 @@
+// #version 300 es
 precision mediump float;
 
-
 in vec4 tangent;
-//attribute vec3 a_color;
 
 out vec2 vUv;
 out vec3 vNormal;

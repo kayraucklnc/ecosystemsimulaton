@@ -1,3 +1,4 @@
+// #version 300 es
 in vec4 tangent;
 
 out vec2 vUv;

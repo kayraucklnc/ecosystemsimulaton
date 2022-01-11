@@ -1,3 +1,4 @@
+// #version 300 es
 
 struct SpotLight {
     vec3 color;

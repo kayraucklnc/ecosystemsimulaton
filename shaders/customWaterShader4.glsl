@@ -9,7 +9,6 @@ struct SpotLight {
     float penumbraCos;
 };
 
-
 #if NUM_SPOT_LIGHTS > 0
 uniform SpotLight spotLights[NUM_SPOT_LIGHTS];
 #endif

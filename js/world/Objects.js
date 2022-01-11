@@ -1319,6 +1319,8 @@ class Wall extends ObjectBases.WorldLargeObject {
         this.setPos(pos);
         this.setRot(rotation);
 
+        this.overrideRot = false;
+
         this.spawnAnimationStart(this);
     }
 }

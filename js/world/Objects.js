@@ -56,6 +56,11 @@ class LightIndicator extends ObjectBases.WorldObjectBase {
         }
     }
 
+    onDelete() {
+        super.onDelete();
+        world.scene.remove(this.wires);
+    }
+
     update() {
         super.update();
 

@@ -22,6 +22,7 @@ let parameters = {
         showSpotlightWires: false,
         seed: (Math.random() * 1000.0) + "",
         humanAggressiveness: 1.0,
-        entities: true,
+        entities: false,
+        lightIntensity: 0.85,
     }
 };

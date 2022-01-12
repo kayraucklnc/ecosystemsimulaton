@@ -2,13 +2,13 @@ import * as Objects from "../world/Objects.js";
 import * as THREE from "../library/three.js-r135/build/three.module.js";
 import * as Materials from "../world/Materials.js";
 
-document.getElementById("saveButton").addEventListener("click", () => {
-    saveTemplate()
-});
-
-document.getElementById("loadButton").addEventListener("click", () => {
-    loadTemplate()
-});
+// document.getElementById("saveButton").addEventListener("click", () => {
+//     saveTemplate()
+// });
+//
+// document.getElementById("loadButton").addEventListener("click", () => {
+//     loadTemplate()
+// });
 
 document.getElementById("brush").addEventListener("change", () => {
     brushChange()
@@ -260,23 +260,23 @@ function loadFileToMap(parsedData) {
                             world.instantiateObject(fillerObject);
                             break;
                         case "Wheat":
-                            let wheatObject = new Objects.Wheat(world.grid.getIndexPos(j,k), new THREE.Vector3(0, 0), Materials.treeMaterial);
+                            let wheatObject = new Objects.Wheat(world.grid.getIndexPos(j, k), new THREE.Vector3(0, 0), Materials.treeMaterial);
                             world.instantiateObject(wheatObject);
                             break;
                         case "Fox":
-                            let foxObject = new Objects.Fox(world.grid.getIndexPos(j,k), new THREE.Vector3(0, 0), Materials.treeMaterial);
+                            let foxObject = new Objects.Fox(world.grid.getIndexPos(j, k), new THREE.Vector3(0, 0), Materials.treeMaterial);
                             world.instantiateObject(foxObject);
                             break;
                         case "Cow":
-                            let cowObject = new Objects.Cow(world.grid.getIndexPos(j,k), new THREE.Vector3(0,0), Materials.treeMaterial);
+                            let cowObject = new Objects.Cow(world.grid.getIndexPos(j, k), new THREE.Vector3(0, 0), Materials.treeMaterial);
                             world.instantiateObject(cowObject);
                             break;
                         case "Squirrel":
-                            let squirrelObject = new Objects.Squirrel(world.grid.getIndexPos(j,k), new THREE.Vector3(0,0), Materials.treeMaterial);
+                            let squirrelObject = new Objects.Squirrel(world.grid.getIndexPos(j, k), new THREE.Vector3(0, 0), Materials.treeMaterial);
                             world.instantiateObject(squirrelObject);
                             break;
                         case "House":
-                            let houseObject = new Objects.House(world.grid.getIndexPos(j,k), new THREE.Vector3(0,0), Materials.treeMaterial);
+                            let houseObject = new Objects.House(world.grid.getIndexPos(j, k), new THREE.Vector3(0, 0), Materials.treeMaterial);
                             world.instantiateObject(houseObject);
                             break;
                         case "FillerObject":

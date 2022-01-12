@@ -190,14 +190,14 @@ void main() {
     gl_FragColor.xyz = (gl_FragColor * addedLights).xyz;
 
     //--------- Fog -------------
-    //    float depth = gl_FragCoord.z / gl_FragCoord.w;
-    //
-    //    const float LOG2 = 1.442695;
-    //    float fogNoise = snoise(worldPosition*0.05 + vec3(u_time/1.5, 0, 0), false) + 1.0;
-    //    float fogFactor = exp2(- fogDensity * fogDensity * depth * depth * LOG2 * fogNoise);
-    //    fogFactor = (1.0 - clamp(fogFactor, 0.0, 1.0));
-    //
-    //    gl_FragColor = mix(gl_FragColor, vec4(fogColor, gl_FragColor.w), fogFactor);
+    float depth = gl_FragCoord.z / gl_FragCoord.w;
+
+    const float LOG2 = 1.442695;
+    float fogNoise = snoise(worldPosition*0.05 + vec3(u_time/1.5, 0, 0), false) + 1.0;
+    float fogFactor = exp2(- fogDensity * fogDensity * depth * depth * LOG2 * fogNoise);
+    fogFactor = (1.0 - clamp(fogFactor, 0.0, 1.0));
+
+    gl_FragColor = mix(gl_FragColor, vec4(fogColor, gl_FragColor.w), fogFactor);
     //-----------------------
 
 

@@ -6,6 +6,47 @@ const PickingStage = {
     PICKED: 1
 }
 
+export class PickingEvents {
+    constructor() {
+        this._pickEventListeners = [];
+        this._freeEventListeners = [];
+    }
+
+    addPickListener(func) {
+        this._pickEventListeners.push(func);
+    }
+
+    removePickListener(func) {
+        const indexOf = this._pickEventListeners.indexOf(func);
+        if (indexOf != -1) {
+            this._pickEventListeners.splice(indexOf, 1);
+        }
+    }
+
+    addFreeListener(func) {
+        this._freeEventListeners.push(func);
+    }
+
+    removeFreeListener(func) {
+        const indexOf = this._freeEventListeners.indexOf(func);
+        if (indexOf != -1) {
+            this._freeEventListeners.splice(indexOf, 1);
+        }
+    }
+
+    setPickEvent() {
+        this._pickEventListeners.forEach((func) => {
+            func(world.getObjectOfMesh(mousePicker.pickedObject));
+        })
+    }
+
+    setFreeEvent() {
+        this._freeEventListeners.forEach((func) => {
+            func(world.getObjectOfMesh(mousePicker.pickedObject));
+        })
+    }
+}
+
 export class MousePicker {
     constructor(scene, camera, renderer) {
         this.stage = PickingStage.FREE;
@@ -56,6 +97,9 @@ function mouse_up(event) {
             console.log("Freed: " + mousePicker.pickedObject.id);
 
             mousePicker.stage = PickingStage.FREE;
+
+            pickingEvents.setFreeEvent();
+
             mousePicker.pickedObject.remove(mousePicker.axesHelper);
             mousePicker.pickedObject = null;
 
@@ -81,6 +125,7 @@ function mouse_up(event) {
             mousePicker.dragControls = createDragControls(mousePicker, [mousePicker.pickedObject]);
             mousePicker.dragControls.activate();
 
+            pickingEvents.setPickEvent();
             console.log("Picked: " + mousePicker.pickedObject.id);
         }
     }
@@ -90,3 +135,5 @@ function mouse_move(event) {
     mouse.x = ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.clientWidth ) * 2 - 1;
     mouse.y = - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.clientHeight ) * 2 + 1;
 }
+
+pickingEvents = new PickingEvents();

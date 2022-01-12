@@ -1,17 +1,16 @@
+// #version 300 es
 precision mediump float;
 
+in vec4 tangent;
 
-attribute vec4 tangent;
-//attribute vec3 a_color;
+out vec2 vUv;
+out vec3 vNormal;
+out vec3 vPosition;
+out vec3 vTangent;
 
-varying vec2 vUv;
-varying vec3 vNormal;
-varying vec3 vPosition;
-varying vec3 vTangent;
-
-varying vec3 worldPosition;
-varying mat3 TBN;
-flat varying vec4 vColor;
+out vec3 worldPosition;
+out mat3 TBN;
+flat out vec4 vColor;
 
 float rand(vec2 co){
     return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);

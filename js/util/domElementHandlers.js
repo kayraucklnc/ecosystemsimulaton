@@ -70,6 +70,9 @@ function terrainShaderChange() {
         case "third":
             terrainObject.mesh.material = Materials.planeAltMat;
             break;
+        case "fourth":
+            terrainObject.mesh.material = Materials.planeCustomMat3;
+            break;
     }
 }
 

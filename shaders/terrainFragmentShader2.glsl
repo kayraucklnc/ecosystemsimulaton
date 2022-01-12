@@ -1,24 +1,29 @@
+// #version 300 es
 precision mediump float;
 
-struct PointLight {
+struct SpotLight {
     vec3 color;
     vec3 position;
     float distance;
+    vec3 direction;
+    float coneCos;
+    float penumbraCos;
 };
 
-#if NUM_POINT_LIGHTS > 0
-uniform PointLight pointLights[NUM_POINT_LIGHTS];
+
+#if NUM_SPOT_LIGHTS > 0
+uniform SpotLight spotLights[NUM_SPOT_LIGHTS];
 #endif
 
-varying vec3 vNormal;
-varying vec3 vPosition;
+in vec3 vNormal;
+in vec3 vPosition;
 uniform vec3 color;
 
-varying vec2 vUv;
-varying vec3 vTangent;
+in vec2 vUv;
+in vec3 vTangent;
 
-varying vec3 worldPosition;
-varying mat3 TBN;
+in vec3 worldPosition;
+in mat3 TBN;
 
 uniform float repeatFactor;
 uniform sampler2D groundNormalMap;
@@ -30,8 +35,8 @@ uniform vec3 fogColor;
 uniform float fogDensity;
 uniform float u_time;
 
-varying vec3 camPos;
-varying vec3 u_norm;
+in vec3 camPos;
+in vec3 u_norm;
 
 
 float rand(vec2 co) {
@@ -85,66 +90,9 @@ float snoise(vec3 p) {
 
     return dot(d, vec4(52.0));
 }
-//-----------------------
-
-//void main() {
-//    vec3 norm;
-//
-//    norm = texture2D(groundNormalMap, vUv * repeatFactor).rgb;
-//    norm = vec3(1.0 - norm.r, 1.0 - norm.g, norm.b);
-//    norm = norm * 2.0 - 1.0;
-//    norm = normalize(TBN * norm);
-//
-//    vec4 addedLights = vec4(0.0,
-//    0.0,
-//    0.0,
-//    1.0);
-//
-//    #if NUM_POINT_LIGHTS > 0
-//    for (int l = 0; l < NUM_POINT_LIGHTS; l++) {
-//        vec3 distanceVec = vPosition - pointLights[l].position;
-//        distanceVec = distanceVec * 2.0;
-//        float lightDistance = float(pointLights[l].distance);
-//        vec3 lightDirection = normalize(distanceVec);
-//        float attuanation = 0.0;
-//        if (lightDistance >= length(distanceVec)){
-//            attuanation = pow((1.0 - (length(distanceVec) / lightDistance)), 2.0);
-//        }
-//
-//        addedLights.rgb += clamp(dot(-lightDirection, norm), 0.0, 1.0) * (pointLights[l].color * attuanation);
-//    }
-//        #endif
-//
-//    addedLights = max(vec4(0.1), addedLights);
-//    addedLights = min(vec4(1.5), addedLights);
-//
-//
-//
-//
-//    float frensel = 0.0;
-//    vec3 camdir = -normalize(-camPos + worldPosition);
-//    float harsh = 0.3;
-//    if (dot(u_norm, camdir) < harsh){
-//        frensel = mix(1.0, 0.0, dot(u_norm, camdir) / harsh);
-//    };
-//
-//    gl_FragColor.xyz = vec3(frensel);
-//
-//
-//    //--------- Fog -------------
-//    //    float depth = gl_FragCoord.z / gl_FragCoord.w;
-//    //
-//    //    const float LOG2 = 1.442695;
-//    //    float fogNoise = snoise(worldPosition*0.05 + vec3(u_time/1.5, 0, 0)) + 1.0;
-//    //    float fogFactor = exp2(- fogDensity * fogDensity * depth * depth * LOG2 * fogNoise);
-//    //    fogFactor = (1.0 - clamp(fogFactor, 0.0, 1.0));
-//    //
-//    //    gl_FragColor = mix(gl_FragColor, vec4(fogColor, gl_FragColor.w), fogFactor);
-//    //-----------------------
-//
-//
-//}
-
+float map(float value, float min1, float max1, float min2, float max2) {
+    return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+}
 void main() {
     int terrainType;
     vec3 terrainColor;
@@ -170,24 +118,11 @@ void main() {
     }
 
     vec3 norm;
-    /*if (terrainType == 3) {
-        norm = texture2D(snowNormalMap, vUv * 5.0).rgb;
-    } else {
-        norm = texture2D(groundNormalMap, vUv * repeatFactor).rgb;
-    }*/
-
     norm = texture2D(groundNormalMap, vUv * repeatFactor).rgb;
     norm = vec3(1.0 - norm.r, 1.0 - norm.g, norm.b);
     norm = norm * 2.0 - 1.0;
     norm = normalize(TBN * norm);
 
-
-    //    float perlin = snoise(vec3(vUv, 1.0) * 20.0) + 0.5;
-    //    float perlintwox = snoise(vec3(vUv, 1.0) * 200.0) + 0.5;
-    //    float result = perlin + perlintwox / 5.0;
-    //    if (heightWithRand < 0.4 && result < 0.25) { // Dirt
-    //        terrainType = 0;
-    //    }
 
     switch (terrainType) {
         case 0:// Dirt
@@ -215,23 +150,26 @@ void main() {
 
     gl_FragColor = vec4(terrainColor, 1.);
 
-    vec4 addedLights = vec4(0.0,
-    0.0,
-    0.0,
-    1.0);
+    vec4 addedLights = vec4(0.0, 0.0, 0.0, 1.0);
 
-    #if NUM_POINT_LIGHTS > 0
-    for (int l = 0; l < NUM_POINT_LIGHTS; l++) {
-        vec3 distanceVec = vPosition - pointLights[l].position;
+
+    #if NUM_SPOT_LIGHTS > 0
+    for (int l = 0; l < NUM_SPOT_LIGHTS; l++) {
+        vec3 distanceVec = vPosition - spotLights[l].position;
         distanceVec = distanceVec * 2.0;
-        float lightDistance = float(pointLights[l].distance);
+        float lightDistance = float(spotLights[l].distance);
         vec3 lightDirection = normalize(distanceVec);
         float attuanation = 0.0;
         if (lightDistance >= length(distanceVec)){
             attuanation = pow((1.0 - (length(distanceVec) / lightDistance)), 2.0);
         }
 
-        addedLights.rgb += clamp(dot(-lightDirection, norm), 0.0, 1.0) * (pointLights[l].color * attuanation);
+        vec3 surfaceToLightDirection = normalize(distanceVec);
+        vec3 u_lightDirection = spotLights[l].direction;
+        float dotFromDirection = dot(surfaceToLightDirection, -u_lightDirection);
+        if (dotFromDirection >= spotLights[l].coneCos) {
+            addedLights.rgb += mix(vec3(0.0, 0.0, 0.0), dot(-lightDirection, norm) * (spotLights[l].color * attuanation), map(dotFromDirection, spotLights[l].coneCos, 1.0, 0.15, 1.0));
+        }
     }
         #endif
 

@@ -1,22 +1,27 @@
+// #version 300 es
 precision mediump float;
 
-struct PointLight {
+struct SpotLight {
     vec3 color;
     vec3 position;
     float distance;
+    vec3 direction;
+    float coneCos;
+    float penumbraCos;
 };
-#if NUM_POINT_LIGHTS > 0
-uniform PointLight pointLights[NUM_POINT_LIGHTS];
+
+#if NUM_SPOT_LIGHTS > 0
+uniform SpotLight spotLights[NUM_SPOT_LIGHTS];
 #endif
 
-varying vec3 vNormal;
-varying vec3 vPosition;
+in vec3 vNormal;
+in vec3 vPosition;
 uniform vec3 color;
-varying vec2 vUv;
-varying vec3 vTangent;
+in vec2 vUv;
+in vec3 vTangent;
 
-varying vec3 worldPosition;
-varying mat3 TBN;
+in vec3 worldPosition;
+in mat3 TBN;
 
 uniform vec3 fogColor;
 uniform float fogDensity;
@@ -110,71 +115,60 @@ float fbm (in vec2 _st) {
     }
     return v;
 }
-
+float map(float value, float min1, float max1, float min2, float max2) {
+    return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+}
 void main() {
     vec3 p =  worldPosition;
+
+    //    --------------------- Shader
+    vec4 k;
+    vec2 pp = (p.xz * 20.0) + vec2(snoise(vec3(p.xz * 20.0, u_time)), snoise(vec3(p.xz * 20.0, u_time)));
+    mat3 m = mat3(-2, -1, 2, 3, -2, 1, 1, 2, 2);
+    vec3 a = vec3(pp / 4e2, u_time / 10.) * m,
+    b = a * m * .7,
+    c = b * m * .3;
+    k = vec4(pow(
+    min(min(length(.5 - fract(a)),
+    length(.5 - fract(b))
+    ), length(.5 - fract(c)
+    )), 7.) * 50.);
+
+    vec3 len = mix(vec3(0.066, 0.690, 0.815), vec3(0.870, 0.866, 0.933), length(k.xyz));
+    k = vec4(len, 1.0);
+    gl_FragColor = k;
+    //    --------------------- Shader
+
     //----------- Lights -----------------
     vec3 norm = vNormal;
-    vec4 addedLights = vec4(0.0,
-    0.0,
-    0.0,
-    1.0);
+    vec4 addedLights = vec4(0.0, 0.0, 0.0, 1.0);
 
-    #if NUM_POINT_LIGHTS > 0
-    for (int l = 0; l < NUM_POINT_LIGHTS; l++) {
-        vec3 distanceVec = vPosition - pointLights[l].position;
+
+    #if NUM_SPOT_LIGHTS > 0
+    for (int l = 0; l < NUM_SPOT_LIGHTS; l++) {
+        vec3 distanceVec = vPosition - spotLights[l].position;
         distanceVec = distanceVec * 2.0;
-        float lightDistance = float(pointLights[l].distance);
+        float lightDistance = float(spotLights[l].distance);
         vec3 lightDirection = normalize(distanceVec);
         float attuanation = 0.0;
         if (lightDistance >= length(distanceVec)){
             attuanation = pow((1.0 - (length(distanceVec) / lightDistance)), 2.0);
         }
 
-        addedLights.rgb += clamp(dot(-lightDirection, norm), 0.0, 1.0) * (pointLights[l].color * attuanation);
+        vec3 surfaceToLightDirection = normalize(distanceVec);
+        vec3 u_lightDirection = spotLights[l].direction;
+        float dotFromDirection = dot(surfaceToLightDirection, -u_lightDirection);
+        if (dotFromDirection >= spotLights[l].coneCos) {
+            addedLights.rgb += mix(vec3(0.0, 0.0, 0.0), dot(-lightDirection, norm) * (spotLights[l].color * attuanation), map(dotFromDirection, spotLights[l].coneCos, 1.0, 0.15, 1.0));
+        }
     }
         #endif
 
-    addedLights = max(vec4(0.3), addedLights);
-    addedLights = min(vec4(1), addedLights);
+    addedLights = max(vec4(0.1), addedLights);
+    addedLights = min(vec4(1.2), addedLights);
 
-    //    --------------------- Shader
-    p.xz *= 0.6;
-    p.y += (sin(u_time*0.1));
-    p.y += u_time*0.2;
-
-    vec3 color = vec3(0.0);
-
-    vec2 q = vec2(0.);
-    q.x = fbm(p.xz + 1.684*u_time);
-    q.y = fbm(p.xz + vec2(1.0));
-
-    vec2 r = vec2(0.);
-    r.x = fbm(p.xz + 1.0*q + vec2(1.7, 9.2)+ 0.626*u_time);
-    r.y = fbm(p.xz + 1.0*q + vec2(8.3, 2.8)+ 0.626*u_time);
-
-    float f = fbm(p.xz+r);
-
-    color = mix(vec3(0.151, 0.240, 0.667),
-    vec3(0.209, 0.328, 0.667),
-    clamp((f*f)*4.0, 0.0, 1.0));
-
-    color = mix(color,
-    vec3(0.205, 0.391, 0.780),
-    clamp(length(q), 0.0, 1.0));
-
-    color = mix(color,
-    vec3(0.370, 0.981, 1.000),
-    clamp(length(r.x), 0.0, 1.0));
-
-    if (length(color) < 0.4){
-        color = mix(color, color + normalize(color) * 0.1, 1.0-length(color));
-    }
-
-    //    gl_FragColor = vec4(color + 0.1, 1.) * addedLights;
-    //    --------------------- Shader
-
-
+    gl_FragColor.xyz = (gl_FragColor * addedLights).xyz;
+    //----------- Lights -----------------
     //--------- Fog -------------
     float depth = gl_FragCoord.z / gl_FragCoord.w;
     const float LOG2 = 1.442695;

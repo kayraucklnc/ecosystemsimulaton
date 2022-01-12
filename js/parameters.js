@@ -19,6 +19,7 @@ let parameters = {
     },
     simulation: {
         showPaths: true,
+        showSpotlightWires: false,
         seed: (Math.random() * 1000.0) + "",
         humanAggressiveness: 1.0,
         entities: true,

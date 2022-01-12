@@ -48,20 +48,21 @@
 [ Kayra ] Alternative frensel shader
 [ Kayra ] Shader changing in runtime
 [ Kayra ] Trailer
+[ Yiğit ] Alternative terrain shader.
+[ İrem ] Alternative water shader 2.
+[ Safa ] Adding controls for lights.
+[ Kayra ] Implementing spotlights for all shaders.
 
 --- OnGoing ---
-[ Yiğit ] Alternative terrain shader.
-[ Safa ] Hayvanların parametrelerini parametersa koyma.
-[ İrem ] Alternative water shader 2.
-
+[ Yiğit ] Templateleri hazırlama
 
 --- TO DO ---
-[ ? ] Templateleri hazırlama
-[ İrem ] Breadth First Search
-[ Yiğit ] Switch object mesh according to entity status (i.e. idle vs moving)
 
 --- Cancelled ---
 [ Yiğit ] Implement bird
 [ Yiğit ] Obje shaderlarını ve emissionları düzeltme
 [ Safa ] Her obje farklı classta.
 [ Kayra ] Atmosphere Shader
+[ İrem ] Breadth First Search
+[ Safa ] Hayvanların parametrelerini parametersa koyma.
+[ Yiğit ] Switch object mesh according to entity status (i.e. idle vs moving)

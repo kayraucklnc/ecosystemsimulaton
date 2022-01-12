@@ -15,11 +15,8 @@ let customWaterFShader4;
 
 let sunFShader;
 
-const planeMat = new THREE.MeshPhongMaterial({
-    color: 0x3bdb43,
-    side: THREE.DoubleSide,
-    flatShading: THREE.FlatShading,
-});
+
+let planeMat = null;
 let planeCustomMat = null;
 let planeCustomMat2 = null;
 let planeCustomMat3 = null;
@@ -69,6 +66,13 @@ function createAllMaterials() {
     planeMatUniforms.groundNormalMap.value = textures.dirtNormalMap.texture;
     planeMatUniforms.snowNormalMap.value = textures.snowNormalMap.texture;
     planeMatUniforms.perlinMap.value = textures.perlinNoiseMap.texture;
+
+    planeMat = new THREE.MeshPhongMaterial({
+        color: 0x3bdb43,
+        side: THREE.DoubleSide,
+        flatShading: THREE.FlatShading,
+    });
+
     planeCustomMat = new THREE.ShaderMaterial({
         uniforms: planeMatUniforms,
         vertexShader: vShader,

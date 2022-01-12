@@ -10,9 +10,6 @@
 </head>
 <!--Load the AJAX API-->
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
-
-</script>
 
 <body style="margin: 0; overflow: hidden">
 <script src="js/library/stats.min.js"></script>
@@ -23,6 +20,8 @@
 <script type="module" src="/js/SceneOperations.js"></script>
 <script src="js/parameters.js"></script>
 <script src="js/util/perlinNoise.js"></script>
+<script src="js/mouse/drawerHandler.js" type="module"></script>
+<script src="js/mouse/mouse_picking.js" type="module"></script>
 <script type="module" src="js/util/domElementHandlers.js"></script>
 <script type="module" src="js/util/lightAddRemove.js"></script>
 <script src="js/util/chartDrawer.js"></script>
@@ -31,8 +30,6 @@
 <script type="module" src="js/gui/gui.js"></script>
 <script src="js/world/World.js" type="module"></script>
 <script src="js/world/Grid.js" type="module"></script>
-<script src="js/mouse/drawerHandler.js" type="module"></script>
-<script src="js/mouse/mouse_picking.js" type="module"></script>
 <script src="js/world/ObjectBases.js" type="module"></script>
 <script src="js/world/Objects.js" type="module"></script>
 <script src="js/world/Materials.js" type="module"></script>
@@ -54,7 +51,7 @@
 
     <div style="background-color: black" id="midBar"></div>
 
-    <div style="background-color: black;display: flex;flex-direction: column;width: 320px;margin-top: 200px"
+    <div style="background-color: black;display: flex;flex-direction: column;width: 320px;"
          id="rightBar">
 
         <div name="bottom-aligner" style="display: inline-block;height:100%;vertical-align: bottom;width: 0px;"></div>
@@ -79,6 +76,7 @@
                     <option value="naturalShader">Natural Shader</option>
                     <option value="frensel">Frensel Shader</option>
                     <option value="third">Voxel Shader</option>
+                    <option value="fourth">Toon Shader</option>
                 </select>
 
                 <select name="waterShaders" id="waterShaders" class="list-choice" style="width: 100%">
@@ -142,13 +140,34 @@
             <hr class="solid">
         </div>
 
-        <div style="text-align: center;padding: 10px;display: flex;flex-direction: row;">
-            <button class="button addLightButton" style="font-size: 15pt;margin-right: 3px;" id="add-light-button">
-                Add Light
-            </button>
-            <button class="button removeLightButton" style="font-size: 15pt;margin-left: 3px;" id="remove-light-button">
-                Remove Light
-            </button>
+        <div style="display: block">
+            <div id="lightSliders" style="display: none; flex-direction: row">
+                <div style="text-align: center;padding-bottom: 1%; padding-top: 2%;">
+                    <div style="font-size: 12pt; color: aliceblue">Light X Rotation</div>
+                    <input style="width: 95%;" type="range" min="-1.57" max="1.57"
+                           value="0.0" step="0.01" id="light-x-slider">
+                </div>
+                <div style="text-align: center;padding-bottom: 1%; padding-top: 2%;">
+                    <div style="font-size: 12pt; color: aliceblue">Light Y Rotation</div>
+                    <input style="width: 95%;" type="range" min="-1.57" max="1.57"
+                           value="0.0" step="0.01" id="light-y-slider">
+                </div>
+                <div style="text-align: center;padding-bottom: 1%; padding-top: 2%;">
+                    <div style="font-size: 12pt; color: aliceblue">Light Z Rotation</div>
+                    <input style="width: 95%;" type="range" min="-1.57" max="1.57"
+                           value="0.0" step="0.01" id="light-z-slider">
+                </div>
+            </div>
+
+            <div style="text-align: center;padding: 10px;display: flex;flex-direction: row;bottom: 1%">
+                <button class="button addLightButton" style="font-size: 15pt;margin-right: 3px;" id="add-light-button">
+                    Add Light
+                </button>
+                <button class="button removeLightButton" style="font-size: 15pt;margin-left: 3px;"
+                        id="remove-light-button">
+                    Remove Light
+                </button>
+            </div>
         </div>
 
     </div>

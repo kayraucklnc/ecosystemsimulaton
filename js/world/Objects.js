@@ -40,17 +40,39 @@ class LightIndicator extends ObjectBases.WorldObjectBase {
         const sphereGeometry = new THREE.SphereGeometry(1.3);
         this.mesh = new THREE.Mesh(sphereGeometry, material);
 
-        this.setPos(this.light.position);
+        let lightPos = this.light.position;
+        this.setPos(lightPos);
         this.setRot(rotation);
+
+        this.spotlightTarget = new THREE.Object3D();
+        this.mesh.add(this.spotlightTarget);
+        this.spotlightTarget.position.y -= 10;
+        this.light.target = this.spotlightTarget;
+
+        this.wires = null;
+        if (parameters.simulation.showSpotlightWires) {
+            this.wires = new THREE.SpotLightHelper(this.light);
+            world.scene.add(this.wires);
+        }
     }
 
     update() {
         super.update();
 
-        if (this.getPos().distanceToSquared(this.light.position) > 0.01) {
+        if (this.getPos().distanceToSquared(this.light.position) > 0.0001) {
             let currentPos = this.getPos();
             this.light.position.set(currentPos.x, currentPos.y, currentPos.z);
         }
+
+        if (parameters.simulation.showSpotlightWires && this.wires == null) {
+            this.wires = new THREE.SpotLightHelper(this.light);
+            world.scene.add(this.wires);
+        } else if (!parameters.simulation.showSpotlightWires && this.wires != null) {
+            world.scene.remove(this.wires);
+            this.wires = null;
+        }
+
+        if (this.wires) this.wires.update();
     }
 }
 
@@ -1091,7 +1113,7 @@ class Human extends ObjectBases.MovableObjectBase {
         this.speed = 0.02 + 0.02 * (aggressiveness - 1.0) * 0.1;
 
         this.huntingDamage = 15 * aggressiveness;
-        this.hungerChangeOnHunt = -20 * aggressiveness;
+        // this.hungerChangeOnHunt = -20 * aggressiveness;
     }
 
     update() {
@@ -1296,6 +1318,8 @@ class Wall extends ObjectBases.WorldLargeObject {
 
         this.setPos(pos);
         this.setRot(rotation);
+
+        this.overrideRot = false;
 
         this.spawnAnimationStart(this);
     }

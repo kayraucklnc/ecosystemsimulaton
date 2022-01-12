@@ -15,6 +15,7 @@ struct SpotLight {
 uniform SpotLight spotLights[NUM_SPOT_LIGHTS];
 #endif
 
+
 in vec3 vNormal;
 in vec3 vPosition;
 uniform vec3 color;
@@ -93,6 +94,8 @@ void main() {
     //This is placeholder
     vec4 addedLights = vec4(0.0, 0.0, 0.0, 1.0);
 
+    vec3 colorA = vec3(0.0, 0.0, 0.0);
+    vec3 colorB = vec3(0.13333333333, 0.65882352941, 0.00000000000);
 
     #if NUM_SPOT_LIGHTS > 0
     for (int l = 0; l < NUM_SPOT_LIGHTS; l++) {
@@ -107,27 +110,27 @@ void main() {
 
         vec3 surfaceToLightDirection = normalize(distanceVec);
         vec3 u_lightDirection = spotLights[l].direction;
-        float dotFromDirection = dot(surfaceToLightDirection, -u_lightDirection);
-        if (dotFromDirection >= spotLights[l].coneCos) {
-            addedLights.rgb += mix(vec3(0.0, 0.0, 0.0), dot(-lightDirection, norm) * (spotLights[l].color * attuanation), map(dotFromDirection, spotLights[l].coneCos, 1.0, 0.0, 1.0));
-        }
+        float dotFromDirection = dot(surfaceToLightDirection, -vNormal);
+
+        float nSteps = 25.0;
+        vec3 endColor;
+
+        float reMapped = map(dotFromDirection, 0.0, 1.0, 0.0, 1.0);
+        float mixAmount = floor(reMapped / (1.0 / nSteps)) / (nSteps - 1.0);
+        endColor = mix(colorA, colorB, mixAmount);
+
+        gl_FragColor = vec4(endColor, 1.0);
     }
         #endif
-
-    addedLights = max(vec4(0.1), addedLights);
-    addedLights = min(vec4(1.5), addedLights);
-
-    gl_FragColor.xyz = (gl_FragColor * addedLights).xyz;
-
     //--------- Fog -------------
-    float depth = gl_FragCoord.z / gl_FragCoord.w;
-
-    const float LOG2 = 1.442695;
-    float fogNoise = snoise(worldPosition*0.05 + vec3(u_time/1.5, 0, 0)) + 1.0;
-    float fogFactor = exp2(- fogDensity * fogDensity * depth * depth * LOG2 * fogNoise);
-    fogFactor = (1.0 - clamp(fogFactor, 0.0, 1.0));
-
-    gl_FragColor = mix(gl_FragColor, vec4(fogColor, gl_FragColor.w), fogFactor);
+    //    float depth = gl_FragCoord.z / gl_FragCoord.w;
+    //
+    //    const float LOG2 = 1.442695;
+    //    float fogNoise = snoise(worldPosition*0.05 + vec3(u_time/1.5, 0, 0)) + 1.0;
+    //    float fogFactor = exp2(- fogDensity * fogDensity * depth * depth * LOG2 * fogNoise);
+    //    fogFactor = (1.0 - clamp(fogFactor, 0.0, 1.0));
+    //
+    //    gl_FragColor = mix(gl_FragColor, vec4(fogColor, gl_FragColor.w), fogFactor);
     //-----------------------
 
 

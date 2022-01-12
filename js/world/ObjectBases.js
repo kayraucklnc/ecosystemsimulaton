@@ -131,6 +131,11 @@ class LivingObjectBase extends WorldObjectBase {
         this.hungerDamage = 5;
     }
 
+    onDelete() {
+        super.onDelete();
+        this.hasDied = true;
+    }
+
     //Returns if object is dead after damage.
     applyDamage(damage) {
         this.health -= damage;

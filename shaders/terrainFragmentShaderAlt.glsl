@@ -112,7 +112,7 @@ void main() {
         vec3 u_lightDirection = spotLights[l].direction;
         float dotFromDirection = dot(surfaceToLightDirection, -u_lightDirection);
         if (dotFromDirection >= spotLights[l].coneCos) {
-            addedLights.rgb += mix(vec3(0.0, 0.0, 0.0), dot(-lightDirection, norm) * (spotLights[l].color * attuanation), map(dotFromDirection, spotLights[l].coneCos, 1.0, 0.15, 1.0));
+            addedLights.rgb += mix(vec3(0.0, 0.0, 0.0), dot(-lightDirection, N) * (spotLights[l].color * attuanation), map(dotFromDirection, spotLights[l].coneCos, 1.0, 0.15, 1.0));
         }
     }
         #endif

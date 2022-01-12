@@ -171,7 +171,6 @@ class Tree extends ObjectBases.LivingObjectBase {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
         this.health = 100;
-
         this.selectable = true;
 
         this.spawnPos = null;
@@ -1318,6 +1317,7 @@ class Human extends ObjectBases.MovableObjectBase {
 class Wall extends ObjectBases.WorldLargeObject {
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
+        this.selectable = true;
 
         const cube = new THREE.BoxGeometry(world.getCellSize(), 0.8, world.getCellSize()).translate(0, 0.3, 0);
         this.mesh = new THREE.Mesh(cube, material);
@@ -1336,6 +1336,7 @@ class House extends ObjectBases.WorldLargeObject {
     //a house will be placed in a random location within a 5x5 "reserved" area of the grid, the rest of the area will be used for wheat farms
     constructor(pos, rotation, material) {
         super(pos, rotation, material);
+        this.selectable = true;
 
         this.mesh = null;
         let scaleFactor = 1.0;

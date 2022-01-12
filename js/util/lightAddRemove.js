@@ -1,5 +1,5 @@
 import * as THREE from "../library/three.js-r135/build/three.module.js";
-import {LightIndicator} from "../world/Objects.js";
+import {LightIndicator, House, Wall} from "../world/Objects.js";
 import * as Materials from "../world/Materials.js";
 import {skyboxMaterial} from "../world/Materials.js";
 
@@ -86,7 +86,7 @@ class LightRotationChanger {
 }
 
 pickingEvents.addPickListener((pickedObject) => {
-    if (pickedObject instanceof LightIndicator) {
+    if (pickedObject instanceof LightIndicator || pickedObject instanceof House || pickedObject instanceof Wall) {
         showLightRotationControls();
 
         if (pickingEvents._lightRotationChanger) pickingEvents._lightRotationChanger.endListening();
@@ -95,7 +95,7 @@ pickingEvents.addPickListener((pickedObject) => {
 });
 
 pickingEvents.addFreeListener((freedObject) => {
-    if (freedObject instanceof LightIndicator) {
+    if (freedObject instanceof LightIndicator || freedObject instanceof House || freedObject instanceof Wall) {
         hideLightRotationControls();
 
         if (pickingEvents._lightRotationChanger) pickingEvents._lightRotationChanger.endListening();

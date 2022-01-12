@@ -37,7 +37,8 @@ class LightIndicator extends ObjectBases.WorldObjectBase {
 
         this.selectable = true;
 
-        const sphereGeometry = new THREE.SphereGeometry(1.3);
+        const sphereGeometry = new THREE.SphereGeometry(1);
+        sphereGeometry.scale(2, 1, 1);
         this.mesh = new THREE.Mesh(sphereGeometry, material);
 
         let lightPos = this.light.position;

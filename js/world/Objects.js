@@ -1114,6 +1114,7 @@ class Human extends ObjectBases.MovableObjectBase {
 
         this.huntingDamage = 15 * aggressiveness;
         // this.hungerChangeOnHunt = -20 * aggressiveness;
+        this.hungerChangeOnHunt = -20;
     }
 
     update() {

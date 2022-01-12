@@ -112,7 +112,6 @@ float map(float value, float min1, float max1, float min2, float max2) {
 void main() {
     vec3 p =  worldPosition;
 
-    //baslancg
     float time = u_time * 0.2 + 23.0;
     vec2 uv = p.xz * 0.08;
 
@@ -140,14 +139,13 @@ void main() {
     vec2 pixel = 2.0 / (0.2, 0.2);
     uv *= 2.0;
 
-    float f = floor(mod(u_time * 0.5, 2.0));// Flash value.
-    vec2 first = step(pixel, uv) * f;// Rule out first screen pixels and flash.
-    uv  = step(fract(uv) * 5.0, pixel) * 0.2;// Add one line of pixels per tile.
-    clr = mix(clr, vec3(1.0, 1.0, 0.0), (uv.x + uv.y) * first.x * first.y);// Yellow line
+    float f = floor(mod(u_time * 0.5, 2.0));
+    vec2 first = step(pixel, uv) * f;
+    uv  = step(fract(uv) * 5.0, pixel) * 0.2;
+    clr = mix(clr, vec3(1.0, 1.0, 0.0), (uv.x + uv.y) * first.x * first.y);
 
     #endif
     gl_FragColor = vec4(clr, 1.0);
-    //sonucc
 
     //----------- Lights -----------------
     vec3 norm = vNormal;

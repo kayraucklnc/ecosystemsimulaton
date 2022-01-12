@@ -9,12 +9,6 @@ class GUI {
         const terrainFolder = this.gui.addFolder("Terrain");
         const simulationFolder = this.gui.addFolder("Simulation");
 
-        // Not implemented.
-        // const cloudsFolder = this.gui.addFolder("Clouds");
-        // cloudsFolder.add(parameters.clouds, 'thickness', 0.1, 1).name("Thickness");
-        // cloudsFolder.add(parameters.clouds, 'size', 0.1, 1).name("Size");
-        // cloudsFolder.add(parameters.clouds, 'count', 0.1, 2).name("Count");
-
 
         this.planeScale = terrainFolder.add(parameters.plane, 'scale', 20, 1500).name("Plane Scale");
         this.heightMultiplier = terrainFolder.add(parameters.plane, 'heightMultiplier', 1, 30).name("Plane Height");
@@ -29,6 +23,8 @@ class GUI {
         this.showPaths = simulationFolder.add(parameters.simulation, 'showSpotlightWires').name("Light Wires");
         this.seed = simulationFolder.add(parameters.simulation, 'seed').name("Seed");
         this.enableEntities = simulationFolder.add(parameters.simulation, 'entities').name("Enable Entities");
+        this.lightIntensity = simulationFolder.add(parameters.simulation, 'lightIntensity', 0.01, 1).name("Light" +
+            " Intensity");
 
         this.setOnChanges();
     }
@@ -61,6 +57,12 @@ class GUI {
         });
         this.gridVisible.onChange(() => {
             world.grid.setGridVisible(parameters.plane.gridVisible);
+        });
+        this.lightIntensity.onChange(() => {
+            world.lights.forEach((x) => {
+                x.intensity = parameters.simulation.lightIntensity;
+                // x.distance = parameters.simulation.lightIntensity * 5;
+            })
         });
 
         this.seed.onFinishChange(() => {

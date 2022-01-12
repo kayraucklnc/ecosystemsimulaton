@@ -59,12 +59,12 @@ float snoise(vec3 p) {
     return dot(d, vec4(52.0));
 }
 
-vec3 coolShit(vec3 gel){
+vec3 coolFunc(vec3 gel){
     float reel = snoise(vec3(gel.x, gel.y, 0.0));
 
-    vec3 anan = vec3(sin(gel.x + reel), sin(gel.y), cos(gel.z));
-    vec3 baban = vec3(sin(gel.y), sin(gel.y), cos(gel.z));
-    return anan + baban;
+    vec3 a = vec3(sin(gel.x + reel), sin(gel.y), cos(gel.z));
+    vec3 b = vec3(sin(gel.y), sin(gel.y), cos(gel.z));
+    return a + b;
 }
 
 
@@ -83,8 +83,8 @@ void main() {
     vec3 color = vec3(0.);
 
     vec2 phase = vec2(-u_time * 2.0);
-    vec3 c = coolShit(vec3((worldPosition.xz + phase)  * scale, u_time*3.0));
-    vec3 c2 = coolShit(vec3((worldPosition.xz + 0.0) * scale * 0.02, u_time*3.0));
+    vec3 c = coolFunc(vec3((worldPosition.xz + phase)  * scale, u_time*3.0));
+    vec3 c2 = coolFunc(vec3((worldPosition.xz + 0.0) * scale * 0.02, u_time*3.0));
     c = c + c2;
 
     c = vec3(length(c.x));

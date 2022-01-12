@@ -65,7 +65,6 @@ void main() {
     vec3 color = vec3(0.);
     vec3 c = voronoi2(vec3(worldPosition.xz * scale, u_time / 2.0));
     c = vec3(length(c.x));
-    // isolines
     color = c.x*(0.5 + 0.05*sin(10.0*c.x + u_time * -6.0))*vec3(1.0);
     vec3 offset =  vec3(0.0, sin(color.x)*0.85, 0.0);
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position + offset, 1.0);

@@ -6,7 +6,7 @@
 [ Kayra ] Gui.js aklımıza gelen tüm ayarlarla doldurma.
 [ Kayra ] Dünyadaki kişi sayılarını canlı gösteren grafik.
 [ Kayra ] Procuderal Terrain [Scale/pos/resulution]
-[ Safa  ] Game object/Fox/Tree class data structure
+[ Safa ] Game object/Fox/Tree class data structure
 [ Safa ] Eşya seçme mouse ile sürükleyip hareket ettirme. (örn. Point Light.)
 [ Safa ] Dünyayı gridlere bölücez. Her birine bir entity gelecek.
 [ Kayra ] Brush ile dünyada değişiklikler yapılabilecek (Duvar, Ev, Ağaç, İnsan, Fox)

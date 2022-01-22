@@ -75,7 +75,7 @@ function loadObjectMeshes(resolve) {
 }
 
 function loadObject(resolve, path) {
-    let loader = new GLTFLoader().setPath('/models/');
+    let loader = new GLTFLoader().setPath('/ecosystemsimulaton/models/');
     loader.load(path, function (e) {
         resolve(e.scene.children[0]);
     });

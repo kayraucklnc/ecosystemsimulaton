@@ -206,7 +206,7 @@ function loadTextures(resolve) {
 }
 
 function loadShaders(resolve) {
-    let shaderFilePath = "ecosystemsimulaton/shaders/";
+    let shaderFilePath = "/ecosystemsimulaton/shaders/";
     let fileNames = [
         "vertexShader.glsl",
         "waveVertexShader.glsl",

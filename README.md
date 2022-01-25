@@ -42,3 +42,8 @@ Check *parameters.js* for config settings.
 
 [@SafaLeventoglu](https://github.com/safalevent)
 [@KayraUckilinc](https://github.com/kayraucklnc)
+
+## References
+[seedrandom](https://github.com/davidbau/seedrandom)
+[datastructures-js](https://github.com/eyas-ranjous/datastructures-js)
+[three.js](https://github.com/mrdoob/three.js/)

@@ -13,11 +13,12 @@
 1. three.js
 
 ## 🚀 Getting Started
-Download three.js through https://threejs.org
-Add **three.js** library with name **three.js-r135** under *ecosystemsimulaton\js\library* 
+- Download three.js through https://threejs.org.
+- Add **three.js** library with name **three.js-r135** under *ecosystemsimulaton\js\library*.
+- Setup a web-server for **index.html**.
 
 ## ⚙️ Configuration
-Check *parameters.js* for config settings
+Check *parameters.js* for config settings.
 
 ## 🈵Currently available locales are:
 - English (en)

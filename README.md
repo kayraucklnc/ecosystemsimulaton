@@ -1,4 +1,4 @@
-# ⛰Ecosystem Simulation (Discord Game Bot)
+# ⛰Ecosystem Simulation
 > Ecosystem Simulation is a Sandbox Simulation Tool we created using WebGL. It is a project aimed to show how humanity affects natural balance and what would change if humanity was more aggressive or friendly to nature.
 
 # 🌐 For Online version [click here](https://kayraucklnc.github.io/ecosystemsimulaton/)
